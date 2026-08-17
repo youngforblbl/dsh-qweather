@@ -4,7 +4,6 @@ DeepSeek Harness 的和风天气（QWeather）插件：把实时天气带进侧�
 
 [![license](https://img.shields.io/badge/license-MIT-green)](LICENSE) [![topic](https://img.shields.io/badge/topic-dsh--plugin-0969da)](https://github.com/topics/dsh-plugin)
 
-> **GitHub Topic：请为本仓库添加 `dsh-plugin`**（Repo → ⚙️ Settings → Topics → 输入 `dsh-plugin`）。这样插件会被 [dsh-plugin 主题](https://github.com/topics/dsh-plugin) 与 [awesome-dsh-plugin](https://github.com/awesome-dsh-plugin/awesome-dsh-plugin) 收录。
 
 [English](README.en.md) · [UI 预览](preview.html) · [图标全集](icons.html) · [API 文档](https://dev.qweather.com/docs/api/) · [变更日志](CHANGELOG.md)
 
