@@ -42,14 +42,18 @@ describe('buildCardFragment', () => {
     expect(fragment).not.toContain('qw-hr-temp')
     expect(fragment).toContain('class="qw-chart"')
     expect(fragment).toContain('qw-chart-chip')
-    expect(fragment).toContain('qw-chart-dot')
+    // 简洁单线：无描点
+    expect(fragment).not.toContain('qw-chart-dot')
     expect(fragment).toContain('33℃')
   })
   it('包含未来 5 小时 + 降水概率 + 气温曲线', () => {
     expect(fragment).toContain('50%')
     expect(fragment).toContain('qw-chart-svg')
     expect(fragment).toContain('qw-chart-line')
-    expect(fragment).toContain('qw-chart-fill')
+    // 温度渐变：高温橙（上）、低温蓝（下）；光效只有黑白
+    expect(fragment).toContain('qw-chart-stroke')
+    expect(fragment).toContain('qw-chart-ridge')
+    expect(fragment).not.toContain('qw-chart-fill')
     // 描点/标签按百分比定位，x 与小时格中心对齐（10/30/50/70/90）
     expect(fragment).toContain('left:10%')
     expect(fragment).toContain('left:50%')

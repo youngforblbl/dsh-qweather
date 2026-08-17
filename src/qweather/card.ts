@@ -34,13 +34,17 @@ const CARD_CSS = `
   --sh-dark:light-dark(rgba(148,163,184,.42),rgba(0,0,0,.6));
   --sh-light:light-dark(rgba(255,255,255,.95),rgba(96,116,150,.16));
   color:var(--f)}
+/* 卡片主体：纯玻璃渐变（无蓝橙内部渐变）；主题色放在卡片外部的对角光效阴影上——
+   左上偏天蓝、右下偏橙，内部仍保持白高光 + 黑投影的新拟态光影。 */
 .qw-card{position:relative;display:flex;flex-direction:column;gap:12px;border-radius:18px;padding:16px 18px 14px;border:1px solid var(--bd);
-  background:
-    radial-gradient(130% 100% at 10% -10%,light-dark(rgba(56,189,248,.20),rgba(80,140,255,.18)),transparent 46%),
-    radial-gradient(120% 110% at 105% 108%,light-dark(rgba(249,115,22,.13),rgba(251,146,60,.11)),transparent 48%),
-    linear-gradient(150deg,var(--glass-a),var(--glass-b));
+  background:linear-gradient(150deg,var(--glass-a),var(--glass-b));
   backdrop-filter:blur(16px) saturate(1.15);-webkit-backdrop-filter:blur(16px) saturate(1.15);
-  box-shadow:0 14px 34px light-dark(rgba(100,116,139,.22),rgba(0,0,0,.45)),10px 10px 24px var(--sh-dark),-10px -10px 24px var(--sh-light),inset 0 1px 0 light-dark(rgba(255,255,255,.9),rgba(255,255,255,.08))}
+  box-shadow:
+    -18px -16px 38px light-dark(rgba(56,189,248,.32),rgba(76,141,255,.20)),
+    18px 16px 38px light-dark(rgba(249,115,22,.22),rgba(251,146,60,.13)),
+    0 14px 34px light-dark(rgba(100,116,139,.22),rgba(0,0,0,.45)),
+    10px 10px 24px var(--sh-dark),-10px -10px 24px var(--sh-light),
+    inset 0 1px 0 light-dark(rgba(255,255,255,.9),rgba(255,255,255,.08))}
 .qw-head{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0}
 .qw-loc{font-size:14px;font-weight:800;letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .qw-updated{flex:none;font-size:11px;color:var(--m);font-variant-numeric:tabular-nums}
@@ -72,13 +76,9 @@ const CARD_CSS = `
 .qw-hr-text{font-size:10.5px;color:var(--m);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .qw-chart{position:relative;height:92px;margin-top:12px}
 .qw-chart-svg{display:block;width:100%;height:92px}
-.qw-chart-line{fill:none;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
-.qw-chart-shadow{fill:none;stroke-width:5.5;stroke-linecap:round;stroke-linejoin:round;opacity:.5;vector-effect:non-scaling-stroke}
-.qw-chart-ridge{fill:none;stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round;opacity:.8;vector-effect:non-scaling-stroke}
-.qw-chart-dot{position:absolute;transform:translate(-50%,-50%);width:11px;height:11px;border-radius:50%;
-  background:radial-gradient(circle at 32% 28%,#ffffff,var(--sky) 78%);
-  border:1.5px solid light-dark(#ffffff,#0e1626);
-  box-shadow:0 2px 6px light-dark(rgba(2,132,199,.35),rgba(0,0,0,.5)),0 0 0 3px light-dark(rgba(56,189,248,.18),rgba(76,141,255,.20))}
+.qw-chart-line{fill:none;stroke-width:3.8;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.qw-chart-shadow{fill:none;stroke-width:4.4;stroke-linecap:round;stroke-linejoin:round;opacity:.38;vector-effect:non-scaling-stroke}
+.qw-chart-ridge{fill:none;stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round;opacity:.8;vector-effect:non-scaling-stroke}
 .qw-chart-chip{position:absolute;transform:translate(-50%,-100%);font-size:10.5px;font-weight:700;color:var(--f);
   background:linear-gradient(150deg,var(--cell-a),var(--cell-b));border:1px solid var(--bd);border-radius:7px;padding:1px 6px;
   box-shadow:1px 2px 4px var(--sh-dark);font-variant-numeric:tabular-nums;white-space:nowrap}
@@ -123,13 +123,13 @@ const CHART_TOP = 34
 const CHART_BOTTOM = CHART_H - 8
 
 /**
- * 气温曲线（新拟态 + 玻璃拟态混合，直接作用于曲线本体）：
- * - 渐变面积（天蓝→透明）+ 描边渐变折线（浅天蓝→鲜艳橙，暗色微调）+ 辉光；
- * - 折线下垫一层半透明宽投影（右下深色）、上叠一条细高光脊（左上亮色），
- *   形成“浮起的玻璃棱线”；
- * - 描点 = 玻璃凸起圆钮（径向高光 + 外环光晕 + 投影）；
- * - 描点/标签按百分比绝对定位（HTML），任意卡片宽度下文字不变形，
- *   x 与上方 5 列小时格中心对齐；温度单位 ℃，只标注在曲线上。
+ * 气温曲线（简洁单线，新拟态光影）：
+ * - 只有一条渐变曲线：颜色按温度纵向渐变——高处（高温）= 鲜艳橙，
+ *   低处（低温）= 浅天蓝（暗色微调）；
+ * - 光效仅两笔：下方黑色细投影 + 上方白色细高光脊（与新拟态 UI 一致），
+ *   不做彩色辉光、不加渐变面积、不加描点，保持曲线完整简洁；
+ * - 温度标签芯片（℃）按百分比绝对定位（HTML），任意卡片宽度下文字不变形，
+ *   x 与上方 5 列小时格中心对齐。
  */
 export function tempChartSvg(hours: readonly HourlyWeather[]): string {
   if (hours.length < 2) return ''
@@ -143,37 +143,22 @@ export function tempChartSvg(hours: readonly HourlyWeather[]): string {
     return [x, y] as const
   })
   const line = smoothPath(points)
-  const last = points[points.length - 1]!
-  const first = points[0]!
-  const area = line + ' L' + last[0] + ',' + CHART_H + ' L' + first[0] + ',' + CHART_H + ' Z'
   const svg = `<svg class="qw-chart-svg" viewBox="0 0 ${CHART_W} ${CHART_H}" preserveAspectRatio="none" aria-hidden="true">`
     + '<defs>'
-    + '<linearGradient id="qw-chart-fill" x1="0" y1="0" x2="0" y2="1">'
-    + '<stop offset="0%" style="stop-color:var(--sky)" stop-opacity="0.30"/>'
-    + '<stop offset="70%" style="stop-color:var(--sky)" stop-opacity="0.06"/>'
-    + '<stop offset="100%" style="stop-color:var(--sky)" stop-opacity="0"/>'
+    + '<linearGradient id="qw-chart-stroke" gradientUnits="userSpaceOnUse" x1="0" y1="34" x2="0" y2="84">'
+    + '<stop offset="0%" style="stop-color:var(--orange)"/>'
+    + '<stop offset="100%" style="stop-color:var(--sky)"/>'
     + '</linearGradient>'
-    + '<linearGradient id="qw-chart-stroke" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="400" y2="0">'
-    + '<stop offset="0%" style="stop-color:var(--sky)"/>'
-    + '<stop offset="100%" style="stop-color:var(--orange)"/>'
-    + '</linearGradient>'
-    + '<filter id="qw-chart-glow" x="-20%" y="-30%" width="140%" height="160%">'
-    + '<feGaussianBlur stdDeviation="2.6" result="b"/>'
-    + '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>'
-    + '</filter>'
     + '</defs>'
-    + `<path d="${area}" fill="url(#qw-chart-fill)"/>`
-    + `<path class="qw-chart-shadow" d="${line}" transform="translate(0,1.8)" style="stroke:light-dark(rgba(148,163,184,.55),rgba(0,0,0,.5))"/>`
-    + `<path class="qw-chart-line" d="${line}" stroke="url(#qw-chart-stroke)" filter="url(#qw-chart-glow)"/>`
-    + `<path class="qw-chart-ridge" d="${line}" transform="translate(0,-1.1)" style="stroke:light-dark(rgba(255,255,255,.95),rgba(255,255,255,.25))"/>`
+    + `<path class="qw-chart-shadow" d="${line}" transform="translate(0,1.5)" style="stroke:light-dark(rgba(0,0,0,.26),rgba(0,0,0,.55))"/>`
+    + `<path class="qw-chart-line" d="${line}" stroke="url(#qw-chart-stroke)"/>`
+    + `<path class="qw-chart-ridge" d="${line}" transform="translate(0,-1)" style="stroke:light-dark(rgba(255,255,255,.95),rgba(255,255,255,.22))"/>`
     + '</svg>'
   const overlay = hours.map((hour, index) => {
     const [x, y] = points[index]!
     const left = 10 + index * 20
     const top = r1(y / CHART_H * 100)
-    const chip = `<span class="qw-chart-chip" style="left:${left}%;top:calc(${top}% - 7px)">${escapeHtml(round1(hour.temp))}℃</span>`
-    const dot = `<span class="qw-chart-dot" style="left:${left}%;top:${top}%"></span>`
-    return chip + dot
+    return `<span class="qw-chart-chip" style="left:${left}%;top:calc(${top}% - 7px)">${escapeHtml(round1(hour.temp))}℃</span>`
   }).join('')
   return `<div class="qw-chart">${svg}${overlay}</div>`
 }

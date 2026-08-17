@@ -14,8 +14,9 @@
   --sh-dark:rgba(0,0,0,.6); --sh-light:rgba(96,116,150,.16);
   --glow:rgba(0,0,0,.4); --dot:#101a2e;
   --hi:rgba(255,255,255,.08);
-  --line-sh:rgba(0,0,0,.5); --line-hi:rgba(255,255,255,.25);
+  --line-sh:rgba(0,0,0,.55); --line-hi:rgba(255,255,255,.22);
   --sky-aura:rgba(80,140,255,.18); --orange-aura:rgba(251,146,60,.11);
+  --glow-blue:rgba(76,141,255,.20); --glow-orange:rgba(251,146,60,.13);
   color-scheme: dark;
 }
 body.light {
@@ -27,8 +28,9 @@ body.light {
   --sh-dark:rgba(148,163,184,.42); --sh-light:rgba(255,255,255,.95);
   --glow:rgba(56,189,248,.25); --dot:#ffffff;
   --hi:rgba(255,255,255,.9);
-  --line-sh:rgba(148,163,184,.55); --line-hi:rgba(255,255,255,.95);
+  --line-sh:rgba(0,0,0,.26); --line-hi:rgba(255,255,255,.95);
   --sky-aura:rgba(56,189,248,.16); --orange-aura:rgba(249,115,22,.10);
+  --glow-blue:rgba(56,189,248,.32); --glow-orange:rgba(249,115,22,.22);
   color-scheme: light;
 }
 * { box-sizing: border-box }
@@ -62,9 +64,9 @@ h1 { font-size:19px; margin:0 0 4px }
 .rail .r-temp { font-size:12px; font-weight:700 }
 .card { display:flex; flex-direction:column; gap:10px; margin-top:14px; padding:13px; border-radius:16px;
   border:1px solid var(--border);
-  background:radial-gradient(130% 100% at 10% -10%,var(--sky-aura),transparent 46%),radial-gradient(120% 110% at 105% 108%,var(--orange-aura),transparent 48%),linear-gradient(150deg,var(--glass-a),var(--glass-b));
+  background:linear-gradient(150deg,var(--glass-a),var(--glass-b));
   backdrop-filter:blur(14px);
-  box-shadow:0 12px 28px rgba(0,0,0,.18),8px 8px 20px var(--sh-dark),-8px -8px 20px var(--sh-light),inset 0 1px 0 var(--hi) }
+  box-shadow:-14px -13px 32px var(--glow-blue),14px 13px 32px var(--glow-orange),0 12px 28px rgba(0,0,0,.18),8px 8px 20px var(--sh-dark),-8px -8px 20px var(--sh-light),inset 0 1px 0 var(--hi) }
 .card .head { display:flex; justify-content:space-between; align-items:center; font-size:12px; font-weight:800 }
 .now { display:flex; align-items:center; gap:8px }
 .now .tile { flex:none; display:flex; align-items:center; justify-content:center; width:38px; height:38px; border-radius:11px;
@@ -85,15 +87,19 @@ h1 { font-size:19px; margin:0 0 4px }
 .chip { position:absolute; transform:translate(-50%,-100%); font-size:9px; font-weight:700; color:var(--text);
   background:linear-gradient(150deg,var(--cell-a),var(--cell-b)); border:1px solid var(--border);
   border-radius:6px; padding:0 4px; box-shadow:1px 2px 4px var(--sh-dark); white-space:nowrap }
-.cdot { position:absolute; transform:translate(-50%,-50%); width:9px; height:9px; border-radius:50%;
-  background:radial-gradient(circle at 32% 28%,#ffffff,var(--sky) 78%);
-  border:1.5px solid var(--dot);
-  box-shadow:0 2px 5px var(--glow),0 0 0 2.5px color-mix(in srgb,var(--sky) 20%,transparent) }
+
 .sec { display:flex; align-items:center; gap:6px; font-size:10px; font-weight:700; letter-spacing:.6px; color:var(--mut); margin:2px 0 6px }
 .sec::before { content:''; width:3.5px; height:11px; border-radius:2px; background:linear-gradient(180deg,var(--sky),var(--orange)); box-shadow:0 1px 3px var(--sh-dark) }
-.alert { font-size:10.5px; line-height:1.45; padding:5px 8px; border:1px solid var(--border); border-left:3px solid var(--c);
+.alert-box { display:flex; flex-direction:column; gap:3px; padding:6px 8px; border:1px solid var(--border); border-left:3px solid var(--c);
   border-radius:9px; background:linear-gradient(150deg,color-mix(in srgb,var(--c) 12%,transparent),transparent 60%);
-  box-shadow:1px 2px 6px var(--sh-dark); white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+  box-shadow:1px 2px 6px var(--sh-dark) }
+.alert-box .ah { font-size:11.5px; font-weight:700; color:var(--text) }
+.alert-box .ab { font-size:10.5px; color:var(--mut); line-height:1.45;
+  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden }
+.badge { display:inline-flex; align-items:center; justify-content:center; min-width:16px; height:16px;
+  padding:0 5px; border-radius:8px; font-size:9.5px; font-weight:800; color:var(--orange);
+  background:linear-gradient(150deg,color-mix(in srgb,var(--c) 16%,transparent),transparent 70%);
+  border:1px solid color-mix(in srgb,var(--c) 35%,transparent) }
 .foot { display:flex; justify-content:space-between; font-size:10px; color:var(--sub); border-top:1px dashed var(--border); padding-top:8px }
 .tool { color:var(--mut); font-size:12px; margin-bottom:10px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
 .cardpanel { flex:1 1 480px; min-width:340px }
@@ -122,7 +128,7 @@ body.light { --tile-a:#e0f4ff; --tile-b:#bfe4ff }
           <span class="tile"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><defs><linearGradient id="qw-ic-pv-now" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" style="stop-color:#ffffff"/><stop offset="100%" style="stop-color:#c7d6ea"/></linearGradient></defs><g transform="translate(0,1.35)" opacity=".20"><defs><linearGradient id="qw-ic-pwpv-now" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" style="stop-color:#ffd08a"/><stop offset="100%" style="stop-color:#f97316"/></linearGradient></defs><g transform="translate(15.2,7.8) scale(0.68) translate(-12,-12)" stroke="#0b1220" data-u="pwpv-now)" stroke-width="2.3" stroke-linecap="round"><path d="M12 2.4v2.4M12 19.2v2.4M2.4 12h2.4M19.2 12h2.4M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/></g><circle cx="15.2" cy="7.8" r="3.06" fill="#0b1220" data-u="pwpv-now)"/><circle cx="14.383999999999999" cy="6.984" r="1.2240000000000002" fill="#ffffff" opacity=".4"/><g transform="translate(-0.6,0.6)"><circle cx="9" cy="14.8" r="3.5" fill="#0b1220" data-u="pv-now)"/><circle cx="13.4" cy="12.4" r="4.3" fill="#0b1220" data-u="pv-now)"/><circle cx="17.8" cy="15.2" r="3" fill="#0b1220" data-u="pv-now)"/><rect x="6.9" y="14.2" width="13.6" height="4.6" rx="2.3" fill="#0b1220" data-u="pv-now)"/><rect x="6.9" y="16" width="13.6" height="2.8" rx="1.4" fill="#7d95b8" opacity=".28"/></g><circle cx="12.6" cy="11" r="1.4" fill="#ffffff" opacity=".65"/></g><defs><linearGradient id="qw-ic-pwpv-now" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" style="stop-color:#ffd08a"/><stop offset="100%" style="stop-color:#f97316"/></linearGradient></defs><g transform="translate(15.2,7.8) scale(0.68) translate(-12,-12)" stroke="url(#qw-ic-pwpv-now)" stroke-width="2.3" stroke-linecap="round"><path d="M12 2.4v2.4M12 19.2v2.4M2.4 12h2.4M19.2 12h2.4M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/></g><circle cx="15.2" cy="7.8" r="3.06" fill="url(#qw-ic-pwpv-now)"/><circle cx="14.383999999999999" cy="6.984" r="1.2240000000000002" fill="#ffffff" opacity=".4"/><g transform="translate(-0.6,0.6)"><circle cx="9" cy="14.8" r="3.5" fill="url(#qw-ic-pv-now)"/><circle cx="13.4" cy="12.4" r="4.3" fill="url(#qw-ic-pv-now)"/><circle cx="17.8" cy="15.2" r="3" fill="url(#qw-ic-pv-now)"/><rect x="6.9" y="14.2" width="13.6" height="4.6" rx="2.3" fill="url(#qw-ic-pv-now)"/><rect x="6.9" y="16" width="13.6" height="2.8" rx="1.4" fill="#7d95b8" opacity=".28"/></g><circle cx="12.6" cy="11" r="1.4" fill="#ffffff" opacity=".65"/></svg></span>
           <span class="t num"><span>31.8</span><span class="deg">℃</span></span>
           <span class="mut" style="color:var(--mut);font-size:12px">多云</span>
-          <span class="meta"><span>体感 <b class="num">33.4℃</b></span><span>湿度 <b class="num">43%</b></span></span>
+          <span class="meta"><span>体感 <b class="num">32.9℃</b></span><span>湿度 <b class="num">42%</b></span></span>
         </div>
         <div class="sec">未来 5 小时</div>
         <div class="hours">
@@ -152,14 +158,14 @@ body.light { --tile-a:#e0f4ff; --tile-b:#bfe4ff }
         <span class="pop">0%</span>
       </div>
         </div>
-        <div class="curve" style="height:56px;margin-top:8px"><svg viewBox="0 0 320 56" preserveAspectRatio="none" style="display:block;width:100%;height:56px"><defs><linearGradient id="side-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--sky)" stop-opacity="0.28"/><stop offset="100%" stop-color="var(--sky)" stop-opacity="0"/></linearGradient><linearGradient id="side-stroke" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="320" y2="0"><stop offset="0%" stop-color="var(--sky)"/><stop offset="100%" stop-color="var(--orange)"/></linearGradient></defs><path d="M32.0,56 L32.0,22.0 96.0,27.4 160.0,35.7 224.0,43.1 288.0,48.0 L288.0,56 Z" fill="url(#side-fill)"/><polyline points="32.0,22.0 96.0,27.4 160.0,35.7 224.0,43.1 288.0,48.0" transform="translate(0,1.4)" style="fill:none;stroke:var(--line-sh);stroke-width:4.5;stroke-linejoin:round;stroke-linecap:round;opacity:.5;vector-effect:non-scaling-stroke"/><polyline points="32.0,22.0 96.0,27.4 160.0,35.7 224.0,43.1 288.0,48.0" style="fill:none;stroke:url(#side-stroke);stroke-width:2.6;stroke-linejoin:round;stroke-linecap:round;vector-effect:non-scaling-stroke"/><polyline points="32.0,22.0 96.0,27.4 160.0,35.7 224.0,43.1 288.0,48.0" transform="translate(0,-0.9)" style="fill:none;stroke:var(--line-hi);stroke-width:1.1;stroke-linejoin:round;stroke-linecap:round;opacity:.8;vector-effect:non-scaling-stroke"/></svg><span class="chip" style="left:10%;top:calc(39.3% - 6px)">31.9℃</span><span class="cdot" style="left:10%;top:39.3%"></span><span class="chip" style="left:30%;top:calc(48.9% - 6px)">31.1℃</span><span class="cdot" style="left:30%;top:48.9%"></span><span class="chip" style="left:50%;top:calc(63.7% - 6px)">29.8℃</span><span class="cdot" style="left:50%;top:63.7%"></span><span class="chip" style="left:70%;top:calc(76.9% - 6px)">28.6℃</span><span class="cdot" style="left:70%;top:76.9%"></span><span class="chip" style="left:90%;top:calc(85.7% - 6px)">27.8℃</span><span class="cdot" style="left:90%;top:85.7%"></span></div>
-        <div class="mut" style="font-size:11px">当前无黄色及以上预警</div>
-        <div class="foot"><span>更新于 16:38</span><span>和风天气</span></div>
+        <div class="curve" style="height:56px;margin-top:8px"><svg viewBox="0 0 320 56" preserveAspectRatio="none" style="display:block;width:100%;height:56px"><defs><linearGradient id="side-stroke" gradientUnits="userSpaceOnUse" x1="0" y1="14" x2="0" y2="48"><stop offset="0%" stop-color="var(--orange)"/><stop offset="100%" stop-color="var(--sky)"/></linearGradient></defs><polyline points="32.0,22.0 96.0,27.4 160.0,35.7 224.0,43.1 288.0,48.0" transform="translate(0,1.3)" style="fill:none;stroke:var(--line-sh);stroke-width:3.6;stroke-linejoin:round;stroke-linecap:round;opacity:.38;vector-effect:non-scaling-stroke"/><polyline points="32.0,22.0 96.0,27.4 160.0,35.7 224.0,43.1 288.0,48.0" style="fill:none;stroke:url(#side-stroke);stroke-width:3;stroke-linejoin:round;stroke-linecap:round;vector-effect:non-scaling-stroke"/><polyline points="32.0,22.0 96.0,27.4 160.0,35.7 224.0,43.1 288.0,48.0" transform="translate(0,-0.8)" style="fill:none;stroke:var(--line-hi);stroke-width:1;stroke-linejoin:round;stroke-linecap:round;opacity:.8;vector-effect:non-scaling-stroke"/></svg><span class="chip" style="left:10%;top:calc(39.3% - 6px)">31.9℃</span><span class="chip" style="left:30%;top:calc(48.9% - 6px)">31.1℃</span><span class="chip" style="left:50%;top:calc(63.7% - 6px)">29.8℃</span><span class="chip" style="left:70%;top:calc(76.9% - 6px)">28.6℃</span><span class="chip" style="left:90%;top:calc(85.7% - 6px)">27.8℃</span></div>
+        <div class="sec">重要预警<span class="badge" style="--c:#eab308">1</span></div><div class="alert-box" style="--c:#eab308"><div class="ah">高温黄色预警（演示数据）</div><div class="ab">预计未来三天最高气温将达 35℃ 以上，请做好防暑降温准备。</div></div>
+        <div class="foot"><span>更新于 16:55</span><span>和风天气</span></div>
       </div>
     </div>
     <div class="panel cardpanel">
       <h2>对话内天气卡片（qweather_card）</h2>
-      <div class="tool">已渲染「北京 · 北京市 天气」天气卡片（25177 字符）</div>
+      <div class="tool">已渲染「北京 · 北京市 天气」天气卡片（23820 字符）</div>
       <div class="qw">
 <style>
 .qw,.qw *{box-sizing:border-box}
@@ -179,13 +185,17 @@ body.light { --tile-a:#e0f4ff; --tile-b:#bfe4ff }
   --sh-dark:light-dark(rgba(148,163,184,.42),rgba(0,0,0,.6));
   --sh-light:light-dark(rgba(255,255,255,.95),rgba(96,116,150,.16));
   color:var(--f)}
+/* 卡片主体：纯玻璃渐变（无蓝橙内部渐变）；主题色放在卡片外部的对角光效阴影上——
+   左上偏天蓝、右下偏橙，内部仍保持白高光 + 黑投影的新拟态光影。 */
 .qw-card{position:relative;display:flex;flex-direction:column;gap:12px;border-radius:18px;padding:16px 18px 14px;border:1px solid var(--bd);
-  background:
-    radial-gradient(130% 100% at 10% -10%,light-dark(rgba(56,189,248,.20),rgba(80,140,255,.18)),transparent 46%),
-    radial-gradient(120% 110% at 105% 108%,light-dark(rgba(249,115,22,.13),rgba(251,146,60,.11)),transparent 48%),
-    linear-gradient(150deg,var(--glass-a),var(--glass-b));
+  background:linear-gradient(150deg,var(--glass-a),var(--glass-b));
   backdrop-filter:blur(16px) saturate(1.15);-webkit-backdrop-filter:blur(16px) saturate(1.15);
-  box-shadow:0 14px 34px light-dark(rgba(100,116,139,.22),rgba(0,0,0,.45)),10px 10px 24px var(--sh-dark),-10px -10px 24px var(--sh-light),inset 0 1px 0 light-dark(rgba(255,255,255,.9),rgba(255,255,255,.08))}
+  box-shadow:
+    -18px -16px 38px light-dark(rgba(56,189,248,.32),rgba(76,141,255,.20)),
+    18px 16px 38px light-dark(rgba(249,115,22,.22),rgba(251,146,60,.13)),
+    0 14px 34px light-dark(rgba(100,116,139,.22),rgba(0,0,0,.45)),
+    10px 10px 24px var(--sh-dark),-10px -10px 24px var(--sh-light),
+    inset 0 1px 0 light-dark(rgba(255,255,255,.9),rgba(255,255,255,.08))}
 .qw-head{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0}
 .qw-loc{font-size:14px;font-weight:800;letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .qw-updated{flex:none;font-size:11px;color:var(--m);font-variant-numeric:tabular-nums}
@@ -217,13 +227,9 @@ body.light { --tile-a:#e0f4ff; --tile-b:#bfe4ff }
 .qw-hr-text{font-size:10.5px;color:var(--m);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .qw-chart{position:relative;height:92px;margin-top:12px}
 .qw-chart-svg{display:block;width:100%;height:92px}
-.qw-chart-line{fill:none;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
-.qw-chart-shadow{fill:none;stroke-width:5.5;stroke-linecap:round;stroke-linejoin:round;opacity:.5;vector-effect:non-scaling-stroke}
-.qw-chart-ridge{fill:none;stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round;opacity:.8;vector-effect:non-scaling-stroke}
-.qw-chart-dot{position:absolute;transform:translate(-50%,-50%);width:11px;height:11px;border-radius:50%;
-  background:radial-gradient(circle at 32% 28%,#ffffff,var(--sky) 78%);
-  border:1.5px solid light-dark(#ffffff,#0e1626);
-  box-shadow:0 2px 6px light-dark(rgba(2,132,199,.35),rgba(0,0,0,.5)),0 0 0 3px light-dark(rgba(56,189,248,.18),rgba(76,141,255,.20))}
+.qw-chart-line{fill:none;stroke-width:3.8;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.qw-chart-shadow{fill:none;stroke-width:4.4;stroke-linecap:round;stroke-linejoin:round;opacity:.38;vector-effect:non-scaling-stroke}
+.qw-chart-ridge{fill:none;stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round;opacity:.8;vector-effect:non-scaling-stroke}
 .qw-chart-chip{position:absolute;transform:translate(-50%,-100%);font-size:10.5px;font-weight:700;color:var(--f);
   background:linear-gradient(150deg,var(--cell-a),var(--cell-b));border:1px solid var(--bd);border-radius:7px;padding:1px 6px;
   box-shadow:1px 2px 4px var(--sh-dark);font-variant-numeric:tabular-nums;white-space:nowrap}
@@ -240,7 +246,7 @@ body.light { --tile-a:#e0f4ff; --tile-b:#bfe4ff }
 <div class="qw-card">
 <div class="qw-head">
 <span class="qw-loc" title="北京 · 北京市">北京 · 北京市</span>
-<span class="qw-updated">更新于 16:38</span>
+<span class="qw-updated">更新于 16:55</span>
 </div>
 <div class="qw-now">
 <span class="qw-now-icon"><svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><defs><linearGradient id="qw-ic-now" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" style="stop-color:#ffffff"/><stop offset="100%" style="stop-color:#c7d6ea"/></linearGradient></defs><g transform="translate(0,1.35)" opacity=".20"><defs><linearGradient id="qw-ic-pwnow" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" style="stop-color:#ffd08a"/><stop offset="100%" style="stop-color:#f97316"/></linearGradient></defs><g transform="translate(15.2,7.8) scale(0.68) translate(-12,-12)" stroke="#0b1220" data-u="pwnow)" stroke-width="2.3" stroke-linecap="round"><path d="M12 2.4v2.4M12 19.2v2.4M2.4 12h2.4M19.2 12h2.4M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/></g><circle cx="15.2" cy="7.8" r="3.06" fill="#0b1220" data-u="pwnow)"/><circle cx="14.383999999999999" cy="6.984" r="1.2240000000000002" fill="#ffffff" opacity=".4"/><g transform="translate(-0.6,0.6)"><circle cx="9" cy="14.8" r="3.5" fill="#0b1220" data-u="now)"/><circle cx="13.4" cy="12.4" r="4.3" fill="#0b1220" data-u="now)"/><circle cx="17.8" cy="15.2" r="3" fill="#0b1220" data-u="now)"/><rect x="6.9" y="14.2" width="13.6" height="4.6" rx="2.3" fill="#0b1220" data-u="now)"/><rect x="6.9" y="16" width="13.6" height="2.8" rx="1.4" fill="#7d95b8" opacity=".28"/></g><circle cx="12.6" cy="11" r="1.4" fill="#ffffff" opacity=".65"/></g><defs><linearGradient id="qw-ic-pwnow" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" style="stop-color:#ffd08a"/><stop offset="100%" style="stop-color:#f97316"/></linearGradient></defs><g transform="translate(15.2,7.8) scale(0.68) translate(-12,-12)" stroke="url(#qw-ic-pwnow)" stroke-width="2.3" stroke-linecap="round"><path d="M12 2.4v2.4M12 19.2v2.4M2.4 12h2.4M19.2 12h2.4M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/></g><circle cx="15.2" cy="7.8" r="3.06" fill="url(#qw-ic-pwnow)"/><circle cx="14.383999999999999" cy="6.984" r="1.2240000000000002" fill="#ffffff" opacity=".4"/><g transform="translate(-0.6,0.6)"><circle cx="9" cy="14.8" r="3.5" fill="url(#qw-ic-now)"/><circle cx="13.4" cy="12.4" r="4.3" fill="url(#qw-ic-now)"/><circle cx="17.8" cy="15.2" r="3" fill="url(#qw-ic-now)"/><rect x="6.9" y="14.2" width="13.6" height="4.6" rx="2.3" fill="url(#qw-ic-now)"/><rect x="6.9" y="16" width="13.6" height="2.8" rx="1.4" fill="#7d95b8" opacity=".28"/></g><circle cx="12.6" cy="11" r="1.4" fill="#ffffff" opacity=".65"/></svg></span>
@@ -248,7 +254,7 @@ body.light { --tile-a:#e0f4ff; --tile-b:#bfe4ff }
 <span class="qw-now-temp"><span class="n">31.8</span><span class="deg">℃</span></span>
 <span class="qw-now-text">多云</span>
 </div>
-<div class="qw-now-meta"><span class="k">体感</span><span class="v">33.4℃</span><span class="k">湿度</span><span class="v">43%</span><span class="k">风</span><span class="v">东北风 2级</span></div>
+<div class="qw-now-meta"><span class="k">体感</span><span class="v">32.9℃</span><span class="k">湿度</span><span class="v">42%</span><span class="k">风</span><span class="v">东北风 2级</span></div>
 </div>
 <div>
 <div class="qw-sec-title">未来 5 小时</div>
@@ -284,7 +290,7 @@ body.light { --tile-a:#e0f4ff; --tile-b:#bfe4ff }
 <span class="qw-hr-text" title="晴间多云">晴间多云</span>
 </div>
 </div>
-<div class="qw-chart"><svg class="qw-chart-svg" viewBox="0 0 400 92" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="qw-chart-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" style="stop-color:var(--sky)" stop-opacity="0.30"/><stop offset="70%" style="stop-color:var(--sky)" stop-opacity="0.06"/><stop offset="100%" style="stop-color:var(--sky)" stop-opacity="0"/></linearGradient><linearGradient id="qw-chart-stroke" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="400" y2="0"><stop offset="0%" style="stop-color:var(--sky)"/><stop offset="100%" style="stop-color:var(--orange)"/></linearGradient><filter id="qw-chart-glow" x="-20%" y="-30%" width="140%" height="160%"><feGaussianBlur stdDeviation="2.6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><path d="M40,34 C53.3,35.7 93.3,40 120,44.4 C146.7,48.8 173.3,55.3 200,60.3 C226.7,65.3 253.3,70.6 280,74.5 C306.7,78.5 346.7,82.4 360,84 L360,92 L40,92 Z" fill="url(#qw-chart-fill)"/><path class="qw-chart-shadow" d="M40,34 C53.3,35.7 93.3,40 120,44.4 C146.7,48.8 173.3,55.3 200,60.3 C226.7,65.3 253.3,70.6 280,74.5 C306.7,78.5 346.7,82.4 360,84" transform="translate(0,1.8)" style="stroke:light-dark(rgba(148,163,184,.55),rgba(0,0,0,.5))"/><path class="qw-chart-line" d="M40,34 C53.3,35.7 93.3,40 120,44.4 C146.7,48.8 173.3,55.3 200,60.3 C226.7,65.3 253.3,70.6 280,74.5 C306.7,78.5 346.7,82.4 360,84" stroke="url(#qw-chart-stroke)" filter="url(#qw-chart-glow)"/><path class="qw-chart-ridge" d="M40,34 C53.3,35.7 93.3,40 120,44.4 C146.7,48.8 173.3,55.3 200,60.3 C226.7,65.3 253.3,70.6 280,74.5 C306.7,78.5 346.7,82.4 360,84" transform="translate(0,-1.1)" style="stroke:light-dark(rgba(255,255,255,.95),rgba(255,255,255,.25))"/></svg><span class="qw-chart-chip" style="left:10%;top:calc(37% - 7px)">31.9℃</span><span class="qw-chart-dot" style="left:10%;top:37%"></span><span class="qw-chart-chip" style="left:30%;top:calc(48.3% - 7px)">31.1℃</span><span class="qw-chart-dot" style="left:30%;top:48.3%"></span><span class="qw-chart-chip" style="left:50%;top:calc(65.5% - 7px)">29.8℃</span><span class="qw-chart-dot" style="left:50%;top:65.5%"></span><span class="qw-chart-chip" style="left:70%;top:calc(81% - 7px)">28.6℃</span><span class="qw-chart-dot" style="left:70%;top:81%"></span><span class="qw-chart-chip" style="left:90%;top:calc(91.3% - 7px)">27.8℃</span><span class="qw-chart-dot" style="left:90%;top:91.3%"></span></div>
+<div class="qw-chart"><svg class="qw-chart-svg" viewBox="0 0 400 92" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="qw-chart-stroke" gradientUnits="userSpaceOnUse" x1="0" y1="34" x2="0" y2="84"><stop offset="0%" style="stop-color:var(--orange)"/><stop offset="100%" style="stop-color:var(--sky)"/></linearGradient></defs><path class="qw-chart-shadow" d="M40,34 C53.3,35.7 93.3,40 120,44.4 C146.7,48.8 173.3,55.3 200,60.3 C226.7,65.3 253.3,70.6 280,74.5 C306.7,78.5 346.7,82.4 360,84" transform="translate(0,1.5)" style="stroke:light-dark(rgba(0,0,0,.26),rgba(0,0,0,.55))"/><path class="qw-chart-line" d="M40,34 C53.3,35.7 93.3,40 120,44.4 C146.7,48.8 173.3,55.3 200,60.3 C226.7,65.3 253.3,70.6 280,74.5 C306.7,78.5 346.7,82.4 360,84" stroke="url(#qw-chart-stroke)"/><path class="qw-chart-ridge" d="M40,34 C53.3,35.7 93.3,40 120,44.4 C146.7,48.8 173.3,55.3 200,60.3 C226.7,65.3 253.3,70.6 280,74.5 C306.7,78.5 346.7,82.4 360,84" transform="translate(0,-1)" style="stroke:light-dark(rgba(255,255,255,.95),rgba(255,255,255,.22))"/></svg><span class="qw-chart-chip" style="left:10%;top:calc(37% - 7px)">31.9℃</span><span class="qw-chart-chip" style="left:30%;top:calc(48.3% - 7px)">31.1℃</span><span class="qw-chart-chip" style="left:50%;top:calc(65.5% - 7px)">29.8℃</span><span class="qw-chart-chip" style="left:70%;top:calc(81% - 7px)">28.6℃</span><span class="qw-chart-chip" style="left:90%;top:calc(91.3% - 7px)">27.8℃</span></div>
 </div>
 <div>
 <div class="qw-sec-title">重要预警</div>

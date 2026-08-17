@@ -46,13 +46,15 @@ const railButton: CSSProperties = {
   background: 'transparent', border: 'none', cursor: 'pointer', color: fg, borderRadius: 12,
 }
 
+// 卡片主体：纯玻璃渐变；主题色在卡片外部的对角光效阴影上（左上蓝、右下橙），
+// 内部保持白高光 + 黑投影的新拟态光影。
 const card: CSSProperties = {
   position: 'relative', display: 'flex', flexDirection: 'column', gap: 10,
   margin: '6px 0', padding: '13px 13px 11px',
   border: '1px solid ' + bd, borderRadius: 16,
-  background: 'radial-gradient(130% 100% at 10% -10%,light-dark(rgba(56,189,248,.20),rgba(76,141,255,.16)),transparent 46%),radial-gradient(120% 110% at 105% 108%,light-dark(rgba(249,115,22,.12),rgba(251,146,60,.10)),transparent 48%),linear-gradient(150deg,' + glassA + ',' + glassB + ')',
+  background: 'linear-gradient(150deg,' + glassA + ',' + glassB + ')',
   backdropFilter: 'blur(14px) saturate(1.15)', WebkitBackdropFilter: 'blur(14px) saturate(1.15)',
-  boxShadow: '0 12px 28px light-dark(rgba(100,116,139,.20),rgba(0,0,0,.45)),8px 8px 20px ' + shDark + ',-8px -8px 20px ' + shLight + ',inset 0 1px 0 light-dark(rgba(255,255,255,.9),rgba(255,255,255,.07))',
+  boxShadow: '-14px -13px 32px light-dark(rgba(56,189,248,.32),rgba(76,141,255,.20)),14px 13px 32px light-dark(rgba(249,115,22,.22),rgba(251,146,60,.13)),0 12px 28px light-dark(rgba(100,116,139,.20),rgba(0,0,0,.45)),8px 8px 20px ' + shDark + ',-8px -8px 20px ' + shLight + ',inset 0 1px 0 light-dark(rgba(255,255,255,.9),rgba(255,255,255,.07))',
 }
 
 const row: CSSProperties = { display: 'flex', alignItems: 'center', gap: 8 }
@@ -84,10 +86,10 @@ function IconTile({ code, size, tileSize, uid }: { code: string; size: number; t
 }
 
 /**
- * 迷你气温曲线（新拟态 + 玻璃拟态作用于曲线本体）：
- * 渐变面积 + 描边渐变折线（浅天蓝→橙）+ 底层宽投影 + 顶部高光脊，
- * 玻璃凸起描点；HTML 百分比定位的标签芯片（℃）任意宽度不变形，
- * 描点 x 与上方小时格中心对齐。
+ * 迷你气温曲线（简洁单线，新拟态光影）：
+ * 一条渐变曲线——高处（高温）橙色、低处（低温）天蓝；
+ * 下方黑色细投影 + 上方白色细高光脊，无面积、无描点；
+ * HTML 百分比定位的温度标签芯片（℃）任意宽度不变形，与小时格中心对齐。
  */
 function MiniCurve({ hours }: { hours: readonly { temp: number }[] }) {
   if (hours.length < 2) return null
@@ -100,65 +102,71 @@ function MiniCurve({ hours }: { hours: readonly { temp: number }[] }) {
   const xs = hours.map((_, index) => 32 + index * 64) // 320 * (10% + i*20%)
   const ys = temps.map((temp) => H - 8 - ((temp - min) / span) * (H - 30))
   const points = xs.map((x, index) => x.toFixed(1) + ',' + ys[index]!.toFixed(1)).join(' ')
-  const area = 'M' + xs[0]!.toFixed(1) + ',' + H + ' L' + points + ' L' + xs[xs.length - 1]!.toFixed(1) + ',' + H + ' Z'
   return (
     <div style={{ position: 'relative', height: H, marginTop: 8 }} aria-label="气温曲线">
       <svg viewBox={'0 0 ' + W + ' ' + H} preserveAspectRatio="none" style={{ display: 'block', width: '100%', height: H }}>
         <defs>
-          <linearGradient id="qw-side-chart-fill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" style={{ stopColor: sky }} stopOpacity={0.28} />
-            <stop offset="100%" style={{ stopColor: sky }} stopOpacity={0} />
-          </linearGradient>
-          <linearGradient id="qw-side-chart-stroke" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="320" y2="0">
-            <stop offset="0%" style={{ stopColor: sky }} />
-            <stop offset="100%" style={{ stopColor: orange }} />
+          <linearGradient id="qw-side-chart-stroke" gradientUnits="userSpaceOnUse" x1="0" y1="14" x2="0" y2="48">
+            <stop offset="0%" style={{ stopColor: orange }} />
+            <stop offset="100%" style={{ stopColor: sky }} />
           </linearGradient>
         </defs>
-        <path d={area} fill="url(#qw-side-chart-fill)" />
-        <polyline points={points} transform="translate(0,1.4)" style={{ fill: 'none', stroke: 'light-dark(rgba(148,163,184,.55),rgba(0,0,0,.5))', strokeWidth: 4.5, strokeLinejoin: 'round', strokeLinecap: 'round', opacity: 0.5, vectorEffect: 'non-scaling-stroke' }} />
-        <polyline points={points} style={{ fill: 'none', stroke: 'url(#qw-side-chart-stroke)', strokeWidth: 2.6, strokeLinejoin: 'round', strokeLinecap: 'round', vectorEffect: 'non-scaling-stroke' }} />
-        <polyline points={points} transform="translate(0,-0.9)" style={{ fill: 'none', stroke: 'light-dark(rgba(255,255,255,.95),rgba(255,255,255,.25))', strokeWidth: 1.1, strokeLinejoin: 'round', strokeLinecap: 'round', opacity: 0.8, vectorEffect: 'non-scaling-stroke' }} />
+        <polyline points={points} transform="translate(0,1.3)" style={{ fill: 'none', stroke: 'light-dark(rgba(0,0,0,.26),rgba(0,0,0,.55))', strokeWidth: 3.6, strokeLinejoin: 'round', strokeLinecap: 'round', opacity: 0.38, vectorEffect: 'non-scaling-stroke' }} />
+        <polyline points={points} style={{ fill: 'none', stroke: 'url(#qw-side-chart-stroke)', strokeWidth: 3, strokeLinejoin: 'round', strokeLinecap: 'round', vectorEffect: 'non-scaling-stroke' }} />
+        <polyline points={points} transform="translate(0,-0.8)" style={{ fill: 'none', stroke: 'light-dark(rgba(255,255,255,.95),rgba(255,255,255,.22))', strokeWidth: 1, strokeLinejoin: 'round', strokeLinecap: 'round', opacity: 0.8, vectorEffect: 'non-scaling-stroke' }} />
       </svg>
       {hours.map((hour, index) => {
         const left = 10 + index * 20
         const top = ys[index]! / H * 100
         return (
-          <span key={index}>
-            <span style={{
-              position: 'absolute', left: left + '%', top: 'calc(' + top.toFixed(1) + '% - 6px)',
-              transform: 'translate(-50%,-100%)', fontSize: 9, fontWeight: 700, color: fg,
-              background: 'linear-gradient(150deg,' + cellA + ',' + cellB + ')', border: '1px solid ' + bd,
-              borderRadius: 6, padding: '0 4px', boxShadow: '1px 2px 4px ' + shDark, ...num,
-            }}>{round1(hour.temp)}℃</span>
-            <span style={{
-              position: 'absolute', left: left + '%', top: top.toFixed(1) + '%',
-              transform: 'translate(-50%,-50%)', width: 9, height: 9, borderRadius: '50%',
-              background: 'radial-gradient(circle at 32% 28%,#ffffff,' + sky + ' 78%)',
-              border: '1.5px solid light-dark(#ffffff,#0e1626)',
-              boxShadow: '0 2px 5px light-dark(rgba(2,132,199,.35),rgba(0,0,0,.5)),0 0 0 2.5px light-dark(rgba(56,189,248,.18),rgba(76,141,255,.20))',
-            }} />
-          </span>
+          <span key={index} style={{
+            position: 'absolute', left: left + '%', top: 'calc(' + top.toFixed(1) + '% - 6px)',
+            transform: 'translate(-50%,-100%)', fontSize: 9, fontWeight: 700, color: fg,
+            background: 'linear-gradient(150deg,' + cellA + ',' + cellB + ')', border: '1px solid ' + bd,
+            borderRadius: 6, padding: '0 4px', boxShadow: '1px 2px 4px ' + shDark, ...num,
+          }}>{round1(hour.temp)}℃</span>
         )
       })}
     </div>
   )
 }
 
-/** 预警行（仅黄色及以上，最多 2 条）。 */
+/**
+ * 预警区：排版与对话内天气卡片完全一致——
+ * 章节标题（渐变竖条 + 计数徽章）+ 左侧色条、着色渐变玻璃底、
+ * 标题（正文字色加粗）+ 正文（弱化色）两行结构。
+ */
 function AlertRows({ bundle }: { bundle: WeatherBundle }) {
   const alerts = (bundle.alerts ?? []).filter(isYellowOrAbove).slice(0, 2)
   if (alerts.length === 0) return null
+  const badgeColor = warningColorOf(alerts[0]!.color)
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 10, fontWeight: 700, letterSpacing: '.6px', color: muted }}>
+        <span style={{ width: 3.5, height: 11, borderRadius: 2, background: 'linear-gradient(180deg,' + sky + ',' + orange + ')' }} />
+        重要预警
+        <span style={{
+          display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minWidth: 16, height: 16,
+          padding: '0 5px', borderRadius: 8, fontSize: 9.5, fontWeight: 800, color: orange,
+          background: 'linear-gradient(150deg,color-mix(in srgb,' + badgeColor + ' 16%,transparent),transparent 70%)',
+          border: '1px solid color-mix(in srgb,' + badgeColor + ' 35%,transparent)',
+          ...num,
+        }}>{alerts.length}</span>
+      </div>
       {alerts.map((alert) => (
         <div key={alert.id} style={{
-          fontSize: 10.5, lineHeight: 1.45, padding: '5px 8px', borderRadius: 9,
+          display: 'flex', flexDirection: 'column', gap: 3, padding: '6px 8px', borderRadius: 9,
           border: '1px solid ' + bd, borderLeft: '3px solid ' + warningColorOf(alert.color),
           background: 'linear-gradient(150deg,color-mix(in srgb,' + warningColorOf(alert.color) + ' 12%,transparent),transparent 60%)',
           boxShadow: '1px 2px 6px ' + shDark,
-          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
         }}>
-          {alert.headline}
+          <div style={{ fontSize: 11.5, fontWeight: 700, color: fg }}>{alert.headline}</div>
+          {alert.text !== undefined && alert.text.trim().length > 0 && (
+            <div style={{
+              fontSize: 10.5, color: muted, lineHeight: 1.45,
+              display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden',
+            }}>{alert.text}</div>
+          )}
         </div>
       ))}
     </div>
