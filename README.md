@@ -23,7 +23,7 @@ UI 视觉风格参考 [uupm.cc/demo/investment-platform](https://uupm.cc/demo/in
 
 | 深色（默认） | 浅色 |
 | --- | --- |
-| ![深色预览](assets/preview-dark.png) | ![浅色预览](assets/preview-light.png) |
+| <img width="1215" height="954" alt="image" src="https://github.com/user-attachments/assets/dcd8c48a-cb41-4058-a9f7-866e65dd201e" />| <img width="1223" height="950" alt="image" src="https://github.com/user-attachments/assets/f7f27809-1977-4a73-89ad-a9d972323f27" />|
 
 ## 快速预览
 
