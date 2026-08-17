@@ -7,32 +7,21 @@
     "lat": 39.90499,
     "lon": 116.40529
   },
-  "receivedAt": "2026-08-17T08:55:00.463Z",
+  "receivedAt": "2026-08-17T09:04:35.310Z",
   "now": {
-    "temp": 31.82,
-    "feelsLike": 32.93,
+    "temp": 31.95,
+    "feelsLike": 32.54,
     "icon": "101",
     "text": "多云",
-    "humidity": 42,
+    "humidity": 41,
     "windDir": "东北风",
     "windScale": 2,
     "precip": 0,
-    "pressure": 1006.29,
+    "pressure": 1006.27,
     "vis": 30,
     "cloud": 30
   },
   "hours": [
-    {
-      "time": "2026-08-17T17:00+08:00",
-      "temp": 31.89,
-      "icon": "103",
-      "text": "晴间多云",
-      "pop": 0,
-      "precip": 0,
-      "humidity": 44,
-      "windDir": "南东南风",
-      "windScale": 2
-    },
     {
       "time": "2026-08-17T18:00+08:00",
       "temp": 31.05,
@@ -75,6 +64,17 @@
       "precip": 0,
       "humidity": 65,
       "windDir": "南风",
+      "windScale": 2
+    },
+    {
+      "time": "2026-08-17T22:00+08:00",
+      "temp": 27.51,
+      "icon": "153",
+      "text": "晴间多云",
+      "pop": 0,
+      "precip": 0,
+      "humidity": 71,
+      "windDir": "南东南风",
       "windScale": 2
     }
   ],

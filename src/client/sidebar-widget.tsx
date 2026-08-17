@@ -54,7 +54,7 @@ const card: CSSProperties = {
   border: '1px solid ' + bd, borderRadius: 16,
   background: 'linear-gradient(150deg,' + glassA + ',' + glassB + ')',
   backdropFilter: 'blur(14px) saturate(1.15)', WebkitBackdropFilter: 'blur(14px) saturate(1.15)',
-  boxShadow: '-14px -13px 32px light-dark(rgba(56,189,248,.32),rgba(76,141,255,.20)),14px 13px 32px light-dark(rgba(249,115,22,.22),rgba(251,146,60,.13)),0 12px 28px light-dark(rgba(100,116,139,.20),rgba(0,0,0,.45)),8px 8px 20px ' + shDark + ',-8px -8px 20px ' + shLight + ',inset 0 1px 0 light-dark(rgba(255,255,255,.9),rgba(255,255,255,.07))',
+  boxShadow: '-7px -6px 16px light-dark(rgba(56,189,248,.18),rgba(76,141,255,.11)),7px 6px 16px light-dark(rgba(249,115,22,.12),rgba(251,146,60,.08)),0 12px 28px light-dark(rgba(100,116,139,.20),rgba(0,0,0,.45)),8px 8px 20px ' + shDark + ',-8px -8px 20px ' + shLight + ',inset 0 1px 0 light-dark(rgba(255,255,255,.9),rgba(255,255,255,.07))',
 }
 
 const row: CSSProperties = { display: 'flex', alignItems: 'center', gap: 8 }
@@ -111,9 +111,9 @@ function MiniCurve({ hours }: { hours: readonly { temp: number }[] }) {
             <stop offset="100%" style={{ stopColor: sky }} />
           </linearGradient>
         </defs>
-        <polyline points={points} transform="translate(0,1.3)" style={{ fill: 'none', stroke: 'light-dark(rgba(0,0,0,.26),rgba(0,0,0,.55))', strokeWidth: 3.6, strokeLinejoin: 'round', strokeLinecap: 'round', opacity: 0.38, vectorEffect: 'non-scaling-stroke' }} />
-        <polyline points={points} style={{ fill: 'none', stroke: 'url(#qw-side-chart-stroke)', strokeWidth: 3, strokeLinejoin: 'round', strokeLinecap: 'round', vectorEffect: 'non-scaling-stroke' }} />
-        <polyline points={points} transform="translate(0,-0.8)" style={{ fill: 'none', stroke: 'light-dark(rgba(255,255,255,.95),rgba(255,255,255,.22))', strokeWidth: 1, strokeLinejoin: 'round', strokeLinecap: 'round', opacity: 0.8, vectorEffect: 'non-scaling-stroke' }} />
+        <polyline points={points} transform="translate(0,1.6)" style={{ fill: 'none', stroke: 'light-dark(rgba(0,0,0,.22),rgba(0,0,0,.5))', strokeWidth: 10, strokeLinejoin: 'round', strokeLinecap: 'round', opacity: 0.35, vectorEffect: 'non-scaling-stroke' }} />
+        <polyline points={points} style={{ fill: 'none', stroke: 'url(#qw-side-chart-stroke)', strokeWidth: 9, strokeLinejoin: 'round', strokeLinecap: 'round', vectorEffect: 'non-scaling-stroke' }} />
+        <polyline points={points} transform="translate(0,-3.2)" style={{ fill: 'none', stroke: 'light-dark(rgba(255,255,255,.95),rgba(255,255,255,.22))', strokeWidth: 1.6, strokeLinejoin: 'round', strokeLinecap: 'round', opacity: 0.8, vectorEffect: 'non-scaling-stroke' }} />
       </svg>
       {hours.map((hour, index) => {
         const left = 10 + index * 20
@@ -122,8 +122,7 @@ function MiniCurve({ hours }: { hours: readonly { temp: number }[] }) {
           <span key={index} style={{
             position: 'absolute', left: left + '%', top: 'calc(' + top.toFixed(1) + '% - 6px)',
             transform: 'translate(-50%,-100%)', fontSize: 9, fontWeight: 700, color: fg,
-            background: 'linear-gradient(150deg,' + cellA + ',' + cellB + ')', border: '1px solid ' + bd,
-            borderRadius: 6, padding: '0 4px', boxShadow: '1px 2px 4px ' + shDark, ...num,
+            textShadow: '0 1px 0 light-dark(rgba(255,255,255,.6),rgba(0,0,0,.35))', ...num,
           }}>{round1(hour.temp)}℃</span>
         )
       })}

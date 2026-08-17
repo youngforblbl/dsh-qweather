@@ -34,9 +34,9 @@ const sideCurve = `<div class="curve" style="height:${H}px;margin-top:8px">`
   + `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="display:block;width:100%;height:${H}px">`
   + '<defs><linearGradient id="side-stroke" gradientUnits="userSpaceOnUse" x1="0" y1="14" x2="0" y2="48">'
   + '<stop offset="0%" stop-color="var(--orange)"/><stop offset="100%" stop-color="var(--sky)"/></linearGradient></defs>'
-  + `<polyline points="${tPoints}" transform="translate(0,1.3)" style="fill:none;stroke:var(--line-sh);stroke-width:3.6;stroke-linejoin:round;stroke-linecap:round;opacity:.38;vector-effect:non-scaling-stroke"/>`
-  + `<polyline points="${tPoints}" style="fill:none;stroke:url(#side-stroke);stroke-width:3;stroke-linejoin:round;stroke-linecap:round;vector-effect:non-scaling-stroke"/>`
-  + `<polyline points="${tPoints}" transform="translate(0,-0.8)" style="fill:none;stroke:var(--line-hi);stroke-width:1;stroke-linejoin:round;stroke-linecap:round;opacity:.8;vector-effect:non-scaling-stroke"/>`
+  + `<polyline points="${tPoints}" transform="translate(0,1.6)" style="fill:none;stroke:var(--line-sh);stroke-width:10;stroke-linejoin:round;stroke-linecap:round;opacity:.35;vector-effect:non-scaling-stroke"/>`
+  + `<polyline points="${tPoints}" style="fill:none;stroke:url(#side-stroke);stroke-width:9;stroke-linejoin:round;stroke-linecap:round;vector-effect:non-scaling-stroke"/>`
+  + `<polyline points="${tPoints}" transform="translate(0,-3.2)" style="fill:none;stroke:var(--line-hi);stroke-width:1.6;stroke-linejoin:round;stroke-linecap:round;opacity:.8;vector-effect:non-scaling-stroke"/>`
   + '</svg>'
   + tXs.map((x, i) => {
     const left = 10 + i * 20
@@ -68,9 +68,9 @@ const html = `<!doctype html>
   --sh-dark:rgba(0,0,0,.6); --sh-light:rgba(96,116,150,.16);
   --glow:rgba(0,0,0,.4); --dot:#101a2e;
   --hi:rgba(255,255,255,.08);
-  --line-sh:rgba(0,0,0,.55); --line-hi:rgba(255,255,255,.22);
+  --line-sh:rgba(0,0,0,.5); --line-hi:rgba(255,255,255,.22);
   --sky-aura:rgba(80,140,255,.18); --orange-aura:rgba(251,146,60,.11);
-  --glow-blue:rgba(76,141,255,.20); --glow-orange:rgba(251,146,60,.13);
+  --glow-blue:rgba(76,141,255,.11); --glow-orange:rgba(251,146,60,.08);
   color-scheme: dark;
 }
 body.light {
@@ -82,9 +82,9 @@ body.light {
   --sh-dark:rgba(148,163,184,.42); --sh-light:rgba(255,255,255,.95);
   --glow:rgba(56,189,248,.25); --dot:#ffffff;
   --hi:rgba(255,255,255,.9);
-  --line-sh:rgba(0,0,0,.26); --line-hi:rgba(255,255,255,.95);
+  --line-sh:rgba(0,0,0,.22); --line-hi:rgba(255,255,255,.95);
   --sky-aura:rgba(56,189,248,.16); --orange-aura:rgba(249,115,22,.10);
-  --glow-blue:rgba(56,189,248,.32); --glow-orange:rgba(249,115,22,.22);
+  --glow-blue:rgba(56,189,248,.18); --glow-orange:rgba(249,115,22,.12);
   color-scheme: light;
 }
 * { box-sizing: border-box }
@@ -120,7 +120,7 @@ h1 { font-size:19px; margin:0 0 4px }
   border:1px solid var(--border);
   background:linear-gradient(150deg,var(--glass-a),var(--glass-b));
   backdrop-filter:blur(14px);
-  box-shadow:-14px -13px 32px var(--glow-blue),14px 13px 32px var(--glow-orange),0 12px 28px rgba(0,0,0,.18),8px 8px 20px var(--sh-dark),-8px -8px 20px var(--sh-light),inset 0 1px 0 var(--hi) }
+  box-shadow:-7px -6px 16px var(--glow-blue),7px 6px 16px var(--glow-orange),0 12px 28px rgba(0,0,0,.18),8px 8px 20px var(--sh-dark),-8px -8px 20px var(--sh-light),inset 0 1px 0 var(--hi) }
 .card .head { display:flex; justify-content:space-between; align-items:center; font-size:12px; font-weight:800 }
 .now { display:flex; align-items:center; gap:8px }
 .now .tile { flex:none; display:flex; align-items:center; justify-content:center; width:38px; height:38px; border-radius:11px;
@@ -139,8 +139,7 @@ h1 { font-size:19px; margin:0 0 4px }
 .hr .pop { color:var(--pop); font-size:9.5px; font-weight:600 }
 .curve { position:relative }
 .chip { position:absolute; transform:translate(-50%,-100%); font-size:9px; font-weight:700; color:var(--text);
-  background:linear-gradient(150deg,var(--cell-a),var(--cell-b)); border:1px solid var(--border);
-  border-radius:6px; padding:0 4px; box-shadow:1px 2px 4px var(--sh-dark); white-space:nowrap }
+  text-shadow:0 1px 0 var(--hi); white-space:nowrap }
 
 .sec { display:flex; align-items:center; gap:6px; font-size:10px; font-weight:700; letter-spacing:.6px; color:var(--mut); margin:2px 0 6px }
 .sec::before { content:''; width:3.5px; height:11px; border-radius:2px; background:linear-gradient(180deg,var(--sky),var(--orange)); box-shadow:0 1px 3px var(--sh-dark) }

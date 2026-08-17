@@ -40,8 +40,8 @@ const CARD_CSS = `
   background:linear-gradient(150deg,var(--glass-a),var(--glass-b));
   backdrop-filter:blur(16px) saturate(1.15);-webkit-backdrop-filter:blur(16px) saturate(1.15);
   box-shadow:
-    -18px -16px 38px light-dark(rgba(56,189,248,.32),rgba(76,141,255,.20)),
-    18px 16px 38px light-dark(rgba(249,115,22,.22),rgba(251,146,60,.13)),
+    -9px -8px 20px light-dark(rgba(56,189,248,.16),rgba(76,141,255,.10)),
+    9px 8px 20px light-dark(rgba(249,115,22,.11),rgba(251,146,60,.07)),
     0 14px 34px light-dark(rgba(100,116,139,.22),rgba(0,0,0,.45)),
     10px 10px 24px var(--sh-dark),-10px -10px 24px var(--sh-light),
     inset 0 1px 0 light-dark(rgba(255,255,255,.9),rgba(255,255,255,.08))}
@@ -76,12 +76,10 @@ const CARD_CSS = `
 .qw-hr-text{font-size:10.5px;color:var(--m);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .qw-chart{position:relative;height:92px;margin-top:12px}
 .qw-chart-svg{display:block;width:100%;height:92px}
-.qw-chart-line{fill:none;stroke-width:3.8;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
-.qw-chart-shadow{fill:none;stroke-width:4.4;stroke-linecap:round;stroke-linejoin:round;opacity:.38;vector-effect:non-scaling-stroke}
-.qw-chart-ridge{fill:none;stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round;opacity:.8;vector-effect:non-scaling-stroke}
-.qw-chart-chip{position:absolute;transform:translate(-50%,-100%);font-size:10.5px;font-weight:700;color:var(--f);
-  background:linear-gradient(150deg,var(--cell-a),var(--cell-b));border:1px solid var(--bd);border-radius:7px;padding:1px 6px;
-  box-shadow:1px 2px 4px var(--sh-dark);font-variant-numeric:tabular-nums;white-space:nowrap}
+.qw-chart-line{fill:none;stroke-width:12;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.qw-chart-shadow{fill:none;stroke-width:14;stroke-linecap:round;stroke-linejoin:round;opacity:.35;vector-effect:non-scaling-stroke}
+.qw-chart-ridge{fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.8;vector-effect:non-scaling-stroke}
+.qw-chart-chip{position:absolute;transform:translate(-50%,-100%);font-size:10.5px;font-weight:700;color:var(--f);font-variant-numeric:tabular-nums;white-space:nowrap;text-shadow:0 1px 0 light-dark(rgba(255,255,255,.6),rgba(0,0,0,.35))}
 .qw-alert{display:flex;flex-direction:column;gap:3px;padding:9px 12px;border-radius:12px;border:1px solid var(--bd);border-left:3px solid var(--alert-c,#f59e0b);
   background:linear-gradient(150deg,color-mix(in srgb,var(--alert-c,#f59e0b) 12%,transparent),transparent 60%);
   box-shadow:2px 3px 8px var(--sh-dark),inset 0 1px 0 light-dark(rgba(255,255,255,.75),rgba(255,255,255,.06))}
@@ -150,9 +148,9 @@ export function tempChartSvg(hours: readonly HourlyWeather[]): string {
     + '<stop offset="100%" style="stop-color:var(--sky)"/>'
     + '</linearGradient>'
     + '</defs>'
-    + `<path class="qw-chart-shadow" d="${line}" transform="translate(0,1.5)" style="stroke:light-dark(rgba(0,0,0,.26),rgba(0,0,0,.55))"/>`
+    + `<path class="qw-chart-shadow" d="${line}" transform="translate(0,2.2)" style="stroke:light-dark(rgba(0,0,0,.22),rgba(0,0,0,.5))"/>`
     + `<path class="qw-chart-line" d="${line}" stroke="url(#qw-chart-stroke)"/>`
-    + `<path class="qw-chart-ridge" d="${line}" transform="translate(0,-1)" style="stroke:light-dark(rgba(255,255,255,.95),rgba(255,255,255,.22))"/>`
+    + `<path class="qw-chart-ridge" d="${line}" transform="translate(0,-4.2)" style="stroke:light-dark(rgba(255,255,255,.95),rgba(255,255,255,.22))"/>`
     + '</svg>'
   const overlay = hours.map((hour, index) => {
     const [x, y] = points[index]!
