@@ -2,101 +2,125 @@
 <style>
 .qw,.qw *{box-sizing:border-box}
 .qw{font:13px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
-  --f:var(--qw-foreground,light-dark(#0f172a,#f9fafb));
-  --m:var(--qw-muted,light-dark(#64748b,#9ca3af));
-  --s:light-dark(#94a3b8,#6b7280);
-  --card:var(--qw-card,light-dark(#ffffff,#1f2937));
-  --cell:light-dark(#f8fafc,#111827);
-  --bd:var(--qw-border,light-dark(#e2e8f0,rgba(255,255,255,.10)));
-  --ac:var(--qw-accent,light-dark(#2563eb,#3b82f6));
-  --pop:var(--qw-pop,light-dark(#0284c7,#38bdf8));
+  --f:light-dark(#3a4a61,#e8eefb);
+  --m:light-dark(#64748b,#9fb0c7);
+  --s:light-dark(#8fa0b5,#5f7089);
+  --sky:light-dark(#38bdf8,#4c8dff);
+  --sky-deep:light-dark(#0284c7,#2f6bff);
+  --orange:light-dark(#f97316,#fb923c);
+  --pop:light-dark(#0ea5e9,#22d3ee);
+  --glass-a:light-dark(rgba(255,255,255,.88),rgba(34,47,70,.80));
+  --glass-b:light-dark(rgba(255,255,255,.55),rgba(16,24,40,.74));
+  --cell-a:light-dark(rgba(255,255,255,.85),rgba(38,51,73,.75));
+  --cell-b:light-dark(rgba(233,239,247,.75),rgba(20,29,45,.70));
+  --bd:light-dark(rgba(255,255,255,.75),rgba(255,255,255,.09));
+  --sh-dark:light-dark(rgba(148,163,184,.42),rgba(0,0,0,.55));
+  --sh-light:light-dark(rgba(255,255,255,.95),rgba(90,110,140,.14));
   color:var(--f)}
-.qw-card{display:flex;flex-direction:column;gap:12px;background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:14px 16px 12px}
+.qw-card{position:relative;display:flex;flex-direction:column;gap:12px;border-radius:18px;padding:16px 18px 14px;border:1px solid var(--bd);
+  background:
+    radial-gradient(130% 100% at 10% -10%,light-dark(rgba(56,189,248,.20),rgba(76,141,255,.16)),transparent 46%),
+    radial-gradient(120% 110% at 105% 108%,light-dark(rgba(249,115,22,.13),rgba(251,146,60,.10)),transparent 48%),
+    linear-gradient(150deg,var(--glass-a),var(--glass-b));
+  backdrop-filter:blur(16px) saturate(1.15);-webkit-backdrop-filter:blur(16px) saturate(1.15);
+  box-shadow:0 14px 34px light-dark(rgba(100,116,139,.22),rgba(0,0,0,.45)),10px 10px 24px var(--sh-dark),-10px -10px 24px var(--sh-light),inset 0 1px 0 light-dark(rgba(255,255,255,.9),rgba(255,255,255,.07))}
 .qw-head{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0}
-.qw-loc{font-size:14px;font-weight:700;letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qw-loc{font-size:14px;font-weight:800;letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .qw-updated{flex:none;font-size:11px;color:var(--m);font-variant-numeric:tabular-nums}
 .qw-now{display:flex;align-items:center;gap:12px}
-.qw-now-icon{flex:none;display:flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:12px;background:color-mix(in srgb,var(--ac) 14%,transparent);color:var(--ac)}
+.qw-now-icon{flex:none;display:flex;align-items:center;justify-content:center;width:50px;height:50px;border-radius:16px;
+  background:linear-gradient(145deg,light-dark(#e0f4ff,#1a2a49),light-dark(#bfe4ff,#0d1728));
+  box-shadow:5px 5px 12px var(--sh-dark),-4px -4px 10px var(--sh-light),inset 0 1px 0 light-dark(rgba(255,255,255,.95),rgba(255,255,255,.09))}
 .qw-now-main{display:flex;flex-direction:column;line-height:1.08}
-.qw-now-temp{font-size:30px;font-weight:700;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+.qw-now-temp{display:flex;align-items:baseline;gap:2px}
+.qw-now-temp .n{font-size:31px;font-weight:800;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+.qw-now-temp .deg{font-size:19px;font-weight:800;color:var(--orange)}
 .qw-now-text{font-size:12px;color:var(--m)}
 .qw-now-meta{margin-left:auto;display:grid;grid-template-columns:auto auto;column-gap:14px;row-gap:4px;font-size:11px;text-align:right}
 .qw-now-meta .k{color:var(--s)}
-.qw-now-meta .v{color:var(--f);font-weight:600;font-variant-numeric:tabular-nums}
-.qw-sec-title{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;letter-spacing:.5px;color:var(--m)}
-.qw-badge{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:color-mix(in srgb,var(--bc,#f59e0b) 16%,transparent);color:var(--bc,#f59e0b);font-size:10.5px;font-weight:700;font-variant-numeric:tabular-nums}
-.qw-hours{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
-.qw-hr{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 2px 7px;background:var(--cell);border:1px solid var(--bd);border-radius:12px}
+.qw-now-meta .v{color:var(--f);font-weight:700;font-variant-numeric:tabular-nums}
+.qw-sec-title{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;letter-spacing:.6px;color:var(--m)}
+.qw-sec-title::before{content:'';flex:none;width:4px;height:13px;border-radius:2px;background:linear-gradient(180deg,var(--sky),var(--orange));box-shadow:0 1px 4px light-dark(rgba(148,163,184,.45),rgba(0,0,0,.45))}
+.qw-badge{display:inline-flex;align-items:center;justify-content:center;min-width:19px;height:19px;padding:0 6px;border-radius:10px;color:var(--orange);font-size:10.5px;font-weight:800;font-variant-numeric:tabular-nums;
+  background:linear-gradient(150deg,color-mix(in srgb,var(--bc,#f97316) 16%,transparent),transparent 70%);
+  border:1px solid color-mix(in srgb,var(--bc,#f97316) 35%,transparent);
+  box-shadow:inset 0 1px 0 light-dark(rgba(255,255,255,.7),rgba(255,255,255,.08))}
+.qw-hours{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+.qw-hr{display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 2px 8px;border-radius:13px;border:1px solid var(--bd);
+  background:linear-gradient(145deg,var(--cell-a),var(--cell-b));
+  box-shadow:inset 2.5px 2.5px 6px var(--sh-dark),inset -2.5px -2.5px 6px var(--sh-light)}
 .qw-hr-time{font-size:10px;color:var(--s);font-variant-numeric:tabular-nums}
-.qw-hr-icon{display:flex;align-items:center;justify-content:center;height:22px;color:var(--ac)}
-.qw-hr-pop{font-size:10px;color:var(--pop);font-variant-numeric:tabular-nums}
+.qw-hr-icon{display:flex;align-items:center;justify-content:center;height:24px}
+.qw-hr-pop{font-size:10px;color:var(--pop);font-weight:600;font-variant-numeric:tabular-nums}
 .qw-hr-text{font-size:10.5px;color:var(--m);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.qw-hr-temp{font-size:13px;font-weight:700;font-variant-numeric:tabular-nums}
-.qw-chart{display:block;width:100%;height:80px;margin-top:8px}
-.qw-chart-line{fill:none;stroke:var(--ac);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
-.qw-chart-dot{fill:var(--card);stroke:var(--ac);stroke-width:2;vector-effect:non-scaling-stroke}
-.qw-chart-label{font-size:10px;fill:var(--s);font-variant-numeric:tabular-nums}
-.qw-alert{display:flex;flex-direction:column;gap:3px;padding:8px 12px;border:1px solid var(--bd);border-left:3px solid var(--alert-c,#f59e0b);border-radius:10px;background:color-mix(in srgb,var(--alert-c,#f59e0b) 6%,transparent)}
-.qw-alert-head{font-size:12.5px;font-weight:600;color:var(--f)}
+.qw-hr-temp{font-size:13.5px;font-weight:800;font-variant-numeric:tabular-nums}
+.qw-chart{display:block;width:100%;height:84px;margin-top:14px}
+.qw-chart-line{fill:none;stroke:var(--sky);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.qw-chart-dot{fill:light-dark(#ffffff,#101a2e);stroke:var(--sky);stroke-width:2;vector-effect:non-scaling-stroke}
+.qw-chart-label{font-size:10.5px;font-weight:700;fill:var(--sky-deep);font-variant-numeric:tabular-nums}
+.qw-alert{display:flex;flex-direction:column;gap:3px;padding:9px 12px;border-radius:12px;border:1px solid var(--bd);border-left:3px solid var(--alert-c,#f59e0b);
+  background:linear-gradient(150deg,color-mix(in srgb,var(--alert-c,#f59e0b) 12%,transparent),transparent 60%);
+  box-shadow:2px 3px 8px var(--sh-dark),inset 0 1px 0 light-dark(rgba(255,255,255,.75),rgba(255,255,255,.06))}
+.qw-alert-head{font-size:12.5px;font-weight:700;color:var(--f)}
 .qw-alert-body{font-size:11.5px;color:var(--m);line-height:1.55}
 .qw-empty{font-size:12px;color:var(--s)}
 .qw-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:9px;border-top:1px dashed var(--bd);font-size:11px;color:var(--s)}
-.qw-foot a{color:var(--ac);text-decoration:none;font-weight:600}
-.qw-foot a:hover{text-decoration:underline}
+.qw-foot a{color:var(--sky-deep);text-decoration:none;font-weight:700}
+.qw-foot a:hover{color:var(--orange);text-decoration:underline}
 </style>
 <div class="qw-card">
 <div class="qw-head">
 <span class="qw-loc" title="北京 · 北京市">北京 · 北京市</span>
-<span class="qw-updated">更新于 15:45</span>
+<span class="qw-updated">更新于 16:03</span>
 </div>
 <div class="qw-now">
-<span class="qw-now-icon"><svg class="qw-ic" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.5 18a4.5 4.5 0 1 1 .8-8.94A5.5 5.5 0 0 1 19 11.5a4 4 0 0 1-.5 7"/></svg></span>
+<span class="qw-now-icon"><svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><defs><linearGradient id="qw-ic-now" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" style="stop-color:#ffffff"/><stop offset="100%" style="stop-color:#c7d6ea"/></linearGradient></defs><g transform="translate(0,1.35)" opacity=".20"><defs><linearGradient id="qw-ic-pwnow" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" style="stop-color:#ffd08a"/><stop offset="100%" style="stop-color:#f97316"/></linearGradient></defs><g transform="translate(3.1999999999999993,-4.2) scale(0.68)" stroke="#0b1220" data-u="pwnow)" stroke-width="2.3" stroke-linecap="round"><path d="M12 2.4v2.4M12 19.2v2.4M2.4 12h2.4M19.2 12h2.4M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/></g><circle cx="15.2" cy="7.8" r="3.06" fill="#0b1220" data-u="pwnow)"/><circle cx="14.383999999999999" cy="6.984" r="1.2240000000000002" fill="#ffffff" opacity=".4"/><g transform="translate(-0.6,0.6)"><circle cx="9" cy="14.8" r="3.5" fill="#0b1220" data-u="now)"/><circle cx="13.4" cy="12.4" r="4.3" fill="#0b1220" data-u="now)"/><circle cx="17.8" cy="15.2" r="3" fill="#0b1220" data-u="now)"/><rect x="6.9" y="14.2" width="13.6" height="4.6" rx="2.3" fill="#0b1220" data-u="now)"/><rect x="6.9" y="16" width="13.6" height="2.8" rx="1.4" fill="#7d95b8" opacity=".28"/></g><circle cx="12.6" cy="11" r="1.4" fill="#ffffff" opacity=".65"/></g><defs><linearGradient id="qw-ic-pwnow" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" style="stop-color:#ffd08a"/><stop offset="100%" style="stop-color:#f97316"/></linearGradient></defs><g transform="translate(3.1999999999999993,-4.2) scale(0.68)" stroke="url(#qw-ic-pwnow)" stroke-width="2.3" stroke-linecap="round"><path d="M12 2.4v2.4M12 19.2v2.4M2.4 12h2.4M19.2 12h2.4M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/></g><circle cx="15.2" cy="7.8" r="3.06" fill="url(#qw-ic-pwnow)"/><circle cx="14.383999999999999" cy="6.984" r="1.2240000000000002" fill="#ffffff" opacity=".4"/><g transform="translate(-0.6,0.6)"><circle cx="9" cy="14.8" r="3.5" fill="url(#qw-ic-now)"/><circle cx="13.4" cy="12.4" r="4.3" fill="url(#qw-ic-now)"/><circle cx="17.8" cy="15.2" r="3" fill="url(#qw-ic-now)"/><rect x="6.9" y="14.2" width="13.6" height="4.6" rx="2.3" fill="url(#qw-ic-now)"/><rect x="6.9" y="16" width="13.6" height="2.8" rx="1.4" fill="#7d95b8" opacity=".28"/></g><circle cx="12.6" cy="11" r="1.4" fill="#ffffff" opacity=".65"/></svg></span>
 <div class="qw-now-main">
-<span class="qw-now-temp">31.3°</span>
-<span class="qw-now-text">阴</span>
+<span class="qw-now-temp"><span class="n">31.5</span><span class="deg">°</span></span>
+<span class="qw-now-text">多云</span>
 </div>
-<div class="qw-now-meta"><span class="k">体感</span><span class="v">32.9°</span><span class="k">湿度</span><span class="v">45%</span><span class="k">风</span><span class="v">东北风 2级</span></div>
+<div class="qw-now-meta"><span class="k">体感</span><span class="v">32.8°</span><span class="k">湿度</span><span class="v">45%</span><span class="k">风</span><span class="v">北东北风 2级</span></div>
 </div>
 <div>
 <div class="qw-sec-title">未来 5 小时</div>
 <div class="qw-hours">
 <div class="qw-hr">
-<span class="qw-hr-time">16:00</span>
-<span class="qw-hr-icon"><svg class="qw-ic" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v1.8M12 19.2V21M3 12h1.8M19.2 12H21M5.6 5.6l1.3 1.3M17.1 17.1l1.3 1.3M18.4 5.6l-1.3 1.3M6.9 17.1l-1.3 1.3"/><circle cx="12" cy="12" r="3.6"/><path d="M7.5 18a4.5 4.5 0 1 1 .8-8.94A5.5 5.5 0 0 1 19 11.5a4 4 0 0 1-.5 7"/></svg></span>
-<span class="qw-hr-pop">0%</span>
-<span class="qw-hr-text" title="晴间多云">晴间多云</span>
-<span class="qw-hr-temp">31.9°</span>
-</div>
-<div class="qw-hr">
 <span class="qw-hr-time">17:00</span>
-<span class="qw-hr-icon"><svg class="qw-ic" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v1.8M12 19.2V21M3 12h1.8M19.2 12H21M5.6 5.6l1.3 1.3M17.1 17.1l1.3 1.3M18.4 5.6l-1.3 1.3M6.9 17.1l-1.3 1.3"/><circle cx="12" cy="12" r="3.6"/><path d="M7.5 18a4.5 4.5 0 1 1 .8-8.94A5.5 5.5 0 0 1 19 11.5a4 4 0 0 1-.5 7"/></svg></span>
+<span class="qw-hr-icon"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><defs><linearGradient id="qw-ic-h0" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" style="stop-color:#ffffff"/><stop offset="100%" style="stop-color:#c7d6ea"/></linearGradient></defs><g transform="translate(0,1.35)" opacity=".20"><defs><linearGradient id="qw-ic-pwh0" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" style="stop-color:#ffd08a"/><stop offset="100%" style="stop-color:#f97316"/></linearGradient></defs><g transform="translate(3.1999999999999993,-4.2) scale(0.68)" stroke="#0b1220" data-u="pwh0)" stroke-width="2.3" stroke-linecap="round"><path d="M12 2.4v2.4M12 19.2v2.4M2.4 12h2.4M19.2 12h2.4M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/></g><circle cx="15.2" cy="7.8" r="3.06" fill="#0b1220" data-u="pwh0)"/><circle cx="14.383999999999999" cy="6.984" r="1.2240000000000002" fill="#ffffff" opacity=".4"/><g transform="translate(-0.6,0.6)"><circle cx="9" cy="14.8" r="3.5" fill="#0b1220" data-u="h0)"/><circle cx="13.4" cy="12.4" r="4.3" fill="#0b1220" data-u="h0)"/><circle cx="17.8" cy="15.2" r="3" fill="#0b1220" data-u="h0)"/><rect x="6.9" y="14.2" width="13.6" height="4.6" rx="2.3" fill="#0b1220" data-u="h0)"/><rect x="6.9" y="16" width="13.6" height="2.8" rx="1.4" fill="#7d95b8" opacity=".28"/></g><circle cx="12.6" cy="11" r="1.4" fill="#ffffff" opacity=".65"/></g><defs><linearGradient id="qw-ic-pwh0" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" style="stop-color:#ffd08a"/><stop offset="100%" style="stop-color:#f97316"/></linearGradient></defs><g transform="translate(3.1999999999999993,-4.2) scale(0.68)" stroke="url(#qw-ic-pwh0)" stroke-width="2.3" stroke-linecap="round"><path d="M12 2.4v2.4M12 19.2v2.4M2.4 12h2.4M19.2 12h2.4M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/></g><circle cx="15.2" cy="7.8" r="3.06" fill="url(#qw-ic-pwh0)"/><circle cx="14.383999999999999" cy="6.984" r="1.2240000000000002" fill="#ffffff" opacity=".4"/><g transform="translate(-0.6,0.6)"><circle cx="9" cy="14.8" r="3.5" fill="url(#qw-ic-h0)"/><circle cx="13.4" cy="12.4" r="4.3" fill="url(#qw-ic-h0)"/><circle cx="17.8" cy="15.2" r="3" fill="url(#qw-ic-h0)"/><rect x="6.9" y="14.2" width="13.6" height="4.6" rx="2.3" fill="url(#qw-ic-h0)"/><rect x="6.9" y="16" width="13.6" height="2.8" rx="1.4" fill="#7d95b8" opacity=".28"/></g><circle cx="12.6" cy="11" r="1.4" fill="#ffffff" opacity=".65"/></svg></span>
 <span class="qw-hr-pop">0%</span>
 <span class="qw-hr-text" title="晴间多云">晴间多云</span>
 <span class="qw-hr-temp">31.7°</span>
 </div>
 <div class="qw-hr">
 <span class="qw-hr-time">18:00</span>
-<span class="qw-hr-icon"><svg class="qw-ic" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v1.8M12 19.2V21M3 12h1.8M19.2 12H21M5.6 5.6l1.3 1.3M17.1 17.1l1.3 1.3M18.4 5.6l-1.3 1.3M6.9 17.1l-1.3 1.3"/><circle cx="12" cy="12" r="3.6"/><path d="M7.5 18a4.5 4.5 0 1 1 .8-8.94A5.5 5.5 0 0 1 19 11.5a4 4 0 0 1-.5 7"/></svg></span>
+<span class="qw-hr-icon"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><defs><linearGradient id="qw-ic-h1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" style="stop-color:#ffffff"/><stop offset="100%" style="stop-color:#c7d6ea"/></linearGradient></defs><g transform="translate(0,1.35)" opacity=".20"><defs><linearGradient id="qw-ic-pwh1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" style="stop-color:#ffd08a"/><stop offset="100%" style="stop-color:#f97316"/></linearGradient></defs><g transform="translate(3.1999999999999993,-4.2) scale(0.68)" stroke="#0b1220" data-u="pwh1)" stroke-width="2.3" stroke-linecap="round"><path d="M12 2.4v2.4M12 19.2v2.4M2.4 12h2.4M19.2 12h2.4M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/></g><circle cx="15.2" cy="7.8" r="3.06" fill="#0b1220" data-u="pwh1)"/><circle cx="14.383999999999999" cy="6.984" r="1.2240000000000002" fill="#ffffff" opacity=".4"/><g transform="translate(-0.6,0.6)"><circle cx="9" cy="14.8" r="3.5" fill="#0b1220" data-u="h1)"/><circle cx="13.4" cy="12.4" r="4.3" fill="#0b1220" data-u="h1)"/><circle cx="17.8" cy="15.2" r="3" fill="#0b1220" data-u="h1)"/><rect x="6.9" y="14.2" width="13.6" height="4.6" rx="2.3" fill="#0b1220" data-u="h1)"/><rect x="6.9" y="16" width="13.6" height="2.8" rx="1.4" fill="#7d95b8" opacity=".28"/></g><circle cx="12.6" cy="11" r="1.4" fill="#ffffff" opacity=".65"/></g><defs><linearGradient id="qw-ic-pwh1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" style="stop-color:#ffd08a"/><stop offset="100%" style="stop-color:#f97316"/></linearGradient></defs><g transform="translate(3.1999999999999993,-4.2) scale(0.68)" stroke="url(#qw-ic-pwh1)" stroke-width="2.3" stroke-linecap="round"><path d="M12 2.4v2.4M12 19.2v2.4M2.4 12h2.4M19.2 12h2.4M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/></g><circle cx="15.2" cy="7.8" r="3.06" fill="url(#qw-ic-pwh1)"/><circle cx="14.383999999999999" cy="6.984" r="1.2240000000000002" fill="#ffffff" opacity=".4"/><g transform="translate(-0.6,0.6)"><circle cx="9" cy="14.8" r="3.5" fill="url(#qw-ic-h1)"/><circle cx="13.4" cy="12.4" r="4.3" fill="url(#qw-ic-h1)"/><circle cx="17.8" cy="15.2" r="3" fill="url(#qw-ic-h1)"/><rect x="6.9" y="14.2" width="13.6" height="4.6" rx="2.3" fill="url(#qw-ic-h1)"/><rect x="6.9" y="16" width="13.6" height="2.8" rx="1.4" fill="#7d95b8" opacity=".28"/></g><circle cx="12.6" cy="11" r="1.4" fill="#ffffff" opacity=".65"/></svg></span>
 <span class="qw-hr-pop">0%</span>
 <span class="qw-hr-text" title="晴间多云">晴间多云</span>
 <span class="qw-hr-temp">30.9°</span>
 </div>
 <div class="qw-hr">
 <span class="qw-hr-time">19:00</span>
-<span class="qw-hr-icon"><svg class="qw-ic" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v1.8M12 19.2V21M3 12h1.8M19.2 12H21M5.6 5.6l1.3 1.3M17.1 17.1l1.3 1.3M18.4 5.6l-1.3 1.3M6.9 17.1l-1.3 1.3"/><circle cx="12" cy="12" r="3.6"/><path d="M7.5 18a4.5 4.5 0 1 1 .8-8.94A5.5 5.5 0 0 1 19 11.5a4 4 0 0 1-.5 7"/></svg></span>
+<span class="qw-hr-icon"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><defs><linearGradient id="qw-ic-h2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" style="stop-color:#ffffff"/><stop offset="100%" style="stop-color:#c7d6ea"/></linearGradient></defs><g transform="translate(0,1.35)" opacity=".20"><defs><linearGradient id="qw-ic-pwh2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" style="stop-color:#ffd08a"/><stop offset="100%" style="stop-color:#f97316"/></linearGradient></defs><g transform="translate(3.1999999999999993,-4.2) scale(0.68)" stroke="#0b1220" data-u="pwh2)" stroke-width="2.3" stroke-linecap="round"><path d="M12 2.4v2.4M12 19.2v2.4M2.4 12h2.4M19.2 12h2.4M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/></g><circle cx="15.2" cy="7.8" r="3.06" fill="#0b1220" data-u="pwh2)"/><circle cx="14.383999999999999" cy="6.984" r="1.2240000000000002" fill="#ffffff" opacity=".4"/><g transform="translate(-0.6,0.6)"><circle cx="9" cy="14.8" r="3.5" fill="#0b1220" data-u="h2)"/><circle cx="13.4" cy="12.4" r="4.3" fill="#0b1220" data-u="h2)"/><circle cx="17.8" cy="15.2" r="3" fill="#0b1220" data-u="h2)"/><rect x="6.9" y="14.2" width="13.6" height="4.6" rx="2.3" fill="#0b1220" data-u="h2)"/><rect x="6.9" y="16" width="13.6" height="2.8" rx="1.4" fill="#7d95b8" opacity=".28"/></g><circle cx="12.6" cy="11" r="1.4" fill="#ffffff" opacity=".65"/></g><defs><linearGradient id="qw-ic-pwh2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" style="stop-color:#ffd08a"/><stop offset="100%" style="stop-color:#f97316"/></linearGradient></defs><g transform="translate(3.1999999999999993,-4.2) scale(0.68)" stroke="url(#qw-ic-pwh2)" stroke-width="2.3" stroke-linecap="round"><path d="M12 2.4v2.4M12 19.2v2.4M2.4 12h2.4M19.2 12h2.4M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/></g><circle cx="15.2" cy="7.8" r="3.06" fill="url(#qw-ic-pwh2)"/><circle cx="14.383999999999999" cy="6.984" r="1.2240000000000002" fill="#ffffff" opacity=".4"/><g transform="translate(-0.6,0.6)"><circle cx="9" cy="14.8" r="3.5" fill="url(#qw-ic-h2)"/><circle cx="13.4" cy="12.4" r="4.3" fill="url(#qw-ic-h2)"/><circle cx="17.8" cy="15.2" r="3" fill="url(#qw-ic-h2)"/><rect x="6.9" y="14.2" width="13.6" height="4.6" rx="2.3" fill="url(#qw-ic-h2)"/><rect x="6.9" y="16" width="13.6" height="2.8" rx="1.4" fill="#7d95b8" opacity=".28"/></g><circle cx="12.6" cy="11" r="1.4" fill="#ffffff" opacity=".65"/></svg></span>
 <span class="qw-hr-pop">0%</span>
 <span class="qw-hr-text" title="晴间多云">晴间多云</span>
 <span class="qw-hr-temp">29.8°</span>
 </div>
 <div class="qw-hr">
 <span class="qw-hr-time">20:00</span>
-<span class="qw-hr-icon"><svg class="qw-ic" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13.2A8 8 0 1 1 10.8 4a6.5 6.5 0 0 0 9.2 9.2z"/><path d="M7.5 18a4.5 4.5 0 1 1 .8-8.94A5.5 5.5 0 0 1 19 11.5a4 4 0 0 1-.5 7"/></svg></span>
+<span class="qw-hr-icon"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><defs><linearGradient id="qw-ic-h3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" style="stop-color:#ffffff"/><stop offset="100%" style="stop-color:#c7d6ea"/></linearGradient></defs><g transform="translate(0,1.35)" opacity=".20"><defs><linearGradient id="qw-ic-mnh3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" style="stop-color:#b9c7ff"/><stop offset="100%" style="stop-color:#6f86f5"/></linearGradient></defs><path transform="translate(3.5999999999999996,-4.4) scale(0.66)" d="M19.6 12.8A8.6 8.6 0 1 1 11.2 3.4a7.2 7.2 0 0 0 8.4 9.4z" fill="#0b1220" data-u="mnh3)"/><circle cx="13.488" cy="4.959999999999999" r="0.66" fill="#ffffff" opacity=".85"/><circle cx="14.676" cy="6.9399999999999995" r="0.396" fill="#ffffff" opacity=".6"/><g transform="translate(-0.6,0.6)"><circle cx="9" cy="14.8" r="3.5" fill="#0b1220" data-u="h3)"/><circle cx="13.4" cy="12.4" r="4.3" fill="#0b1220" data-u="h3)"/><circle cx="17.8" cy="15.2" r="3" fill="#0b1220" data-u="h3)"/><rect x="6.9" y="14.2" width="13.6" height="4.6" rx="2.3" fill="#0b1220" data-u="h3)"/><rect x="6.9" y="16" width="13.6" height="2.8" rx="1.4" fill="#7d95b8" opacity=".28"/></g><circle cx="12.6" cy="11" r="1.4" fill="#ffffff" opacity=".65"/></g><defs><linearGradient id="qw-ic-mnh3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" style="stop-color:#b9c7ff"/><stop offset="100%" style="stop-color:#6f86f5"/></linearGradient></defs><path transform="translate(3.5999999999999996,-4.4) scale(0.66)" d="M19.6 12.8A8.6 8.6 0 1 1 11.2 3.4a7.2 7.2 0 0 0 8.4 9.4z" fill="url(#qw-ic-mnh3)"/><circle cx="13.488" cy="4.959999999999999" r="0.66" fill="#ffffff" opacity=".85"/><circle cx="14.676" cy="6.9399999999999995" r="0.396" fill="#ffffff" opacity=".6"/><g transform="translate(-0.6,0.6)"><circle cx="9" cy="14.8" r="3.5" fill="url(#qw-ic-h3)"/><circle cx="13.4" cy="12.4" r="4.3" fill="url(#qw-ic-h3)"/><circle cx="17.8" cy="15.2" r="3" fill="url(#qw-ic-h3)"/><rect x="6.9" y="14.2" width="13.6" height="4.6" rx="2.3" fill="url(#qw-ic-h3)"/><rect x="6.9" y="16" width="13.6" height="2.8" rx="1.4" fill="#7d95b8" opacity=".28"/></g><circle cx="12.6" cy="11" r="1.4" fill="#ffffff" opacity=".65"/></svg></span>
 <span class="qw-hr-pop">0%</span>
 <span class="qw-hr-text" title="少云">少云</span>
 <span class="qw-hr-temp">28.7°</span>
 </div>
+<div class="qw-hr">
+<span class="qw-hr-time">21:00</span>
+<span class="qw-hr-icon"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><defs><linearGradient id="qw-ic-h4" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" style="stop-color:#ffffff"/><stop offset="100%" style="stop-color:#c7d6ea"/></linearGradient></defs><g transform="translate(0,1.35)" opacity=".20"><defs><linearGradient id="qw-ic-mnh4" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" style="stop-color:#b9c7ff"/><stop offset="100%" style="stop-color:#6f86f5"/></linearGradient></defs><path transform="translate(3.5999999999999996,-4.4) scale(0.66)" d="M19.6 12.8A8.6 8.6 0 1 1 11.2 3.4a7.2 7.2 0 0 0 8.4 9.4z" fill="#0b1220" data-u="mnh4)"/><circle cx="13.488" cy="4.959999999999999" r="0.66" fill="#ffffff" opacity=".85"/><circle cx="14.676" cy="6.9399999999999995" r="0.396" fill="#ffffff" opacity=".6"/><g transform="translate(-0.6,0.6)"><circle cx="9" cy="14.8" r="3.5" fill="#0b1220" data-u="h4)"/><circle cx="13.4" cy="12.4" r="4.3" fill="#0b1220" data-u="h4)"/><circle cx="17.8" cy="15.2" r="3" fill="#0b1220" data-u="h4)"/><rect x="6.9" y="14.2" width="13.6" height="4.6" rx="2.3" fill="#0b1220" data-u="h4)"/><rect x="6.9" y="16" width="13.6" height="2.8" rx="1.4" fill="#7d95b8" opacity=".28"/></g><circle cx="12.6" cy="11" r="1.4" fill="#ffffff" opacity=".65"/></g><defs><linearGradient id="qw-ic-mnh4" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" style="stop-color:#b9c7ff"/><stop offset="100%" style="stop-color:#6f86f5"/></linearGradient></defs><path transform="translate(3.5999999999999996,-4.4) scale(0.66)" d="M19.6 12.8A8.6 8.6 0 1 1 11.2 3.4a7.2 7.2 0 0 0 8.4 9.4z" fill="url(#qw-ic-mnh4)"/><circle cx="13.488" cy="4.959999999999999" r="0.66" fill="#ffffff" opacity=".85"/><circle cx="14.676" cy="6.9399999999999995" r="0.396" fill="#ffffff" opacity=".6"/><g transform="translate(-0.6,0.6)"><circle cx="9" cy="14.8" r="3.5" fill="url(#qw-ic-h4)"/><circle cx="13.4" cy="12.4" r="4.3" fill="url(#qw-ic-h4)"/><circle cx="17.8" cy="15.2" r="3" fill="url(#qw-ic-h4)"/><rect x="6.9" y="14.2" width="13.6" height="4.6" rx="2.3" fill="url(#qw-ic-h4)"/><rect x="6.9" y="16" width="13.6" height="2.8" rx="1.4" fill="#7d95b8" opacity=".28"/></g><circle cx="12.6" cy="11" r="1.4" fill="#ffffff" opacity=".65"/></svg></span>
+<span class="qw-hr-pop">0%</span>
+<span class="qw-hr-text" title="晴间多云">晴间多云</span>
+<span class="qw-hr-temp">27.8°</span>
 </div>
-<svg class="qw-chart" viewBox="0 0 400 80" preserveAspectRatio="none" aria-label="气温曲线"><defs><linearGradient id="qw-chart-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--ac)" stop-opacity="0.28"/><stop offset="100%" stop-color="var(--ac)" stop-opacity="0"/></linearGradient></defs><path class="qw-chart-area" d="M18,26 C33.2,26.6 78.7,26.8 109,29.3 C139.3,31.8 169.7,36.3 200,40.9 C230.3,45.5 260.7,51.6 291,56.8 C321.3,62 366.8,69.5 382,72 L382,80 L18,80 Z" fill="url(#qw-chart-fill)"/><path class="qw-chart-line" d="M18,26 C33.2,26.6 78.7,26.8 109,29.3 C139.3,31.8 169.7,36.3 200,40.9 C230.3,45.5 260.7,51.6 291,56.8 C321.3,62 366.8,69.5 382,72"/><circle class="qw-chart-dot" cx="18" cy="26" r="3"/><circle class="qw-chart-dot" cx="109" cy="29.3" r="3"/><circle class="qw-chart-dot" cx="200" cy="40.9" r="3"/><circle class="qw-chart-dot" cx="291" cy="56.8" r="3"/><circle class="qw-chart-dot" cx="382" cy="72" r="3"/><text class="qw-chart-label" x="18" y="17" text-anchor="middle">31.9°</text><text class="qw-chart-label" x="109" y="20.3" text-anchor="middle">31.7°</text><text class="qw-chart-label" x="200" y="31.9" text-anchor="middle">30.9°</text><text class="qw-chart-label" x="291" y="47.8" text-anchor="middle">29.8°</text><text class="qw-chart-label" x="382" y="63" text-anchor="middle">28.7°</text></svg>
+</div>
+<svg class="qw-chart" viewBox="0 0 400 84" preserveAspectRatio="none" aria-label="气温曲线"><defs><linearGradient id="qw-chart-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" style="stop-color:var(--sky)" stop-opacity="0.32"/><stop offset="70%" style="stop-color:var(--sky)" stop-opacity="0.08"/><stop offset="100%" style="stop-color:var(--sky)" stop-opacity="0"/></linearGradient><filter id="qw-chart-glow" x="-20%" y="-30%" width="140%" height="160%"><feGaussianBlur stdDeviation="2.6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><path class="qw-chart-area" d="M20,31 C35,32.5 80,36.5 110,40 C140,43.6 170,48.3 200,52.3 C230,56.3 260,60.4 290,64 C320,67.6 365,72.3 380,74 L380,84 L20,84 Z" fill="url(#qw-chart-fill)"/><path class="qw-chart-line" d="M20,31 C35,32.5 80,36.5 110,40 C140,43.6 170,48.3 200,52.3 C230,56.3 260,60.4 290,64 C320,67.6 365,72.3 380,74" filter="url(#qw-chart-glow)"/><circle class="qw-chart-dot" cx="20" cy="31" r="3.2"/><circle class="qw-chart-dot" cx="110" cy="40" r="3.2"/><circle class="qw-chart-dot" cx="200" cy="52.3" r="3.2"/><circle class="qw-chart-dot" cx="290" cy="64" r="3.2"/><circle class="qw-chart-dot" cx="380" cy="74" r="3.2"/><text class="qw-chart-label" x="20" y="21" text-anchor="middle">31.7°</text><text class="qw-chart-label" x="110" y="30" text-anchor="middle">30.9°</text><text class="qw-chart-label" x="200" y="42.3" text-anchor="middle">29.8°</text><text class="qw-chart-label" x="290" y="54" text-anchor="middle">28.7°</text><text class="qw-chart-label" x="380" y="64" text-anchor="middle">27.8°</text></svg>
 </div>
 <div>
 <div class="qw-sec-title">重要预警</div>

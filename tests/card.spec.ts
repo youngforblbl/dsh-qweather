@@ -26,7 +26,9 @@ describe('buildCardFragment', () => {
   it('必须内联样式表（回归：缺少 style 时 SVG 会落入黑色默认填充）', () => {
     expect(fragment).toContain('<style>')
     expect(fragment).toContain('.qw-card{')
-    expect(fragment).toContain('--qw-foreground')
+    // v2 明暗自适配调色板
+    expect(fragment).toContain('light-dark(')
+    expect(fragment).toContain('backdrop-filter')
   })
   it('包含当前天气：图标、文字、气温', () => {
     expect(fragment).toContain('31°')

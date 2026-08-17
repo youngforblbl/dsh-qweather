@@ -153,9 +153,7 @@ declare function weatherTool(ctx: Context, getConfig: () => QWeatherRuntimeConfi
 declare function cardTool(ctx: Context, getConfig: () => QWeatherRuntimeConfig): ToolDefinition;
 //#endregion
 //#region src/qweather/card.d.ts
-/**
- * 生成 5 小时气温曲线（品牌色渐变面积 + 平滑曲线 + 描点 + 温度标签）。
- */
+/** 生成 5 小时气温曲线：天蓝渐变面积 + 辉光平滑折线 + 描点 + 温度标签。 */
 declare function tempChartSvg(hours: readonly HourlyWeather[]): string;
 /** 组装一张完整的天气卡片 fragment。 */
 declare function buildCardFragment(bundle: WeatherBundle, hourCount?: number): string;
@@ -222,21 +220,21 @@ declare class QWeatherClient {
 //#endregion
 //#region src/qweather/icons.d.ts
 /**
- * 内置极简天气 SVG 图标（自绘、MIT 授权，无网络依赖）。
- * 和风天气的图标 CDN 需要 Referer 且不可跨域，因此插件自带一套 24x24
- * 线性图标，按 condition code 映射；未知代码回退到「多云」。
- * 图标随 currentColor 着色，自动适配明暗主题。
+ * 内置天气图标（自绘、MIT、无网络依赖）。v2 设计：
+ * - 填充式 + 双色纵向渐变（顶部高光 → 底部深色），替代单调的线性图标；
+ * - 每枚图标带一层向下偏移的深色投影，形成新拟态的“浮起”立体感；
+ * - 太阳/月亮/雨滴/闪电等高光细节用白色叠加层勾勒；
+ * - 晴间多云/多云间晴：云体为实心填充叠加，前后层分明，不再出现线条互相穿插。
+ * 渐变 id 以调用方传入的 uid 隔离，避免同文档多枚图标时 defs 冲突。
  */
-/** 图标归类。 */
 type IconKind = 'sun' | 'moon' | 'partly' | 'partly-night' | 'cloudy' | 'rain' | 'heavy-rain' | 'thunder' | 'sleet' | 'snow' | 'fog' | 'haze' | 'unknown';
+/** 组装成最终 svg。 */
+declare function weatherIcon(code: string, size?: number, uid?: string): string;
 /**
  * condition code → 图标归类。
- * 规则：100=晴、15x=夜间、30x/35x=雨、302-304=雷、40x=雪、404-406/456=雨夹雪、
- * 50x=雾/霾/沙尘。
+ * 100=晴、15x=夜间、30x/35x=雨、302-304=雷、40x=雪、404-406/456=雨夹雪、50x=雾/霾/沙尘。
  */
 declare function iconKindOf(code: string): IconKind;
-/** 生成一个内联 SVG 天气图标。 */
-declare function weatherIcon(code: string, size?: number): string;
 //#endregion
 //#region src/index.d.ts
 /** Cordis 插件名。 */
