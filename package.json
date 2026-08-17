@@ -28,7 +28,8 @@
     "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.client.json",
     "test": "vitest run",
     "check": "pnpm run typecheck && pnpm run test && pnpm run build",
-    "preview": "node scripts/build-preview.mjs"
+    "preview": "node scripts/build-preview.mjs",
+    "icons": "node scripts/build-icons.mjs"
   },
   "dsh": {
     "bundle": {

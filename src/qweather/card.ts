@@ -1,15 +1,14 @@
 /**
  * 对话内交互式天气卡片（qweather_card）的 HTML fragment 生成器。
  *
- * v2 视觉：新拟态 + 玻璃拟态混合（参考 uupm.cc/demo/investment-platform 的
- * 金融面板气质）。设计要点：
- * - 卡片 = 毛玻璃面板：半透明渐变 + backdrop-filter + 顶部内高光 + 来光投影
- *   （左上受光 / 右下投影），背景叠加天蓝/橙色两团环境光晕；
- * - 小时格 = 内凹新拟态（inset 双面阴影）；图标块 = 外凸新拟态 + 渐变；
+ * v3 视觉：新拟态 + 玻璃拟态混合。
+ * - 卡片 = 毛玻璃面板（半透明渐变 + backdrop-filter + 顶部内高光 + 来光投影）；
+ * - 小时格 = 内凹新拟态；图标块 = 外凸新拟态；气温曲线 = 内凹玻璃「凹槽」，
+ *   渐变面积 + 平滑折线（SVG 内辉光）+ HTML 定位的描点与温度标签芯片——
+ *   文字永不随卡片宽度拉伸，描点 x 与上方 5 列小时格中心对齐；
+ * - 温度只标注在曲线上，小时格内不重复；
  * - 配色：亮色 = 白 + 灰 + 浅天蓝 + 鲜艳橙；暗色 = 更深的海军蓝玻璃；
- * - 曲线 = 天蓝渐变面积 + 平滑折线 + 辉光滤镜 + 描点。
- * 颜色全部经 light-dark() 自适配（外壳负责设置 color-scheme）；
- * 卡片纯静态 HTML + 内联 SVG，无脚本、无外部资源，可逐字节回放。
+ * - 温度单位统一 ℃。颜色经 light-dark() 自适配（外壳负责 color-scheme）。
  */
 
 import type { HourlyWeather, WeatherBundle } from './types.ts'
@@ -26,33 +25,33 @@ const CARD_CSS = `
   --sky:light-dark(#38bdf8,#4c8dff);
   --sky-deep:light-dark(#0284c7,#2f6bff);
   --orange:light-dark(#f97316,#fb923c);
-  --pop:light-dark(#0ea5e9,#22d3ee);
-  --glass-a:light-dark(rgba(255,255,255,.88),rgba(34,47,70,.80));
-  --glass-b:light-dark(rgba(255,255,255,.55),rgba(16,24,40,.74));
-  --cell-a:light-dark(rgba(255,255,255,.85),rgba(38,51,73,.75));
-  --cell-b:light-dark(rgba(233,239,247,.75),rgba(20,29,45,.70));
-  --bd:light-dark(rgba(255,255,255,.75),rgba(255,255,255,.09));
-  --sh-dark:light-dark(rgba(148,163,184,.42),rgba(0,0,0,.55));
-  --sh-light:light-dark(rgba(255,255,255,.95),rgba(90,110,140,.14));
+  --pop:light-dark(#0ea5e9,#56bad9);
+  --glass-a:light-dark(rgba(255,255,255,.88),rgba(40,55,84,.86));
+  --glass-b:light-dark(rgba(255,255,255,.55),rgba(17,26,44,.78));
+  --cell-a:light-dark(rgba(255,255,255,.85),rgba(46,60,90,.80));
+  --cell-b:light-dark(rgba(233,239,247,.75),rgba(20,30,50,.72));
+  --bd:light-dark(rgba(255,255,255,.75),rgba(255,255,255,.10));
+  --sh-dark:light-dark(rgba(148,163,184,.42),rgba(0,0,0,.6));
+  --sh-light:light-dark(rgba(255,255,255,.95),rgba(96,116,150,.16));
   color:var(--f)}
 .qw-card{position:relative;display:flex;flex-direction:column;gap:12px;border-radius:18px;padding:16px 18px 14px;border:1px solid var(--bd);
   background:
-    radial-gradient(130% 100% at 10% -10%,light-dark(rgba(56,189,248,.20),rgba(76,141,255,.16)),transparent 46%),
-    radial-gradient(120% 110% at 105% 108%,light-dark(rgba(249,115,22,.13),rgba(251,146,60,.10)),transparent 48%),
+    radial-gradient(130% 100% at 10% -10%,light-dark(rgba(56,189,248,.20),rgba(80,140,255,.18)),transparent 46%),
+    radial-gradient(120% 110% at 105% 108%,light-dark(rgba(249,115,22,.13),rgba(251,146,60,.11)),transparent 48%),
     linear-gradient(150deg,var(--glass-a),var(--glass-b));
   backdrop-filter:blur(16px) saturate(1.15);-webkit-backdrop-filter:blur(16px) saturate(1.15);
-  box-shadow:0 14px 34px light-dark(rgba(100,116,139,.22),rgba(0,0,0,.45)),10px 10px 24px var(--sh-dark),-10px -10px 24px var(--sh-light),inset 0 1px 0 light-dark(rgba(255,255,255,.9),rgba(255,255,255,.07))}
+  box-shadow:0 14px 34px light-dark(rgba(100,116,139,.22),rgba(0,0,0,.45)),10px 10px 24px var(--sh-dark),-10px -10px 24px var(--sh-light),inset 0 1px 0 light-dark(rgba(255,255,255,.9),rgba(255,255,255,.08))}
 .qw-head{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0}
 .qw-loc{font-size:14px;font-weight:800;letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .qw-updated{flex:none;font-size:11px;color:var(--m);font-variant-numeric:tabular-nums}
 .qw-now{display:flex;align-items:center;gap:12px}
 .qw-now-icon{flex:none;display:flex;align-items:center;justify-content:center;width:50px;height:50px;border-radius:16px;
-  background:linear-gradient(145deg,light-dark(#e0f4ff,#1a2a49),light-dark(#bfe4ff,#0d1728));
+  background:linear-gradient(145deg,light-dark(#e0f4ff,#1c2e4e),light-dark(#bfe4ff,#0e1a30));
   box-shadow:5px 5px 12px var(--sh-dark),-4px -4px 10px var(--sh-light),inset 0 1px 0 light-dark(rgba(255,255,255,.95),rgba(255,255,255,.09))}
 .qw-now-main{display:flex;flex-direction:column;line-height:1.08}
-.qw-now-temp{display:flex;align-items:baseline;gap:2px}
+.qw-now-temp{display:flex;align-items:flex-start;gap:1px}
 .qw-now-temp .n{font-size:31px;font-weight:800;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
-.qw-now-temp .deg{font-size:19px;font-weight:800;color:var(--orange)}
+.qw-now-temp .deg{font-size:14px;font-weight:800;color:var(--orange);margin-top:2.5px}
 .qw-now-text{font-size:12px;color:var(--m)}
 .qw-now-meta{margin-left:auto;display:grid;grid-template-columns:auto auto;column-gap:14px;row-gap:4px;font-size:11px;text-align:right}
 .qw-now-meta .k{color:var(--s)}
@@ -68,14 +67,21 @@ const CARD_CSS = `
   background:linear-gradient(145deg,var(--cell-a),var(--cell-b));
   box-shadow:inset 2.5px 2.5px 6px var(--sh-dark),inset -2.5px -2.5px 6px var(--sh-light)}
 .qw-hr-time{font-size:10px;color:var(--s);font-variant-numeric:tabular-nums}
-.qw-hr-icon{display:flex;align-items:center;justify-content:center;height:24px}
+.qw-hr-icon{display:flex;align-items:center;justify-content:center;height:26px}
 .qw-hr-pop{font-size:10px;color:var(--pop);font-weight:600;font-variant-numeric:tabular-nums}
 .qw-hr-text{font-size:10.5px;color:var(--m);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.qw-hr-temp{font-size:13.5px;font-weight:800;font-variant-numeric:tabular-nums}
-.qw-chart{display:block;width:100%;height:84px;margin-top:14px}
-.qw-chart-line{fill:none;stroke:var(--sky);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
-.qw-chart-dot{fill:light-dark(#ffffff,#101a2e);stroke:var(--sky);stroke-width:2;vector-effect:non-scaling-stroke}
-.qw-chart-label{font-size:10.5px;font-weight:700;fill:var(--sky-deep);font-variant-numeric:tabular-nums}
+.qw-chart{position:relative;height:92px;margin-top:12px}
+.qw-chart-svg{display:block;width:100%;height:92px}
+.qw-chart-line{fill:none;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.qw-chart-shadow{fill:none;stroke-width:5.5;stroke-linecap:round;stroke-linejoin:round;opacity:.5;vector-effect:non-scaling-stroke}
+.qw-chart-ridge{fill:none;stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round;opacity:.8;vector-effect:non-scaling-stroke}
+.qw-chart-dot{position:absolute;transform:translate(-50%,-50%);width:11px;height:11px;border-radius:50%;
+  background:radial-gradient(circle at 32% 28%,#ffffff,var(--sky) 78%);
+  border:1.5px solid light-dark(#ffffff,#0e1626);
+  box-shadow:0 2px 6px light-dark(rgba(2,132,199,.35),rgba(0,0,0,.5)),0 0 0 3px light-dark(rgba(56,189,248,.18),rgba(76,141,255,.20))}
+.qw-chart-chip{position:absolute;transform:translate(-50%,-100%);font-size:10.5px;font-weight:700;color:var(--f);
+  background:linear-gradient(150deg,var(--cell-a),var(--cell-b));border:1px solid var(--bd);border-radius:7px;padding:1px 6px;
+  box-shadow:1px 2px 4px var(--sh-dark);font-variant-numeric:tabular-nums;white-space:nowrap}
 .qw-alert{display:flex;flex-direction:column;gap:3px;padding:9px 12px;border-radius:12px;border:1px solid var(--bd);border-left:3px solid var(--alert-c,#f59e0b);
   background:linear-gradient(150deg,color-mix(in srgb,var(--alert-c,#f59e0b) 12%,transparent),transparent 60%);
   box-shadow:2px 3px 8px var(--sh-dark),inset 0 1px 0 light-dark(rgba(255,255,255,.75),rgba(255,255,255,.06))}
@@ -92,7 +98,7 @@ function r1(n: number): number {
   return Math.round(n * 10) / 10
 }
 
-/** 折线点 → Catmull-Rom 平滑曲线路径（贝塞尔观感）。 */
+/** 折线点 → Catmull-Rom 平滑曲线路径。 */
 export function smoothPath(points: readonly (readonly [number, number])[]): string {
   if (points.length < 2) return ''
   let d = 'M' + points[0]![0] + ',' + points[0]![1]
@@ -110,23 +116,29 @@ export function smoothPath(points: readonly (readonly [number, number])[]): stri
   return d
 }
 
-/** 图表坐标尺寸。 */
+/** 图表几何：viewBox 400x92；描点 x 取 10/30/50/70/90%（与上方 5 列小时格中心对齐）。 */
 const CHART_W = 400
-const CHART_H = 84
-const CHART_PAD_X = 20
-const CHART_TOP = 31
-const CHART_BOTTOM = CHART_H - 10
+const CHART_H = 92
+const CHART_TOP = 34
+const CHART_BOTTOM = CHART_H - 8
 
-/** 生成 5 小时气温曲线：天蓝渐变面积 + 辉光平滑折线 + 描点 + 温度标签。 */
+/**
+ * 气温曲线（新拟态 + 玻璃拟态混合，直接作用于曲线本体）：
+ * - 渐变面积（天蓝→透明）+ 描边渐变折线（浅天蓝→鲜艳橙，暗色微调）+ 辉光；
+ * - 折线下垫一层半透明宽投影（右下深色）、上叠一条细高光脊（左上亮色），
+ *   形成“浮起的玻璃棱线”；
+ * - 描点 = 玻璃凸起圆钮（径向高光 + 外环光晕 + 投影）；
+ * - 描点/标签按百分比绝对定位（HTML），任意卡片宽度下文字不变形，
+ *   x 与上方 5 列小时格中心对齐；温度单位 ℃，只标注在曲线上。
+ */
 export function tempChartSvg(hours: readonly HourlyWeather[]): string {
   if (hours.length < 2) return ''
   const temps = hours.map((hour) => hour.temp)
   const min = Math.min(...temps)
   const max = Math.max(...temps)
   const span = max - min || 1
-  const step = (CHART_W - CHART_PAD_X * 2) / Math.max(1, hours.length - 1)
   const points = hours.map((hour, index) => {
-    const x = r1(CHART_PAD_X + index * step)
+    const x = r1(40 + index * 80) // 400 * (10% + i*20%)
     const y = r1(CHART_BOTTOM - ((hour.temp - min) / span) * (CHART_BOTTOM - CHART_TOP))
     return [x, y] as const
   })
@@ -134,24 +146,36 @@ export function tempChartSvg(hours: readonly HourlyWeather[]): string {
   const last = points[points.length - 1]!
   const first = points[0]!
   const area = line + ' L' + last[0] + ',' + CHART_H + ' L' + first[0] + ',' + CHART_H + ' Z'
-  const dots = points.map(([x, y]) => `<circle class="qw-chart-dot" cx="${x}" cy="${y}" r="3.2"/>`).join('')
-  const labels = points.map(([x, y], index) => `<text class="qw-chart-label" x="${x}" y="${r1(y - 10)}" text-anchor="middle">${round1(temps[index]!)}°</text>`).join('')
-  return `<svg class="qw-chart" viewBox="0 0 ${CHART_W} ${CHART_H}" preserveAspectRatio="none" aria-label="气温曲线">`
-    + `<defs>`
-    + `<linearGradient id="qw-chart-fill" x1="0" y1="0" x2="0" y2="1">`
-    + `<stop offset="0%" style="stop-color:var(--sky)" stop-opacity="0.32"/>`
-    + `<stop offset="70%" style="stop-color:var(--sky)" stop-opacity="0.08"/>`
-    + `<stop offset="100%" style="stop-color:var(--sky)" stop-opacity="0"/>`
-    + `</linearGradient>`
-    + `<filter id="qw-chart-glow" x="-20%" y="-30%" width="140%" height="160%">`
-    + `<feGaussianBlur stdDeviation="2.6" result="b"/>`
-    + `<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>`
-    + `</filter>`
-    + `</defs>`
-    + `<path class="qw-chart-area" d="${area}" fill="url(#qw-chart-fill)"/>`
-    + `<path class="qw-chart-line" d="${line}" filter="url(#qw-chart-glow)"/>`
-    + dots + labels
-    + `</svg>`
+  const svg = `<svg class="qw-chart-svg" viewBox="0 0 ${CHART_W} ${CHART_H}" preserveAspectRatio="none" aria-hidden="true">`
+    + '<defs>'
+    + '<linearGradient id="qw-chart-fill" x1="0" y1="0" x2="0" y2="1">'
+    + '<stop offset="0%" style="stop-color:var(--sky)" stop-opacity="0.30"/>'
+    + '<stop offset="70%" style="stop-color:var(--sky)" stop-opacity="0.06"/>'
+    + '<stop offset="100%" style="stop-color:var(--sky)" stop-opacity="0"/>'
+    + '</linearGradient>'
+    + '<linearGradient id="qw-chart-stroke" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="400" y2="0">'
+    + '<stop offset="0%" style="stop-color:var(--sky)"/>'
+    + '<stop offset="100%" style="stop-color:var(--orange)"/>'
+    + '</linearGradient>'
+    + '<filter id="qw-chart-glow" x="-20%" y="-30%" width="140%" height="160%">'
+    + '<feGaussianBlur stdDeviation="2.6" result="b"/>'
+    + '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>'
+    + '</filter>'
+    + '</defs>'
+    + `<path d="${area}" fill="url(#qw-chart-fill)"/>`
+    + `<path class="qw-chart-shadow" d="${line}" transform="translate(0,1.8)" style="stroke:light-dark(rgba(148,163,184,.55),rgba(0,0,0,.5))"/>`
+    + `<path class="qw-chart-line" d="${line}" stroke="url(#qw-chart-stroke)" filter="url(#qw-chart-glow)"/>`
+    + `<path class="qw-chart-ridge" d="${line}" transform="translate(0,-1.1)" style="stroke:light-dark(rgba(255,255,255,.95),rgba(255,255,255,.25))"/>`
+    + '</svg>'
+  const overlay = hours.map((hour, index) => {
+    const [x, y] = points[index]!
+    const left = 10 + index * 20
+    const top = r1(y / CHART_H * 100)
+    const chip = `<span class="qw-chart-chip" style="left:${left}%;top:calc(${top}% - 7px)">${escapeHtml(round1(hour.temp))}℃</span>`
+    const dot = `<span class="qw-chart-dot" style="left:${left}%;top:${top}%"></span>`
+    return chip + dot
+  }).join('')
+  return `<div class="qw-chart">${svg}${overlay}</div>`
 }
 
 /** 组装一张完整的天气卡片 fragment。 */
@@ -168,16 +192,16 @@ export function buildCardFragment(bundle: WeatherBundle, hourCount = 5): string 
   parts.push(`<span class="qw-loc" title="${escapeHtml(placeLabel(bundle.place))}">${escapeHtml(placeLabel(bundle.place))}</span>`)
   parts.push(`<span class="qw-updated">更新于 ${escapeHtml(hourLabel(bundle.receivedAt))}</span>`)
   parts.push('</div>')
-  // 实时天气：新拟态图标块 + 大温度（橙色 °）+ 右侧参数网格
+  // 实时天气：新拟态图标块 + 大温度（橙色 ℃）+ 右侧参数网格
   if (now !== undefined) {
     parts.push('<div class="qw-now">')
     parts.push(`<span class="qw-now-icon">${weatherIcon(now.icon, 30, 'now')}</span>`)
     parts.push('<div class="qw-now-main">')
-    parts.push(`<span class="qw-now-temp"><span class="n">${escapeHtml(round1(now.temp))}</span><span class="deg">°</span></span>`)
+    parts.push(`<span class="qw-now-temp"><span class="n">${escapeHtml(round1(now.temp))}</span><span class="deg">℃</span></span>`)
     parts.push(`<span class="qw-now-text">${escapeHtml(now.text || '')}</span>`)
     parts.push('</div>')
     const meta: string[] = []
-    if (now.feelsLike !== undefined) meta.push(`<span class="k">体感</span><span class="v">${escapeHtml(round1(now.feelsLike))}°</span>`)
+    if (now.feelsLike !== undefined) meta.push(`<span class="k">体感</span><span class="v">${escapeHtml(round1(now.feelsLike))}℃</span>`)
     if (now.humidity !== undefined) meta.push(`<span class="k">湿度</span><span class="v">${now.humidity}%</span>`)
     if (now.windDir !== undefined || now.windScale !== undefined) {
       meta.push(`<span class="k">风</span><span class="v">${escapeHtml(now.windDir ?? '')}${now.windScale !== undefined ? ' ' + now.windScale + '级' : ''}</span>`)
@@ -185,7 +209,7 @@ export function buildCardFragment(bundle: WeatherBundle, hourCount = 5): string 
     if (meta.length > 0) parts.push(`<div class="qw-now-meta">${meta.join('')}</div>`)
     parts.push('</div>')
   }
-  // 未来 N 小时：内凹小时格 + 气温曲线
+  // 未来 N 小时：小时格（时间/图标/降水概率/天气文字，不含温度）+ 曲线凹槽（温度只在此标注）
   if (hours.length > 0) {
     parts.push('<div>')
     parts.push(`<div class="qw-sec-title">未来 ${hours.length} 小时</div>`)
@@ -193,10 +217,9 @@ export function buildCardFragment(bundle: WeatherBundle, hourCount = 5): string 
     hours.forEach((hour, index) => {
       parts.push('<div class="qw-hr">')
       parts.push(`<span class="qw-hr-time">${escapeHtml(hourLabel(hour.time))}</span>`)
-      parts.push(`<span class="qw-hr-icon">${weatherIcon(hour.icon, 22, 'h' + index)}</span>`)
+      parts.push(`<span class="qw-hr-icon">${weatherIcon(hour.icon, 20, 'h' + index)}</span>`)
       parts.push(`<span class="qw-hr-pop">${escapeHtml(percent(hour.pop))}</span>`)
       parts.push(`<span class="qw-hr-text" title="${escapeHtml(hour.text || '')}">${escapeHtml(hour.text || '')}</span>`)
-      parts.push(`<span class="qw-hr-temp">${escapeHtml(round1(hour.temp))}°</span>`)
       parts.push('</div>')
     })
     parts.push('</div>')

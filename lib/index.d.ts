@@ -153,7 +153,15 @@ declare function weatherTool(ctx: Context, getConfig: () => QWeatherRuntimeConfi
 declare function cardTool(ctx: Context, getConfig: () => QWeatherRuntimeConfig): ToolDefinition;
 //#endregion
 //#region src/qweather/card.d.ts
-/** 生成 5 小时气温曲线：天蓝渐变面积 + 辉光平滑折线 + 描点 + 温度标签。 */
+/**
+ * 气温曲线（新拟态 + 玻璃拟态混合，直接作用于曲线本体）：
+ * - 渐变面积（天蓝→透明）+ 描边渐变折线（浅天蓝→鲜艳橙，暗色微调）+ 辉光；
+ * - 折线下垫一层半透明宽投影（右下深色）、上叠一条细高光脊（左上亮色），
+ *   形成“浮起的玻璃棱线”；
+ * - 描点 = 玻璃凸起圆钮（径向高光 + 外环光晕 + 投影）；
+ * - 描点/标签按百分比绝对定位（HTML），任意卡片宽度下文字不变形，
+ *   x 与上方 5 列小时格中心对齐；温度单位 ℃，只标注在曲线上。
+ */
 declare function tempChartSvg(hours: readonly HourlyWeather[]): string;
 /** 组装一张完整的天气卡片 fragment。 */
 declare function buildCardFragment(bundle: WeatherBundle, hourCount?: number): string;
@@ -220,19 +228,22 @@ declare class QWeatherClient {
 //#endregion
 //#region src/qweather/icons.d.ts
 /**
- * 内置天气图标（自绘、MIT、无网络依赖）。v2 设计：
- * - 填充式 + 双色纵向渐变（顶部高光 → 底部深色），替代单调的线性图标；
- * - 每枚图标带一层向下偏移的深色投影，形成新拟态的“浮起”立体感；
- * - 太阳/月亮/雨滴/闪电等高光细节用白色叠加层勾勒；
- * - 晴间多云/多云间晴：云体为实心填充叠加，前后层分明，不再出现线条互相穿插。
- * 渐变 id 以调用方传入的 uid 隔离，避免同文档多枚图标时 defs 冲突。
+ * 内置天气图标（自绘、MIT、无网络依赖）。设计要点：
+ * - 填充式 + 双色纵向渐变（顶部高光 → 底部深色）+ 向下偏移的深色投影，浮起立体感；
+ * - 缩放统一用 centered() 变换（translate(cx,cy) scale(s) translate(-12,-12)），
+ *   太阳本体永远位于光芒正中，月牙完整居中不越界；
+ * - 雨滴/雪花缩小并放在云朵下方；雪花用灰色与白色云体区分；
+ * - 霾/扬沙/浮尘/沙尘暴 分属 haze / dust / sandstorm 三种图样；
+ * - 热/冷 使用温度计图样（橙红 / 冰蓝渐变），不再用云朵。
  */
-type IconKind = 'sun' | 'moon' | 'partly' | 'partly-night' | 'cloudy' | 'rain' | 'heavy-rain' | 'thunder' | 'sleet' | 'snow' | 'fog' | 'haze' | 'unknown';
+type IconKind = 'sun' | 'moon' | 'partly' | 'partly-night' | 'cloudy' | 'rain' | 'heavy-rain' | 'thunder' | 'sleet' | 'snow' | 'fog' | 'haze' | 'dust' | 'sandstorm' | 'hot' | 'cold' | 'unknown';
 /** 组装成最终 svg。 */
 declare function weatherIcon(code: string, size?: number, uid?: string): string;
 /**
  * condition code → 图标归类。
- * 100=晴、15x=夜间、30x/35x=雨、302-304=雷、40x=雪、404-406/456=雨夹雪、50x=雾/霾/沙尘。
+ * 100=晴、15x=夜间、30x/35x=雨、302-304=雷、40x=雪、404-406/456=雨夹雪、
+ * 500-501/509-515=雾、502/511-513=霾、503-504=扬沙/浮尘、507-508=沙尘暴、
+ * 900=热、901=冷。
  */
 declare function iconKindOf(code: string): IconKind;
 //#endregion

@@ -30,18 +30,30 @@ describe('buildCardFragment', () => {
     expect(fragment).toContain('light-dark(')
     expect(fragment).toContain('backdrop-filter')
   })
-  it('包含当前天气：图标、文字、气温', () => {
-    expect(fragment).toContain('31°')
+  it('包含当前天气：图标、文字、气温（单位 ℃）', () => {
     expect(fragment).toContain('阴')
     expect(fragment).toContain('qw-now-icon')
     expect(fragment).toContain('qw-now-meta')
+    expect(fragment).toContain('30℃') // 体感
+    expect(fragment).toContain('℃') // 大温度橙色单位
+  })
+  it('小时格不含温度；温度只标注在曲线芯片上', () => {
+    expect(fragment.match(/class="qw-hr-time"/g)).toHaveLength(5)
+    expect(fragment).not.toContain('qw-hr-temp')
+    expect(fragment).toContain('class="qw-chart"')
+    expect(fragment).toContain('qw-chart-chip')
+    expect(fragment).toContain('qw-chart-dot')
+    expect(fragment).toContain('33℃')
   })
   it('包含未来 5 小时 + 降水概率 + 气温曲线', () => {
-    expect(fragment.match(/class="qw-hr-temp"/g)).toHaveLength(5)
     expect(fragment).toContain('50%')
-    expect(fragment).toContain('qw-chart')
+    expect(fragment).toContain('qw-chart-svg')
     expect(fragment).toContain('qw-chart-line')
     expect(fragment).toContain('qw-chart-fill')
+    // 描点/标签按百分比定位，x 与小时格中心对齐（10/30/50/70/90）
+    expect(fragment).toContain('left:10%')
+    expect(fragment).toContain('left:50%')
+    expect(fragment).toContain('left:90%')
   })
   it('预警只保留黄色及以上，文本被转义', () => {
     expect(fragment).toContain('暴雨黄色预警')
@@ -63,11 +75,11 @@ describe('tempChartSvg', () => {
     expect(tempChartSvg([])).toBe('')
     expect(tempChartSvg([{ time: 'x', temp: 1, icon: '100', text: '晴', pop: 0 }])).toBe('')
   })
-  it('2 个以上输出平滑曲线、渐变面积与温度标签', () => {
+  it('2 个以上输出平滑曲线、渐变面积与温度标签芯片（℃）', () => {
     const svg = tempChartSvg(bundle.hours!)
     expect(svg).toContain('qw-chart-line')
     expect(svg).toContain('linearGradient')
-    expect(svg).toContain('33°')
+    expect(svg).toContain('33℃')
     expect(svg).toContain('C') // 平滑曲线使用三次贝塞尔段
   })
 })
@@ -92,6 +104,13 @@ describe('weatherIcon', () => {
     expect(iconKindOf('302')).toBe('thunder')
     expect(iconKindOf('406')).toBe('sleet')
     expect(iconKindOf('501')).toBe('fog')
+    expect(iconKindOf('502')).toBe('haze')
+    expect(iconKindOf('503')).toBe('dust')
+    expect(iconKindOf('504')).toBe('dust')
+    expect(iconKindOf('507')).toBe('sandstorm')
+    expect(iconKindOf('508')).toBe('sandstorm')
+    expect(iconKindOf('900')).toBe('hot')
+    expect(iconKindOf('901')).toBe('cold')
     expect(iconKindOf('999')).toBe('unknown')
   })
   it('输出内联 SVG（无外部引用）', () => {

@@ -19,26 +19,36 @@ const hourCells = hours.map((h, i) => `
         <span class="mut s">${hourLabel(h.time)}</span>
         <span class="ic">${weatherIcon(h.icon, 16, 'pv-h' + i)}</span>
         <span class="pop">${percent(h.pop)}</span>
-        <span class="t">${round1(h.temp)}°</span>
       </div>`).join('')
 
-// 迷你气温曲线（与组件 MiniCurve 同款）
+// 迷你气温曲线凹槽（与组件 MiniCurve 同款：拉伸的纯路径 SVG + HTML 描点/标签芯片）
 const temps = hours.map((h) => h.temp)
 const tMin = Math.min(...temps)
 const tMax = Math.max(...temps)
 const tSpan = tMax - tMin || 1
-const W = 320, H = 46, PAD = 12
-const tXs = hours.map((_, i) => PAD + i * ((W - PAD * 2) / Math.max(1, hours.length - 1)))
-const tYs = temps.map((t) => H - 7 - ((t - tMin) / tSpan) * (H - 16))
+const W = 320, H = 56
+const tXs = hours.map((_, i) => 32 + i * 64)
+const tYs = temps.map((t) => H - 8 - ((t - tMin) / tSpan) * (H - 30))
 const tPoints = tXs.map((x, i) => `${x.toFixed(1)},${tYs[i].toFixed(1)}`).join(' ')
 const tArea = `M${tXs[0].toFixed(1)},${H} L${tPoints} L${tXs[tXs.length - 1].toFixed(1)},${H} Z`
-const sideCurve = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="width:100%;height:${H}px;margin-top:6px">`
+const sideCurve = `<div class="curve" style="height:${H}px;margin-top:8px">`
+  + `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="display:block;width:100%;height:${H}px">`
   + '<defs><linearGradient id="side-fill" x1="0" y1="0" x2="0" y2="1">'
-  + '<stop offset="0%" stop-color="var(--sky)" stop-opacity="0.3"/><stop offset="100%" stop-color="var(--sky)" stop-opacity="0"/></linearGradient></defs>'
+  + '<stop offset="0%" stop-color="var(--sky)" stop-opacity="0.28"/><stop offset="100%" stop-color="var(--sky)" stop-opacity="0"/></linearGradient>'
+  + '<linearGradient id="side-stroke" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="320" y2="0">'
+  + '<stop offset="0%" stop-color="var(--sky)"/><stop offset="100%" stop-color="var(--orange)"/></linearGradient></defs>'
   + `<path d="${tArea}" fill="url(#side-fill)"/>`
-  + `<polyline points="${tPoints}" style="fill:none;stroke:var(--sky);stroke-width:2.2;stroke-linejoin:round;stroke-linecap:round;vector-effect:non-scaling-stroke"/>`
-  + tXs.map((x, i) => `<circle cx="${x.toFixed(1)}" cy="${tYs[i].toFixed(1)}" r="2.4" style="fill:var(--dot);stroke:var(--sky);stroke-width:1.8"/>`).join('')
+  + `<polyline points="${tPoints}" transform="translate(0,1.4)" style="fill:none;stroke:var(--line-sh);stroke-width:4.5;stroke-linejoin:round;stroke-linecap:round;opacity:.5;vector-effect:non-scaling-stroke"/>`
+  + `<polyline points="${tPoints}" style="fill:none;stroke:url(#side-stroke);stroke-width:2.6;stroke-linejoin:round;stroke-linecap:round;vector-effect:non-scaling-stroke"/>`
+  + `<polyline points="${tPoints}" transform="translate(0,-0.9)" style="fill:none;stroke:var(--line-hi);stroke-width:1.1;stroke-linejoin:round;stroke-linecap:round;opacity:.8;vector-effect:non-scaling-stroke"/>`
   + '</svg>'
+  + tXs.map((x, i) => {
+    const left = 10 + i * 20
+    const top = (tYs[i] / H * 100).toFixed(1)
+    return `<span class="chip" style="left:${left}%;top:calc(${top}% - 6px)">${round1(hours[i].temp)}℃</span>`
+      + `<span class="cdot" style="left:${left}%;top:${top}%"></span>`
+  }).join('')
+  + '</div>'
 
 const alertRows = alerts.length === 0
   ? '<div class="mut" style="font-size:11px">当前无黄色及以上预警</div>'
@@ -53,13 +63,15 @@ const html = `<!doctype html>
 <style>
 :root {
   --page-a:#05080f; --page-b:#0b1220;
-  --glass-a:rgba(34,47,70,.80); --glass-b:rgba(16,24,40,.74);
-  --cell-a:rgba(38,51,73,.75); --cell-b:rgba(20,29,45,.70);
+  --glass-a:rgba(40,55,84,.86); --glass-b:rgba(17,26,44,.78);
+  --cell-a:rgba(46,60,90,.80); --cell-b:rgba(20,30,50,.72);
   --text:#e8eefb; --mut:#9fb0c7; --sub:#5f7089;
-  --border:rgba(255,255,255,.09); --sky:#4c8dff; --sky-deep:#2f6bff; --orange:#fb923c; --pop:#22d3ee;
-  --sh-dark:rgba(0,0,0,.55); --sh-light:rgba(90,110,140,.14);
+  --border:rgba(255,255,255,.10); --sky:#4c8dff; --sky-deep:#2f6bff; --orange:#fb923c; --pop:#56bad9;
+  --sh-dark:rgba(0,0,0,.6); --sh-light:rgba(96,116,150,.16);
   --glow:rgba(0,0,0,.4); --dot:#101a2e;
-  --hi:rgba(255,255,255,.07);
+  --hi:rgba(255,255,255,.08);
+  --line-sh:rgba(0,0,0,.5); --line-hi:rgba(255,255,255,.25);
+  --sky-aura:rgba(80,140,255,.18); --orange-aura:rgba(251,146,60,.11);
   color-scheme: dark;
 }
 body.light {
@@ -71,6 +83,8 @@ body.light {
   --sh-dark:rgba(148,163,184,.42); --sh-light:rgba(255,255,255,.95);
   --glow:rgba(56,189,248,.25); --dot:#ffffff;
   --hi:rgba(255,255,255,.9);
+  --line-sh:rgba(148,163,184,.55); --line-hi:rgba(255,255,255,.95);
+  --sky-aura:rgba(56,189,248,.16); --orange-aura:rgba(249,115,22,.10);
   color-scheme: light;
 }
 * { box-sizing: border-box }
@@ -82,7 +96,7 @@ body { margin:0; padding:34px 16px; color:var(--text);
   min-height:100vh;
   font:14px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;
   -webkit-font-smoothing:antialiased; transition:background .3s }
-body.light { --sky-aura:rgba(56,189,248,.16); --orange-aura:rgba(249,115,22,.10) }
+
 .toggle { position:fixed; top:14px; right:14px; font-size:12px; padding:6px 14px; border-radius:10px;
   border:1px solid var(--border); color:var(--text); cursor:pointer;
   background:linear-gradient(150deg,var(--glass-a),var(--glass-b)); backdrop-filter:blur(12px);
@@ -112,8 +126,8 @@ h1 { font-size:19px; margin:0 0 4px }
 .now .tile { flex:none; display:flex; align-items:center; justify-content:center; width:38px; height:38px; border-radius:11px;
   background:linear-gradient(145deg,var(--tile-a),var(--tile-b));
   box-shadow:4px 4px 10px var(--sh-dark),-3px -3px 8px var(--sh-light),inset 0 1px 0 var(--hi) }
-.now .t { display:flex; align-items:baseline; gap:2px; font-size:24px; font-weight:800; letter-spacing:-.4px; line-height:1 }
-.now .t .deg { font-size:15px; color:var(--orange) }
+.now .t { display:flex; align-items:flex-start; gap:1px; font-size:24px; font-weight:800; letter-spacing:-.4px; line-height:1 }
+.now .t .deg { font-size:11px; color:var(--orange); margin-top:1.5px }
 .now .meta { margin-left:auto; display:flex; flex-direction:column; gap:2px; color:var(--mut); font-size:10.5px; text-align:right; line-height:1.4 }
 .now .meta b { color:var(--text); font-weight:700 }
 .hours { display:grid; grid-template-columns:repeat(5,1fr); gap:4px }
@@ -123,7 +137,14 @@ h1 { font-size:19px; margin:0 0 4px }
 .hr .s { font-size:9.5px; color:var(--sub) }
 .hr .ic { display:inline-flex }
 .hr .pop { color:var(--pop); font-size:9.5px; font-weight:600 }
-.hr .t { font-size:12px; font-weight:700 }
+.curve { position:relative }
+.chip { position:absolute; transform:translate(-50%,-100%); font-size:9px; font-weight:700; color:var(--text);
+  background:linear-gradient(150deg,var(--cell-a),var(--cell-b)); border:1px solid var(--border);
+  border-radius:6px; padding:0 4px; box-shadow:1px 2px 4px var(--sh-dark); white-space:nowrap }
+.cdot { position:absolute; transform:translate(-50%,-50%); width:9px; height:9px; border-radius:50%;
+  background:radial-gradient(circle at 32% 28%,#ffffff,var(--sky) 78%);
+  border:1.5px solid var(--dot);
+  box-shadow:0 2px 5px var(--glow),0 0 0 2.5px color-mix(in srgb,var(--sky) 20%,transparent) }
 .sec { display:flex; align-items:center; gap:6px; font-size:10px; font-weight:700; letter-spacing:.6px; color:var(--mut); margin:2px 0 6px }
 .sec::before { content:''; width:3.5px; height:11px; border-radius:2px; background:linear-gradient(180deg,var(--sky),var(--orange)); box-shadow:0 1px 3px var(--sh-dark) }
 .alert { font-size:10.5px; line-height:1.45; padding:5px 8px; border:1px solid var(--border); border-left:3px solid var(--c);
@@ -142,22 +163,22 @@ body.light { --tile-a:#e0f4ff; --tile-b:#bfe4ff }
 <button class="toggle" onclick="document.body.classList.toggle('light')">明 / 暗</button>
 <div class="wrap">
   <h1>dsh-qweather 预览</h1>
-  <p class="sub">v2 新拟态 + 玻璃拟态 · 左侧 = 侧边栏组件（收起 / 展开）· 右侧 = qweather_card 对话内卡片 · 数据来自真实 API 样例</p>
+  <p class="sub">v3 新拟态 + 玻璃拟态 · 左侧 = 侧边栏组件（收起 / 展开）· 右侧 = qweather_card 对话内卡片 · 数据来自真实 API 样例</p>
   <div class="panels">
     <div class="panel side">
       <h2>侧边栏收起（仅图标 + 气温）</h2>
       <div class="rail">
         <span class="tile">${weatherIcon(now.icon, 18, 'pv-rail')}</span>
-        <span class="r-temp num">${round1(now.temp)}°</span>
+        <span class="r-temp num">${round1(now.temp)}℃</span>
       </div>
       <h2 style="margin-top:18px">侧边栏展开（完整卡片）</h2>
       <div class="card">
         <div class="head"><span>${placeLabel(bundle.place)}</span><span style="color:var(--mut);font-weight:400">↻</span></div>
         <div class="now">
           <span class="tile">${weatherIcon(now.icon, 24, 'pv-now')}</span>
-          <span class="t num"><span>${round1(now.temp)}</span><span class="deg">°</span></span>
+          <span class="t num"><span>${round1(now.temp)}</span><span class="deg">℃</span></span>
           <span class="mut" style="color:var(--mut);font-size:12px">${now.text}</span>
-          <span class="meta"><span>体感 <b class="num">${round1(now.feelsLike)}°</b></span><span>湿度 <b class="num">${now.humidity}%</b></span></span>
+          <span class="meta"><span>体感 <b class="num">${round1(now.feelsLike)}℃</b></span><span>湿度 <b class="num">${now.humidity}%</b></span></span>
         </div>
         <div class="sec">未来 5 小时</div>
         <div class="hours">${hourCells}

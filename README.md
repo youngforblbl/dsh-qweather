@@ -24,6 +24,7 @@ UI 视觉风格参考 [uupm.cc/demo/investment-platform](https://uupm.cc/demo/in
 ## 快速预览
 
 - **静态预览**：直接双击打开仓库里的 [preview.html](preview.html)（自包含、默认深色、含明暗切换；样例数据来自真实 API；`preview.html?light` 直达浅色）。
+- **图标全集**：双击打开 [icons.html](icons.html)——62 枚天气图标的完整图鉴（含夜间小时格嵌套演示），验证图标设计首选。
 - **动态预览**：克隆本仓库 → `pnpm install && pnpm run check` → 装进一个临时 profile 并启动 Web 界面，打开 设置 → 插件 → 和风天气 填入你的 KEY 即可实时体验。
 
 ## 安装
@@ -130,10 +131,11 @@ src/
 ```bash
 pnpm install
 pnpm run typecheck   # 双端类型检查（tsconfig.json + tsconfig.client.json）
-pnpm run test        # vitest 单元测试（34 例：API 解析/格式化/卡片/曲线/预警过滤）
+pnpm run test        # vitest 单元测试（35 例：API 解析/格式化/卡片/曲线/图标映射/预警过滤）
 pnpm run build       # tsdown 双端构建 → lib/index.js + lib/client.js
 pnpm run check       # 以上全部
 pnpm run preview     # 用 samples/sample-bundle.json 重新生成 preview.html
+pnpm run icons       # 重新生成 icons.html（全部图标图鉴）
 QW_API_KEY=你的key node scripts/fetch-sample.mjs 北京   # 拉真实样例
 ```
 

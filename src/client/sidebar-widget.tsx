@@ -22,21 +22,21 @@ export interface SidebarWeatherWidgetProps {
   saveAuto: (id: string, name: string) => void
 }
 
-// 与卡片一致的 v2 调色板（light-dark() 随宿主 color-scheme 切换）
+// 与卡片一致的 v3 调色板（light-dark() 随宿主 color-scheme 切换）
 const sky = 'light-dark(#38bdf8,#4c8dff)'
 const skyDeep = 'light-dark(#0284c7,#2f6bff)'
 const orange = 'light-dark(#f97316,#fb923c)'
 const fg = 'light-dark(#3a4a61,#e8eefb)'
 const muted = 'light-dark(#64748b,#9fb0c7)'
 const faint = 'light-dark(#8fa0b5,#5f7089)'
-const pop = 'light-dark(#0ea5e9,#22d3ee)'
-const glassA = 'light-dark(rgba(255,255,255,.88),rgba(34,47,70,.80))'
-const glassB = 'light-dark(rgba(255,255,255,.55),rgba(16,24,40,.74))'
-const cellA = 'light-dark(rgba(255,255,255,.85),rgba(38,51,73,.75))'
-const cellB = 'light-dark(rgba(233,239,247,.75),rgba(20,29,45,.70))'
-const bd = 'light-dark(rgba(255,255,255,.75),rgba(255,255,255,.09))'
-const shDark = 'light-dark(rgba(148,163,184,.42),rgba(0,0,0,.55))'
-const shLight = 'light-dark(rgba(255,255,255,.95),rgba(90,110,140,.14))'
+const pop = 'light-dark(#0ea5e9,#56bad9)'
+const glassA = 'light-dark(rgba(255,255,255,.88),rgba(40,55,84,.86))'
+const glassB = 'light-dark(rgba(255,255,255,.55),rgba(17,26,44,.78))'
+const cellA = 'light-dark(rgba(255,255,255,.85),rgba(46,60,90,.80))'
+const cellB = 'light-dark(rgba(233,239,247,.75),rgba(20,30,50,.72))'
+const bd = 'light-dark(rgba(255,255,255,.75),rgba(255,255,255,.10))'
+const shDark = 'light-dark(rgba(148,163,184,.42),rgba(0,0,0,.6))'
+const shLight = 'light-dark(rgba(255,255,255,.95),rgba(96,116,150,.16))'
 
 const num: CSSProperties = { fontVariantNumeric: 'tabular-nums' }
 
@@ -83,34 +83,64 @@ function IconTile({ code, size, tileSize, uid }: { code: string; size: number; t
   )
 }
 
-/** 迷你气温曲线（渐变面积 + 平滑折线 + 描点，随侧边栏宽度自适应）。 */
+/**
+ * 迷你气温曲线（新拟态 + 玻璃拟态作用于曲线本体）：
+ * 渐变面积 + 描边渐变折线（浅天蓝→橙）+ 底层宽投影 + 顶部高光脊，
+ * 玻璃凸起描点；HTML 百分比定位的标签芯片（℃）任意宽度不变形，
+ * 描点 x 与上方小时格中心对齐。
+ */
 function MiniCurve({ hours }: { hours: readonly { temp: number }[] }) {
   if (hours.length < 2) return null
   const W = 320
-  const H = 46
-  const PAD = 12
+  const H = 56
   const temps = hours.map((hour) => hour.temp)
   const min = Math.min(...temps)
   const max = Math.max(...temps)
   const span = max - min || 1
-  const xs = hours.map((_, index) => PAD + index * ((W - PAD * 2) / Math.max(1, hours.length - 1)))
-  const ys = temps.map((temp) => H - 7 - ((temp - min) / span) * (H - 16))
+  const xs = hours.map((_, index) => 32 + index * 64) // 320 * (10% + i*20%)
+  const ys = temps.map((temp) => H - 8 - ((temp - min) / span) * (H - 30))
   const points = xs.map((x, index) => x.toFixed(1) + ',' + ys[index]!.toFixed(1)).join(' ')
   const area = 'M' + xs[0]!.toFixed(1) + ',' + H + ' L' + points + ' L' + xs[xs.length - 1]!.toFixed(1) + ',' + H + ' Z'
   return (
-    <svg viewBox={'0 0 ' + W + ' ' + H} preserveAspectRatio="none" style={{ width: '100%', height: H, marginTop: 6 }} aria-label="气温曲线">
-      <defs>
-        <linearGradient id="qw-side-chart-fill" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" style={{ stopColor: sky }} stopOpacity={0.3} />
-          <stop offset="100%" style={{ stopColor: sky }} stopOpacity={0} />
-        </linearGradient>
-      </defs>
-      <path d={area} fill="url(#qw-side-chart-fill)" />
-      <polyline points={points} style={{ fill: 'none', stroke: sky, strokeWidth: 2.2, strokeLinejoin: 'round', strokeLinecap: 'round', vectorEffect: 'non-scaling-stroke' }} />
-      {xs.map((x, index) => (
-        <circle key={index} cx={x} cy={ys[index]} r={2.4} style={{ fill: 'light-dark(#ffffff,#101a2e)', stroke: sky, strokeWidth: 1.8 }} />
-      ))}
-    </svg>
+    <div style={{ position: 'relative', height: H, marginTop: 8 }} aria-label="气温曲线">
+      <svg viewBox={'0 0 ' + W + ' ' + H} preserveAspectRatio="none" style={{ display: 'block', width: '100%', height: H }}>
+        <defs>
+          <linearGradient id="qw-side-chart-fill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" style={{ stopColor: sky }} stopOpacity={0.28} />
+            <stop offset="100%" style={{ stopColor: sky }} stopOpacity={0} />
+          </linearGradient>
+          <linearGradient id="qw-side-chart-stroke" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="320" y2="0">
+            <stop offset="0%" style={{ stopColor: sky }} />
+            <stop offset="100%" style={{ stopColor: orange }} />
+          </linearGradient>
+        </defs>
+        <path d={area} fill="url(#qw-side-chart-fill)" />
+        <polyline points={points} transform="translate(0,1.4)" style={{ fill: 'none', stroke: 'light-dark(rgba(148,163,184,.55),rgba(0,0,0,.5))', strokeWidth: 4.5, strokeLinejoin: 'round', strokeLinecap: 'round', opacity: 0.5, vectorEffect: 'non-scaling-stroke' }} />
+        <polyline points={points} style={{ fill: 'none', stroke: 'url(#qw-side-chart-stroke)', strokeWidth: 2.6, strokeLinejoin: 'round', strokeLinecap: 'round', vectorEffect: 'non-scaling-stroke' }} />
+        <polyline points={points} transform="translate(0,-0.9)" style={{ fill: 'none', stroke: 'light-dark(rgba(255,255,255,.95),rgba(255,255,255,.25))', strokeWidth: 1.1, strokeLinejoin: 'round', strokeLinecap: 'round', opacity: 0.8, vectorEffect: 'non-scaling-stroke' }} />
+      </svg>
+      {hours.map((hour, index) => {
+        const left = 10 + index * 20
+        const top = ys[index]! / H * 100
+        return (
+          <span key={index}>
+            <span style={{
+              position: 'absolute', left: left + '%', top: 'calc(' + top.toFixed(1) + '% - 6px)',
+              transform: 'translate(-50%,-100%)', fontSize: 9, fontWeight: 700, color: fg,
+              background: 'linear-gradient(150deg,' + cellA + ',' + cellB + ')', border: '1px solid ' + bd,
+              borderRadius: 6, padding: '0 4px', boxShadow: '1px 2px 4px ' + shDark, ...num,
+            }}>{round1(hour.temp)}℃</span>
+            <span style={{
+              position: 'absolute', left: left + '%', top: top.toFixed(1) + '%',
+              transform: 'translate(-50%,-50%)', width: 9, height: 9, borderRadius: '50%',
+              background: 'radial-gradient(circle at 32% 28%,#ffffff,' + sky + ' 78%)',
+              border: '1.5px solid light-dark(#ffffff,#0e1626)',
+              boxShadow: '0 2px 5px light-dark(rgba(2,132,199,.35),rgba(0,0,0,.5)),0 0 0 2.5px light-dark(rgba(56,189,248,.18),rgba(76,141,255,.20))',
+            }} />
+          </span>
+        )
+      })}
+    </div>
   )
 }
 
@@ -145,7 +175,7 @@ function RailView({ bundle, status, error, onExpand }: {
 }) {
   const now = bundle?.now
   let text: string
-  if (now !== undefined) text = round1(now.temp) + '°'
+  if (now !== undefined) text = round1(now.temp) + '℃'
   else if (status === 'loading') text = '…'
   else if (status === 'error') text = '—'
   else text = '·'
@@ -188,12 +218,12 @@ function WideView({ bundle, status, error, refreshing, onRefresh, t }: {
       {now !== undefined && (
         <div style={row}>
           <IconTile code={now.icon} size={24} tileSize={38} uid="now" />
-          <span style={{ display: 'flex', alignItems: 'baseline', gap: 2, fontSize: 24, fontWeight: 800, lineHeight: 1, letterSpacing: '-.4px', ...num }}>
-            <span>{round1(now.temp)}</span><span style={{ fontSize: 15, color: orange }}>°</span>
+          <span style={{ display: 'flex', alignItems: 'flex-start', gap: 1, fontSize: 24, fontWeight: 800, lineHeight: 1, letterSpacing: '-.4px', ...num }}>
+            <span>{round1(now.temp)}</span><span style={{ fontSize: 11, fontWeight: 800, color: orange, marginTop: 1.5 }}>℃</span>
           </span>
           <span style={{ color: muted, fontSize: 12 }}>{now.text}</span>
           <span style={{ marginLeft: 'auto', display: 'flex', flexDirection: 'column', gap: 2, fontSize: 10.5, textAlign: 'right', color: muted, lineHeight: 1.4 }}>
-            {now.feelsLike !== undefined && <span>体感 <b style={{ color: fg, fontWeight: 700, ...num }}>{round1(now.feelsLike)}°</b></span>}
+            {now.feelsLike !== undefined && <span>体感 <b style={{ color: fg, fontWeight: 700, ...num }}>{round1(now.feelsLike)}℃</b></span>}
             {now.humidity !== undefined && <span>湿度 <b style={{ color: fg, fontWeight: 700, ...num }}>{now.humidity}%</b></span>}
           </span>
         </div>
@@ -210,7 +240,6 @@ function WideView({ bundle, status, error, refreshing, onRefresh, t }: {
                 <span style={{ fontSize: 9.5, color: faint, ...num }}>{hourLabel(hour.time)}</span>
                 <Icon code={hour.icon} size={16} uid={'h' + index} />
                 <span style={{ fontSize: 9.5, color: pop, fontWeight: 600, ...num }}>{percent(hour.pop)}</span>
-                <span style={{ fontSize: 12, fontWeight: 700, ...num }}>{round1(hour.temp)}°</span>
               </div>
             ))}
           </div>
