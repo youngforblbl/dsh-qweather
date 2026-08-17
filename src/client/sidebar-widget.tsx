@@ -104,16 +104,14 @@ function MiniCurve({ hours }: { hours: readonly { temp: number }[] }) {
   const points = xs.map((x, index) => x.toFixed(1) + ',' + ys[index]!.toFixed(1)).join(' ')
   return (
     <div style={{ position: 'relative', height: H, marginTop: 8 }} aria-label="气温曲线">
-      <svg viewBox={'0 0 ' + W + ' ' + H} preserveAspectRatio="none" style={{ display: 'block', width: '100%', height: H }}>
+      <svg viewBox={'0 0 ' + W + ' ' + H} preserveAspectRatio="none" style={{ display: 'block', width: '100%', height: H, filter: 'drop-shadow(0.8px 4.5px 5.5px light-dark(rgba(0,0,0,.28),rgba(0,0,0,.5)))' }}>
         <defs>
           <linearGradient id="qw-side-chart-stroke" gradientUnits="userSpaceOnUse" x1="0" y1="14" x2="0" y2="48">
             <stop offset="0%" style={{ stopColor: orange }} />
             <stop offset="100%" style={{ stopColor: sky }} />
           </linearGradient>
         </defs>
-        <polyline points={points} transform="translate(0,1.6)" style={{ fill: 'none', stroke: 'light-dark(rgba(0,0,0,.22),rgba(0,0,0,.5))', strokeWidth: 10, strokeLinejoin: 'round', strokeLinecap: 'round', opacity: 0.35, vectorEffect: 'non-scaling-stroke' }} />
         <polyline points={points} style={{ fill: 'none', stroke: 'url(#qw-side-chart-stroke)', strokeWidth: 9, strokeLinejoin: 'round', strokeLinecap: 'round', vectorEffect: 'non-scaling-stroke' }} />
-        <polyline points={points} transform="translate(0,-3.2)" style={{ fill: 'none', stroke: 'light-dark(rgba(255,255,255,.95),rgba(255,255,255,.22))', strokeWidth: 1.6, strokeLinejoin: 'round', strokeLinecap: 'round', opacity: 0.8, vectorEffect: 'non-scaling-stroke' }} />
       </svg>
       {hours.map((hour, index) => {
         const left = 10 + index * 20
@@ -121,7 +119,7 @@ function MiniCurve({ hours }: { hours: readonly { temp: number }[] }) {
         return (
           <span key={index} style={{
             position: 'absolute', left: left + '%', top: 'calc(' + top.toFixed(1) + '% - 6px)',
-            transform: 'translate(-50%,-100%)', fontSize: 9, fontWeight: 700, color: fg,
+            transform: 'translate(-50%,-100%)', fontSize: 13.5, fontWeight: 700, color: fg,
             textShadow: '0 1px 0 light-dark(rgba(255,255,255,.6),rgba(0,0,0,.35))', ...num,
           }}>{round1(hour.temp)}℃</span>
         )
@@ -244,9 +242,9 @@ function WideView({ bundle, status, error, refreshing, onRefresh, t }: {
           <div style={hourGrid}>
             {hours.map((hour, index) => (
               <div key={hour.time} style={hourCell}>
-                <span style={{ fontSize: 9.5, color: faint, ...num }}>{hourLabel(hour.time)}</span>
-                <Icon code={hour.icon} size={16} uid={'h' + index} />
-                <span style={{ fontSize: 9.5, color: pop, fontWeight: 600, ...num }}>{percent(hour.pop)}</span>
+                <span style={{ fontSize: 10.5, color: faint, ...num }}>{hourLabel(hour.time)}</span>
+                <Icon code={hour.icon} size={18} uid={'h' + index} />
+                <span style={{ fontSize: 10.5, color: pop, fontWeight: 600, ...num }}>{percent(hour.pop)}</span>
               </div>
             ))}
           </div>

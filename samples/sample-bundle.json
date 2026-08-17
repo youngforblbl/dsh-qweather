@@ -7,17 +7,17 @@
     "lat": 39.90499,
     "lon": 116.40529
   },
-  "receivedAt": "2026-08-17T09:04:35.310Z",
+  "receivedAt": "2026-08-17T09:17:14.585Z",
   "now": {
-    "temp": 31.95,
-    "feelsLike": 32.54,
+    "temp": 31.96,
+    "feelsLike": 32.45,
     "icon": "101",
     "text": "多云",
-    "humidity": 41,
+    "humidity": 40,
     "windDir": "东北风",
     "windScale": 2,
     "precip": 0,
-    "pressure": 1006.27,
+    "pressure": 1006.25,
     "vis": 30,
     "cloud": 30
   },

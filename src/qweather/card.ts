@@ -70,16 +70,15 @@ const CARD_CSS = `
 .qw-hr{display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 2px 8px;border-radius:13px;border:1px solid var(--bd);
   background:linear-gradient(145deg,var(--cell-a),var(--cell-b));
   box-shadow:inset 2.5px 2.5px 6px var(--sh-dark),inset -2.5px -2.5px 6px var(--sh-light)}
-.qw-hr-time{font-size:10px;color:var(--s);font-variant-numeric:tabular-nums}
-.qw-hr-icon{display:flex;align-items:center;justify-content:center;height:26px}
-.qw-hr-pop{font-size:10px;color:var(--pop);font-weight:600;font-variant-numeric:tabular-nums}
-.qw-hr-text{font-size:10.5px;color:var(--m);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qw-hr-time{font-size:11.5px;color:var(--s);font-variant-numeric:tabular-nums}
+.qw-hr-icon{display:flex;align-items:center;justify-content:center;height:28px}
+.qw-hr-pop{font-size:11.5px;color:var(--pop);font-weight:600;font-variant-numeric:tabular-nums}
+.qw-hr-text{font-size:12px;color:var(--m);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .qw-chart{position:relative;height:92px;margin-top:12px}
-.qw-chart-svg{display:block;width:100%;height:92px}
+/* 曲线投影：与图标小卡片同款的下投影（带模糊渐隐），无高光、无复制曲线 */
+.qw-chart-svg{display:block;width:100%;height:92px;filter:drop-shadow(1px 6px 7px light-dark(rgba(0,0,0,.28),rgba(0,0,0,.5)))}
 .qw-chart-line{fill:none;stroke-width:12;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
-.qw-chart-shadow{fill:none;stroke-width:14;stroke-linecap:round;stroke-linejoin:round;opacity:.35;vector-effect:non-scaling-stroke}
-.qw-chart-ridge{fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.8;vector-effect:non-scaling-stroke}
-.qw-chart-chip{position:absolute;transform:translate(-50%,-100%);font-size:10.5px;font-weight:700;color:var(--f);font-variant-numeric:tabular-nums;white-space:nowrap;text-shadow:0 1px 0 light-dark(rgba(255,255,255,.6),rgba(0,0,0,.35))}
+.qw-chart-chip{position:absolute;transform:translate(-50%,-100%);font-size:15.5px;font-weight:700;color:var(--f);font-variant-numeric:tabular-nums;white-space:nowrap;text-shadow:0 1px 0 light-dark(rgba(255,255,255,.6),rgba(0,0,0,.35))}
 .qw-alert{display:flex;flex-direction:column;gap:3px;padding:9px 12px;border-radius:12px;border:1px solid var(--bd);border-left:3px solid var(--alert-c,#f59e0b);
   background:linear-gradient(150deg,color-mix(in srgb,var(--alert-c,#f59e0b) 12%,transparent),transparent 60%);
   box-shadow:2px 3px 8px var(--sh-dark),inset 0 1px 0 light-dark(rgba(255,255,255,.75),rgba(255,255,255,.06))}
@@ -148,15 +147,13 @@ export function tempChartSvg(hours: readonly HourlyWeather[]): string {
     + '<stop offset="100%" style="stop-color:var(--sky)"/>'
     + '</linearGradient>'
     + '</defs>'
-    + `<path class="qw-chart-shadow" d="${line}" transform="translate(0,2.2)" style="stroke:light-dark(rgba(0,0,0,.22),rgba(0,0,0,.5))"/>`
     + `<path class="qw-chart-line" d="${line}" stroke="url(#qw-chart-stroke)"/>`
-    + `<path class="qw-chart-ridge" d="${line}" transform="translate(0,-4.2)" style="stroke:light-dark(rgba(255,255,255,.95),rgba(255,255,255,.22))"/>`
     + '</svg>'
   const overlay = hours.map((hour, index) => {
     const [x, y] = points[index]!
     const left = 10 + index * 20
     const top = r1(y / CHART_H * 100)
-    return `<span class="qw-chart-chip" style="left:${left}%;top:calc(${top}% - 7px)">${escapeHtml(round1(hour.temp))}℃</span>`
+    return `<span class="qw-chart-chip" style="left:${left}%;top:calc(${top}% - 9px)">${escapeHtml(round1(hour.temp))}℃</span>`
   }).join('')
   return `<div class="qw-chart">${svg}${overlay}</div>`
 }
@@ -200,7 +197,7 @@ export function buildCardFragment(bundle: WeatherBundle, hourCount = 5): string 
     hours.forEach((hour, index) => {
       parts.push('<div class="qw-hr">')
       parts.push(`<span class="qw-hr-time">${escapeHtml(hourLabel(hour.time))}</span>`)
-      parts.push(`<span class="qw-hr-icon">${weatherIcon(hour.icon, 20, 'h' + index)}</span>`)
+      parts.push(`<span class="qw-hr-icon">${weatherIcon(hour.icon, 22, 'h' + index)}</span>`)
       parts.push(`<span class="qw-hr-pop">${escapeHtml(percent(hour.pop))}</span>`)
       parts.push(`<span class="qw-hr-text" title="${escapeHtml(hour.text || '')}">${escapeHtml(hour.text || '')}</span>`)
       parts.push('</div>')

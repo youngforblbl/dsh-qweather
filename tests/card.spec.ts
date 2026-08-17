@@ -50,9 +50,11 @@ describe('buildCardFragment', () => {
     expect(fragment).toContain('50%')
     expect(fragment).toContain('qw-chart-svg')
     expect(fragment).toContain('qw-chart-line')
-    // 温度渐变：高温橙（上）、低温蓝（下）；光效只有黑白
+    // 温度渐变：高温橙（上）、低温蓝（下）；单条曲线 + 模糊下投影（无高光、无复制曲线）
     expect(fragment).toContain('qw-chart-stroke')
-    expect(fragment).toContain('qw-chart-ridge')
+    expect(fragment).toContain('drop-shadow')
+    expect(fragment).not.toContain('qw-chart-light')
+    expect(fragment).not.toContain('qw-chart-shadow')
     expect(fragment).not.toContain('qw-chart-fill')
     // 描点/标签按百分比定位，x 与小时格中心对齐（10/30/50/70/90）
     expect(fragment).toContain('left:10%')

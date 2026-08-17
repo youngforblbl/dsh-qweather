@@ -17,7 +17,7 @@ const warningColorOf = (color) => ({ yellow: '#eab308', orange: '#f97316', red: 
 const hourCells = hours.map((h, i) => `
       <div class="hr">
         <span class="mut s">${hourLabel(h.time)}</span>
-        <span class="ic">${weatherIcon(h.icon, 16, 'pv-h' + i)}</span>
+        <span class="ic">${weatherIcon(h.icon, 18, 'pv-h' + i)}</span>
         <span class="pop">${percent(h.pop)}</span>
       </div>`).join('')
 
@@ -31,12 +31,10 @@ const tXs = hours.map((_, i) => 32 + i * 64)
 const tYs = temps.map((t) => H - 8 - ((t - tMin) / tSpan) * (H - 30))
 const tPoints = tXs.map((x, i) => `${x.toFixed(1)},${tYs[i].toFixed(1)}`).join(' ')
 const sideCurve = `<div class="curve" style="height:${H}px;margin-top:8px">`
-  + `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="display:block;width:100%;height:${H}px">`
+  + `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="display:block;width:100%;height:${H}px;filter:drop-shadow(0.8px 4.5px 5.5px var(--line-sh))">`
   + '<defs><linearGradient id="side-stroke" gradientUnits="userSpaceOnUse" x1="0" y1="14" x2="0" y2="48">'
   + '<stop offset="0%" stop-color="var(--orange)"/><stop offset="100%" stop-color="var(--sky)"/></linearGradient></defs>'
-  + `<polyline points="${tPoints}" transform="translate(0,1.6)" style="fill:none;stroke:var(--line-sh);stroke-width:10;stroke-linejoin:round;stroke-linecap:round;opacity:.35;vector-effect:non-scaling-stroke"/>`
   + `<polyline points="${tPoints}" style="fill:none;stroke:url(#side-stroke);stroke-width:9;stroke-linejoin:round;stroke-linecap:round;vector-effect:non-scaling-stroke"/>`
-  + `<polyline points="${tPoints}" transform="translate(0,-3.2)" style="fill:none;stroke:var(--line-hi);stroke-width:1.6;stroke-linejoin:round;stroke-linecap:round;opacity:.8;vector-effect:non-scaling-stroke"/>`
   + '</svg>'
   + tXs.map((x, i) => {
     const left = 10 + i * 20
@@ -68,7 +66,7 @@ const html = `<!doctype html>
   --sh-dark:rgba(0,0,0,.6); --sh-light:rgba(96,116,150,.16);
   --glow:rgba(0,0,0,.4); --dot:#101a2e;
   --hi:rgba(255,255,255,.08);
-  --line-sh:rgba(0,0,0,.5); --line-hi:rgba(255,255,255,.22);
+  --line-sh:rgba(0,0,0,.5); --line-hi:rgba(255,255,255,.16);
   --sky-aura:rgba(80,140,255,.18); --orange-aura:rgba(251,146,60,.11);
   --glow-blue:rgba(76,141,255,.11); --glow-orange:rgba(251,146,60,.08);
   color-scheme: dark;
@@ -82,7 +80,7 @@ body.light {
   --sh-dark:rgba(148,163,184,.42); --sh-light:rgba(255,255,255,.95);
   --glow:rgba(56,189,248,.25); --dot:#ffffff;
   --hi:rgba(255,255,255,.9);
-  --line-sh:rgba(0,0,0,.22); --line-hi:rgba(255,255,255,.95);
+  --line-sh:rgba(0,0,0,.30); --line-hi:rgba(255,255,255,.55);
   --sky-aura:rgba(56,189,248,.16); --orange-aura:rgba(249,115,22,.10);
   --glow-blue:rgba(56,189,248,.18); --glow-orange:rgba(249,115,22,.12);
   color-scheme: light;
@@ -134,11 +132,11 @@ h1 { font-size:19px; margin:0 0 4px }
 .hr { display:flex; flex-direction:column; align-items:center; gap:2px; padding:7px 1px 6px;
   border:1px solid var(--border); border-radius:11px; background:linear-gradient(145deg,var(--cell-a),var(--cell-b));
   box-shadow:inset 2px 2px 5px var(--sh-dark),inset -2px -2px 5px var(--sh-light) }
-.hr .s { font-size:9.5px; color:var(--sub) }
+.hr .s { font-size:10.5px; color:var(--sub) }
 .hr .ic { display:inline-flex }
-.hr .pop { color:var(--pop); font-size:9.5px; font-weight:600 }
+.hr .pop { color:var(--pop); font-size:10.5px; font-weight:600 }
 .curve { position:relative }
-.chip { position:absolute; transform:translate(-50%,-100%); font-size:9px; font-weight:700; color:var(--text);
+.chip { position:absolute; transform:translate(-50%,-100%); font-size:13.5px; font-weight:700; color:var(--text);
   text-shadow:0 1px 0 var(--hi); white-space:nowrap }
 
 .sec { display:flex; align-items:center; gap:6px; font-size:10px; font-weight:700; letter-spacing:.6px; color:var(--mut); margin:2px 0 6px }
