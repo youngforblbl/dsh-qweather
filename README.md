@@ -15,9 +15,15 @@ DeepSeek Harness 的和风天气（QWeather）插件：把实时天气带进侧�
 
 全部功能受设置卡片的**总开关**一键控制；关闭后侧边栏组件隐藏、两个工具返回明确提示。
 
+UI 视觉风格参考 [uupm.cc/demo/investment-platform](https://uupm.cc/demo/investment-platform)（Vestia 金融面板）：深色卡片 + 细描边 + 16px 圆角 + 品牌色渐变曲线 + tabular 数字，并完整适配 DSH 明暗主题。
+
+| 深色（默认） | 浅色 |
+| --- | --- |
+| ![深色预览](assets/preview-dark.png) | ![浅色预览](assets/preview-light.png) |
+
 ## 快速预览
 
-- **静态预览**：直接双击打开仓库里的 [preview.html](preview.html)（自包含，含明暗主题切换；样例数据来自真实 API）。
+- **静态预览**：直接双击打开仓库里的 [preview.html](preview.html)（自包含、默认深色、含明暗切换；样例数据来自真实 API；`preview.html?light` 直达浅色）。
 - **动态预览**：克隆本仓库 → `pnpm install && pnpm run check` → 装进一个临时 profile 并启动 Web 界面，打开 设置 → 插件 → 和风天气 填入你的 KEY 即可实时体验。
 
 ## 安装
@@ -124,7 +130,7 @@ src/
 ```bash
 pnpm install
 pnpm run typecheck   # 双端类型检查（tsconfig.json + tsconfig.client.json）
-pnpm run test        # vitest 单元测试（31 例：API 解析/格式化/卡片/预警过滤）
+pnpm run test        # vitest 单元测试（34 例：API 解析/格式化/卡片/曲线/预警过滤）
 pnpm run build       # tsdown 双端构建 → lib/index.js + lib/client.js
 pnpm run check       # 以上全部
 pnpm run preview     # 用 samples/sample-bundle.json 重新生成 preview.html

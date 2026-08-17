@@ -6,172 +6,220 @@
 <title>dsh-qweather 预览</title>
 <style>
 :root {
-  --qw-foreground:#1f2733; --qw-muted:#7a8799; --qw-border:rgba(120,140,170,.3);
-  --qw-accent:#3b74f5; --qw-card:rgba(127,146,178,.07); --qw-pop:#3fa0d8;
-  --dsw-alias-label-primary:#1f2733; --dsw-alias-label-caption:#7a8799;
-  --dsw-alias-border-l2:rgba(120,140,170,.3); --dsw-alias-bg-layer-1:rgba(127,146,178,.07);
-  --dsw-alias-brand-primary-new-colorprimary-new-color:#3b74f5;
-  --dsw-alias-info-new-colorprimary-new-color:#3fa0d8;
-  --page:#eef1f6; --panel:#ffffff;
+  --page:#0b0f1a; --panel:#1f2937; --cell:#111827;
+  --text:#f9fafb; --mut:#9ca3af; --sub:#6b7280;
+  --border:rgba(255,255,255,.10); --primary:#3b82f6; --pop:#38bdf8;
+  color-scheme: dark;
 }
-body.dark {
-  --qw-foreground:#e8eef7; --qw-muted:#8fa0b8; --qw-border:rgba(140,160,190,.25);
-  --qw-accent:#6b9bff; --qw-card:rgba(127,146,178,.10); --qw-pop:#5fb4e8;
-  --dsw-alias-label-primary:#e8eef7; --dsw-alias-label-caption:#8fa0b8;
-  --dsw-alias-border-l2:rgba(140,160,190,.25); --dsw-alias-bg-layer-1:rgba(127,146,178,.10);
-  --dsw-alias-brand-primary-new-colorprimary-new-color:#6b9bff;
-  --dsw-alias-info-new-colorprimary-new-color:#5fb4e8;
-  --page:#0f141c; --panel:#161d29;
+body.light {
+  --page:#f1f5f9; --panel:#ffffff; --cell:#f8fafc;
+  --text:#0f172a; --mut:#64748b; --sub:#94a3b8;
+  --border:#e2e8f0; --primary:#2563eb; --pop:#0284c7;
+  color-scheme: light;
 }
 * { box-sizing: border-box }
-body { margin:0; padding:32px 16px; background:var(--page); color:var(--dsw-alias-label-primary);
-  font:14px/1.55 system-ui,-apple-system,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif; }
-.toggle { position:fixed; top:14px; right:14px; font-size:12px; padding:6px 12px; border-radius:8px;
-  border:1px solid var(--dsw-alias-border-l2); background:var(--panel); color:inherit; cursor:pointer }
-.wrap { max-width:920px; margin:0 auto }
-h1 { font-size:18px; margin:0 0 4px }
-.sub { font-size:12px; color:var(--qw-muted); margin:0 0 20px }
+body { margin:0; padding:32px 16px; background:var(--page); color:var(--text);
+  font:14px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;
+  -webkit-font-smoothing:antialiased; transition:background .25s }
+.toggle { position:fixed; top:14px; right:14px; font-size:12px; padding:6px 14px; border-radius:10px;
+  border:1px solid var(--border); background:var(--panel); color:var(--text); cursor:pointer }
+.wrap { max-width:940px; margin:0 auto }
+h1 { font-size:19px; margin:0 0 4px }
+.sub { font-size:12px; color:var(--mut); margin:0 0 22px }
 .panels { display:flex; gap:22px; align-items:flex-start; flex-wrap:wrap }
-.panel { background:var(--panel); border:1px solid var(--dsw-alias-border-l2); border-radius:14px; padding:16px }
-.panel h2 { font-size:13px; margin:0 0 12px; color:var(--qw-muted); font-weight:600 }
-.side { flex:0 0 280px }
-.rail { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
-  width:44px; padding:6px 0; margin:0 auto; border-radius:10px; border:1px dashed var(--dsw-alias-border-l2) }
-.rail .r-temp { font-size:13px; font-weight:600 }
-.card { display:flex; flex-direction:column; gap:8px; margin-top:12px; padding:10px; border:1px solid var(--dsw-alias-border-l2); border-radius:12px; background:var(--dsw-alias-bg-layer-1) }
-.card .head { display:flex; justify-content:space-between; font-size:12px; font-weight:600 }
-.card .head .mut { font-weight:400 }
+.panel { background:var(--panel); border:1px solid var(--border); border-radius:16px; padding:18px }
+.panel h2 { font-size:12px; margin:0 0 12px; color:var(--mut); font-weight:600; letter-spacing:.4px }
+.side { flex:0 0 292px }
+.rail { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+  width:46px; padding:7px 0; margin:0 auto; border-radius:12px; border:1px dashed var(--border) }
+.rail .tile { display:flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:8px;
+  background:color-mix(in srgb,var(--primary) 14%,transparent); color:var(--primary) }
+.rail .r-temp { font-size:12px; font-weight:700 }
+.card { display:flex; flex-direction:column; gap:10px; margin-top:14px; padding:12px;
+  border:1px solid var(--border); border-radius:14px; background:var(--panel) }
+.card .head { display:flex; justify-content:space-between; align-items:center; font-size:12px; font-weight:700 }
 .now { display:flex; align-items:center; gap:8px }
-.now .t { font-size:26px; font-weight:600; line-height:1 }
-.now .meta { margin-left:auto; color:var(--qw-muted); font-size:11px; text-align:right; line-height:1.5 }
+.now .tile { flex:none; display:flex; align-items:center; justify-content:center; width:38px; height:38px; border-radius:10px;
+  background:color-mix(in srgb,var(--primary) 14%,transparent); color:var(--primary) }
+.now .t { font-size:24px; font-weight:700; letter-spacing:-.4px; line-height:1 }
+.now .meta { margin-left:auto; display:flex; flex-direction:column; gap:2px; color:var(--mut); font-size:10.5px; text-align:right; line-height:1.4 }
+.now .meta b { color:var(--text); font-weight:600 }
 .hours { display:grid; grid-template-columns:repeat(5,1fr); gap:4px }
-.hr { display:flex; flex-direction:column; align-items:center; gap:1px; padding:5px 1px; border:1px solid var(--dsw-alias-border-l2); border-radius:8px; font-size:11px }
-.hr .t { font-weight:600; font-size:12px }
-.hr .pop { color:var(--qw-pop) }
-.mut { color:var(--qw-muted); font-size:11px }
-.alert { font-size:11px; line-height:1.4; padding:5px 8px; border:1px solid var(--dsw-alias-border-l2); border-left:3px solid var(--c); border-radius:8px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
-.foot { display:flex; justify-content:space-between; font-size:10px; color:var(--qw-muted) }
-.tool { color:var(--qw-muted); font-size:12px; margin-bottom:8px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
-.cardpanel { flex:1 1 420px; min-width:320px }
-.cardpanel .inner { padding:4px 8px }
+.hr { display:flex; flex-direction:column; align-items:center; gap:2px; padding:6px 1px 5px;
+  border:1px solid var(--border); border-radius:10px; background:var(--cell) }
+.hr .s { font-size:9.5px }
+.hr .ic { color:var(--primary); display:inline-flex }
+.hr .pop { color:var(--pop); font-size:9.5px }
+.hr .t { font-size:12px; font-weight:600 }
+.alert { font-size:10.5px; line-height:1.45; padding:5px 8px; border:1px solid var(--border); border-left:3px solid var(--c);
+  border-radius:8px; background:color-mix(in srgb,var(--c) 6%,transparent); white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+.foot { display:flex; justify-content:space-between; font-size:10px; color:var(--mut); border-top:1px dashed var(--border); padding-top:7px }
+.tool { color:var(--mut); font-size:12px; margin-bottom:10px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+.cardpanel { flex:1 1 480px; min-width:340px }
+.num { font-variant-numeric:tabular-nums }
 </style>
 </head>
-<body>
-<button class="toggle" onclick="document.body.classList.toggle('dark')">明 / 暗</button>
+<body class="dark">
+<script>if (location.search.indexOf('light') !== -1) document.body.classList.add('light')</script>
+<button class="toggle" onclick="document.body.classList.toggle('light')">明 / 暗</button>
 <div class="wrap">
   <h1>dsh-qweather 预览</h1>
-  <p class="sub">左侧 = 侧边栏天气组件（展开 / 收起） · 右侧 = qweather_card 工具渲染的对话内卡片 · 数据来自真实 API 样例</p>
+  <p class="sub">视觉风格参考 uupm.cc/demo/investment-platform · 左侧 = 侧边栏组件（收起 / 展开）· 右侧 = qweather_card 对话内卡片 · 数据来自真实 API 样例</p>
   <div class="panels">
     <div class="panel side">
       <h2>侧边栏收起（仅图标 + 气温）</h2>
       <div class="rail">
-        <span class="ic" style="color:var(--qw-accent)"><svg class="qw-ic" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.5 18a4.5 4.5 0 1 1 .8-8.94A5.5 5.5 0 0 1 19 11.5a4 4 0 0 1-.5 7"/></svg></span>
-        <span class="r-temp">31.1°</span>
+        <span class="tile"><svg class="qw-ic" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.5 18a4.5 4.5 0 1 1 .8-8.94A5.5 5.5 0 0 1 19 11.5a4 4 0 0 1-.5 7"/></svg></span>
+        <span class="r-temp num">31.3°</span>
       </div>
       <h2 style="margin-top:18px">侧边栏展开（完整卡片）</h2>
       <div class="card">
-        <div class="head"><span>北京 · 北京市</span><span class="mut">↻</span></div>
+        <div class="head"><span>北京 · 北京市</span><span style="color:var(--mut);font-weight:400">↻</span></div>
         <div class="now">
-          <span style="color:var(--qw-accent)"><svg class="qw-ic" viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.5 18a4.5 4.5 0 1 1 .8-8.94A5.5 5.5 0 0 1 19 11.5a4 4 0 0 1-.5 7"/></svg></span>
-          <span class="t">31.1°</span>
-          <span class="mut">阴</span>
-          <span class="meta">体感 31.5°<br>湿度 45%</span>
+          <span class="tile"><svg class="qw-ic" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.5 18a4.5 4.5 0 1 1 .8-8.94A5.5 5.5 0 0 1 19 11.5a4 4 0 0 1-.5 7"/></svg></span>
+          <span class="t num">31.3°</span>
+          <span class="mut" style="font-size:12px">阴</span>
+          <span class="meta"><span>体感 <b class="num">32.9°</b></span><span>湿度 <b class="num">45%</b></span></span>
         </div>
         <div class="hours">
-    <div class="hr">
-      <span class="mut">16:00</span>
-      <span class="ic" style="color:var(--qw-accent)"><svg class="qw-ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v1.8M12 19.2V21M3 12h1.8M19.2 12H21M5.6 5.6l1.3 1.3M17.1 17.1l1.3 1.3M18.4 5.6l-1.3 1.3M6.9 17.1l-1.3 1.3"/><circle cx="12" cy="12" r="3.6"/><path d="M7.5 18a4.5 4.5 0 1 1 .8-8.94A5.5 5.5 0 0 1 19 11.5a4 4 0 0 1-.5 7"/></svg></span>
-      <span class="pop">0%</span>
-      <span class="t">31.9°</span>
-    </div>
-    <div class="hr">
-      <span class="mut">17:00</span>
-      <span class="ic" style="color:var(--qw-accent)"><svg class="qw-ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v1.8M12 19.2V21M3 12h1.8M19.2 12H21M5.6 5.6l1.3 1.3M17.1 17.1l1.3 1.3M18.4 5.6l-1.3 1.3M6.9 17.1l-1.3 1.3"/><circle cx="12" cy="12" r="3.6"/><path d="M7.5 18a4.5 4.5 0 1 1 .8-8.94A5.5 5.5 0 0 1 19 11.5a4 4 0 0 1-.5 7"/></svg></span>
-      <span class="pop">0%</span>
-      <span class="t">31.7°</span>
-    </div>
-    <div class="hr">
-      <span class="mut">18:00</span>
-      <span class="ic" style="color:var(--qw-accent)"><svg class="qw-ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v1.8M12 19.2V21M3 12h1.8M19.2 12H21M5.6 5.6l1.3 1.3M17.1 17.1l1.3 1.3M18.4 5.6l-1.3 1.3M6.9 17.1l-1.3 1.3"/><circle cx="12" cy="12" r="3.6"/><path d="M7.5 18a4.5 4.5 0 1 1 .8-8.94A5.5 5.5 0 0 1 19 11.5a4 4 0 0 1-.5 7"/></svg></span>
-      <span class="pop">0%</span>
-      <span class="t">30.9°</span>
-    </div>
-    <div class="hr">
-      <span class="mut">19:00</span>
-      <span class="ic" style="color:var(--qw-accent)"><svg class="qw-ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v1.8M12 19.2V21M3 12h1.8M19.2 12H21M5.6 5.6l1.3 1.3M17.1 17.1l1.3 1.3M18.4 5.6l-1.3 1.3M6.9 17.1l-1.3 1.3"/><circle cx="12" cy="12" r="3.6"/><path d="M7.5 18a4.5 4.5 0 1 1 .8-8.94A5.5 5.5 0 0 1 19 11.5a4 4 0 0 1-.5 7"/></svg></span>
-      <span class="pop">0%</span>
-      <span class="t">29.8°</span>
-    </div>
-    <div class="hr">
-      <span class="mut">20:00</span>
-      <span class="ic" style="color:var(--qw-accent)"><svg class="qw-ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13.2A8 8 0 1 1 10.8 4a6.5 6.5 0 0 0 9.2 9.2z"/><path d="M7.5 18a4.5 4.5 0 1 1 .8-8.94A5.5 5.5 0 0 1 19 11.5a4 4 0 0 1-.5 7"/></svg></span>
-      <span class="pop">0%</span>
-      <span class="t">28.7°</span>
-    </div>
+      <div class="hr">
+        <span class="mut s">16:00</span>
+        <span class="ic"><svg class="qw-ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v1.8M12 19.2V21M3 12h1.8M19.2 12H21M5.6 5.6l1.3 1.3M17.1 17.1l1.3 1.3M18.4 5.6l-1.3 1.3M6.9 17.1l-1.3 1.3"/><circle cx="12" cy="12" r="3.6"/><path d="M7.5 18a4.5 4.5 0 1 1 .8-8.94A5.5 5.5 0 0 1 19 11.5a4 4 0 0 1-.5 7"/></svg></span>
+        <span class="pop">0%</span>
+        <span class="t">31.9°</span>
+      </div>
+      <div class="hr">
+        <span class="mut s">17:00</span>
+        <span class="ic"><svg class="qw-ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v1.8M12 19.2V21M3 12h1.8M19.2 12H21M5.6 5.6l1.3 1.3M17.1 17.1l1.3 1.3M18.4 5.6l-1.3 1.3M6.9 17.1l-1.3 1.3"/><circle cx="12" cy="12" r="3.6"/><path d="M7.5 18a4.5 4.5 0 1 1 .8-8.94A5.5 5.5 0 0 1 19 11.5a4 4 0 0 1-.5 7"/></svg></span>
+        <span class="pop">0%</span>
+        <span class="t">31.7°</span>
+      </div>
+      <div class="hr">
+        <span class="mut s">18:00</span>
+        <span class="ic"><svg class="qw-ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v1.8M12 19.2V21M3 12h1.8M19.2 12H21M5.6 5.6l1.3 1.3M17.1 17.1l1.3 1.3M18.4 5.6l-1.3 1.3M6.9 17.1l-1.3 1.3"/><circle cx="12" cy="12" r="3.6"/><path d="M7.5 18a4.5 4.5 0 1 1 .8-8.94A5.5 5.5 0 0 1 19 11.5a4 4 0 0 1-.5 7"/></svg></span>
+        <span class="pop">0%</span>
+        <span class="t">30.9°</span>
+      </div>
+      <div class="hr">
+        <span class="mut s">19:00</span>
+        <span class="ic"><svg class="qw-ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v1.8M12 19.2V21M3 12h1.8M19.2 12H21M5.6 5.6l1.3 1.3M17.1 17.1l1.3 1.3M18.4 5.6l-1.3 1.3M6.9 17.1l-1.3 1.3"/><circle cx="12" cy="12" r="3.6"/><path d="M7.5 18a4.5 4.5 0 1 1 .8-8.94A5.5 5.5 0 0 1 19 11.5a4 4 0 0 1-.5 7"/></svg></span>
+        <span class="pop">0%</span>
+        <span class="t">29.8°</span>
+      </div>
+      <div class="hr">
+        <span class="mut s">20:00</span>
+        <span class="ic"><svg class="qw-ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13.2A8 8 0 1 1 10.8 4a6.5 6.5 0 0 0 9.2 9.2z"/><path d="M7.5 18a4.5 4.5 0 1 1 .8-8.94A5.5 5.5 0 0 1 19 11.5a4 4 0 0 1-.5 7"/></svg></span>
+        <span class="pop">0%</span>
+        <span class="t">28.7°</span>
+      </div>
         </div>
-        <svg viewBox="0 0 320 44" preserveAspectRatio="none" style="width:100%;height:44px;margin-top:6px"><path d="M8.0,44 L8.0,8.0 84.0,10.0 160.0,17.1 236.0,26.8 312.0,36.0 L312.0,44 Z" style="fill:var(--qw-accent);opacity:.12"/><polyline points="8.0,8.0 84.0,10.0 160.0,17.1 236.0,26.8 312.0,36.0" style="fill:none;stroke:var(--qw-accent);stroke-width:2;stroke-linejoin:round;stroke-linecap:round"/><circle cx="8.0" cy="8.0" r="2" style="fill:transparent;stroke:var(--qw-accent);stroke-width:1.4"/><circle cx="84.0" cy="10.0" r="2" style="fill:transparent;stroke:var(--qw-accent);stroke-width:1.4"/><circle cx="160.0" cy="17.1" r="2" style="fill:transparent;stroke:var(--qw-accent);stroke-width:1.4"/><circle cx="236.0" cy="26.8" r="2" style="fill:transparent;stroke:var(--qw-accent);stroke-width:1.4"/><circle cx="312.0" cy="36.0" r="2" style="fill:transparent;stroke:var(--qw-accent);stroke-width:1.4"/></svg>
+        <svg viewBox="0 0 320 46" preserveAspectRatio="none" style="width:100%;height:46px;margin-top:5px"><defs><linearGradient id="side-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--primary)" stop-opacity="0.26"/><stop offset="100%" stop-color="var(--primary)" stop-opacity="0"/></linearGradient></defs><path d="M12.0,46 L12.0,9.0 86.0,11.1 160.0,18.7 234.0,29.1 308.0,39.0 L308.0,46 Z" fill="url(#side-fill)"/><polyline points="12.0,9.0 86.0,11.1 160.0,18.7 234.0,29.1 308.0,39.0" style="fill:none;stroke:var(--primary);stroke-width:2;stroke-linejoin:round;stroke-linecap:round;vector-effect:non-scaling-stroke"/><circle cx="12.0" cy="9.0" r="2.4" style="fill:var(--panel);stroke:var(--primary);stroke-width:1.6"/><circle cx="86.0" cy="11.1" r="2.4" style="fill:var(--panel);stroke:var(--primary);stroke-width:1.6"/><circle cx="160.0" cy="18.7" r="2.4" style="fill:var(--panel);stroke:var(--primary);stroke-width:1.6"/><circle cx="234.0" cy="29.1" r="2.4" style="fill:var(--panel);stroke:var(--primary);stroke-width:1.6"/><circle cx="308.0" cy="39.0" r="2.4" style="fill:var(--panel);stroke:var(--primary);stroke-width:1.6"/></svg>
         <div class="mut" style="font-size:11px">当前无黄色及以上预警</div>
-        <div class="foot"><span>更新于 15:24</span><span>和风天气</span></div>
+        <div class="foot"><span>更新于 15:45</span><span>和风天气</span></div>
       </div>
     </div>
     <div class="panel cardpanel">
       <h2>对话内天气卡片（qweather_card）</h2>
-      <div class="tool">已渲染「北京 · 北京市 天气」天气卡片（5272 字符）</div>
-      <div class="inner"><div class="qw">
+      <div class="tool">已渲染「北京 · 北京市 天气」天气卡片（9489 字符）</div>
+      <div class="qw">
+<style>
+.qw,.qw *{box-sizing:border-box}
+.qw{font:13px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+  --f:var(--qw-foreground,light-dark(#0f172a,#f9fafb));
+  --m:var(--qw-muted,light-dark(#64748b,#9ca3af));
+  --s:light-dark(#94a3b8,#6b7280);
+  --card:var(--qw-card,light-dark(#ffffff,#1f2937));
+  --cell:light-dark(#f8fafc,#111827);
+  --bd:var(--qw-border,light-dark(#e2e8f0,rgba(255,255,255,.10)));
+  --ac:var(--qw-accent,light-dark(#2563eb,#3b82f6));
+  --pop:var(--qw-pop,light-dark(#0284c7,#38bdf8));
+  color:var(--f)}
+.qw-card{display:flex;flex-direction:column;gap:12px;background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:14px 16px 12px}
+.qw-head{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0}
+.qw-loc{font-size:14px;font-weight:700;letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qw-updated{flex:none;font-size:11px;color:var(--m);font-variant-numeric:tabular-nums}
+.qw-now{display:flex;align-items:center;gap:12px}
+.qw-now-icon{flex:none;display:flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:12px;background:color-mix(in srgb,var(--ac) 14%,transparent);color:var(--ac)}
+.qw-now-main{display:flex;flex-direction:column;line-height:1.08}
+.qw-now-temp{font-size:30px;font-weight:700;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+.qw-now-text{font-size:12px;color:var(--m)}
+.qw-now-meta{margin-left:auto;display:grid;grid-template-columns:auto auto;column-gap:14px;row-gap:4px;font-size:11px;text-align:right}
+.qw-now-meta .k{color:var(--s)}
+.qw-now-meta .v{color:var(--f);font-weight:600;font-variant-numeric:tabular-nums}
+.qw-sec-title{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;letter-spacing:.5px;color:var(--m)}
+.qw-badge{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:color-mix(in srgb,var(--bc,#f59e0b) 16%,transparent);color:var(--bc,#f59e0b);font-size:10.5px;font-weight:700;font-variant-numeric:tabular-nums}
+.qw-hours{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.qw-hr{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 2px 7px;background:var(--cell);border:1px solid var(--bd);border-radius:12px}
+.qw-hr-time{font-size:10px;color:var(--s);font-variant-numeric:tabular-nums}
+.qw-hr-icon{display:flex;align-items:center;justify-content:center;height:22px;color:var(--ac)}
+.qw-hr-pop{font-size:10px;color:var(--pop);font-variant-numeric:tabular-nums}
+.qw-hr-text{font-size:10.5px;color:var(--m);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qw-hr-temp{font-size:13px;font-weight:700;font-variant-numeric:tabular-nums}
+.qw-chart{display:block;width:100%;height:80px;margin-top:8px}
+.qw-chart-line{fill:none;stroke:var(--ac);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.qw-chart-dot{fill:var(--card);stroke:var(--ac);stroke-width:2;vector-effect:non-scaling-stroke}
+.qw-chart-label{font-size:10px;fill:var(--s);font-variant-numeric:tabular-nums}
+.qw-alert{display:flex;flex-direction:column;gap:3px;padding:8px 12px;border:1px solid var(--bd);border-left:3px solid var(--alert-c,#f59e0b);border-radius:10px;background:color-mix(in srgb,var(--alert-c,#f59e0b) 6%,transparent)}
+.qw-alert-head{font-size:12.5px;font-weight:600;color:var(--f)}
+.qw-alert-body{font-size:11.5px;color:var(--m);line-height:1.55}
+.qw-empty{font-size:12px;color:var(--s)}
+.qw-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:9px;border-top:1px dashed var(--bd);font-size:11px;color:var(--s)}
+.qw-foot a{color:var(--ac);text-decoration:none;font-weight:600}
+.qw-foot a:hover{text-decoration:underline}
+</style>
+<div class="qw-card">
 <div class="qw-head">
-<span class="qw-place">北京 · 北京市</span>
-<span class="qw-updated">更新于 15:24</span>
+<span class="qw-loc" title="北京 · 北京市">北京 · 北京市</span>
+<span class="qw-updated">更新于 15:45</span>
 </div>
 <div class="qw-now">
-<span style="color:var(--qw-accent,#3b74f5)"><svg class="qw-ic" viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.5 18a4.5 4.5 0 1 1 .8-8.94A5.5 5.5 0 0 1 19 11.5a4 4 0 0 1-.5 7"/></svg></span>
-<span>
-<span class="qw-now-temp">31.1°</span> 
+<span class="qw-now-icon"><svg class="qw-ic" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.5 18a4.5 4.5 0 1 1 .8-8.94A5.5 5.5 0 0 1 19 11.5a4 4 0 0 1-.5 7"/></svg></span>
+<div class="qw-now-main">
+<span class="qw-now-temp">31.3°</span>
 <span class="qw-now-text">阴</span>
-</span>
-<span class="qw-now-meta"><span>体感 31.5°</span><span>湿度 45%</span><span>风 东东北风 2级</span></span>
 </div>
-<div><div class="qw-sec-title">未来 5 小时</div>
+<div class="qw-now-meta"><span class="k">体感</span><span class="v">32.9°</span><span class="k">湿度</span><span class="v">45%</span><span class="k">风</span><span class="v">东北风 2级</span></div>
+</div>
+<div>
+<div class="qw-sec-title">未来 5 小时</div>
 <div class="qw-hours">
 <div class="qw-hr">
 <span class="qw-hr-time">16:00</span>
-<span style="color:var(--qw-accent,#3b74f5)"><svg class="qw-ic" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v1.8M12 19.2V21M3 12h1.8M19.2 12H21M5.6 5.6l1.3 1.3M17.1 17.1l1.3 1.3M18.4 5.6l-1.3 1.3M6.9 17.1l-1.3 1.3"/><circle cx="12" cy="12" r="3.6"/><path d="M7.5 18a4.5 4.5 0 1 1 .8-8.94A5.5 5.5 0 0 1 19 11.5a4 4 0 0 1-.5 7"/></svg></span>
+<span class="qw-hr-icon"><svg class="qw-ic" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v1.8M12 19.2V21M3 12h1.8M19.2 12H21M5.6 5.6l1.3 1.3M17.1 17.1l1.3 1.3M18.4 5.6l-1.3 1.3M6.9 17.1l-1.3 1.3"/><circle cx="12" cy="12" r="3.6"/><path d="M7.5 18a4.5 4.5 0 1 1 .8-8.94A5.5 5.5 0 0 1 19 11.5a4 4 0 0 1-.5 7"/></svg></span>
 <span class="qw-hr-pop">0%</span>
 <span class="qw-hr-text" title="晴间多云">晴间多云</span>
 <span class="qw-hr-temp">31.9°</span>
 </div>
 <div class="qw-hr">
 <span class="qw-hr-time">17:00</span>
-<span style="color:var(--qw-accent,#3b74f5)"><svg class="qw-ic" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v1.8M12 19.2V21M3 12h1.8M19.2 12H21M5.6 5.6l1.3 1.3M17.1 17.1l1.3 1.3M18.4 5.6l-1.3 1.3M6.9 17.1l-1.3 1.3"/><circle cx="12" cy="12" r="3.6"/><path d="M7.5 18a4.5 4.5 0 1 1 .8-8.94A5.5 5.5 0 0 1 19 11.5a4 4 0 0 1-.5 7"/></svg></span>
+<span class="qw-hr-icon"><svg class="qw-ic" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v1.8M12 19.2V21M3 12h1.8M19.2 12H21M5.6 5.6l1.3 1.3M17.1 17.1l1.3 1.3M18.4 5.6l-1.3 1.3M6.9 17.1l-1.3 1.3"/><circle cx="12" cy="12" r="3.6"/><path d="M7.5 18a4.5 4.5 0 1 1 .8-8.94A5.5 5.5 0 0 1 19 11.5a4 4 0 0 1-.5 7"/></svg></span>
 <span class="qw-hr-pop">0%</span>
 <span class="qw-hr-text" title="晴间多云">晴间多云</span>
 <span class="qw-hr-temp">31.7°</span>
 </div>
 <div class="qw-hr">
 <span class="qw-hr-time">18:00</span>
-<span style="color:var(--qw-accent,#3b74f5)"><svg class="qw-ic" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v1.8M12 19.2V21M3 12h1.8M19.2 12H21M5.6 5.6l1.3 1.3M17.1 17.1l1.3 1.3M18.4 5.6l-1.3 1.3M6.9 17.1l-1.3 1.3"/><circle cx="12" cy="12" r="3.6"/><path d="M7.5 18a4.5 4.5 0 1 1 .8-8.94A5.5 5.5 0 0 1 19 11.5a4 4 0 0 1-.5 7"/></svg></span>
+<span class="qw-hr-icon"><svg class="qw-ic" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v1.8M12 19.2V21M3 12h1.8M19.2 12H21M5.6 5.6l1.3 1.3M17.1 17.1l1.3 1.3M18.4 5.6l-1.3 1.3M6.9 17.1l-1.3 1.3"/><circle cx="12" cy="12" r="3.6"/><path d="M7.5 18a4.5 4.5 0 1 1 .8-8.94A5.5 5.5 0 0 1 19 11.5a4 4 0 0 1-.5 7"/></svg></span>
 <span class="qw-hr-pop">0%</span>
 <span class="qw-hr-text" title="晴间多云">晴间多云</span>
 <span class="qw-hr-temp">30.9°</span>
 </div>
 <div class="qw-hr">
 <span class="qw-hr-time">19:00</span>
-<span style="color:var(--qw-accent,#3b74f5)"><svg class="qw-ic" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v1.8M12 19.2V21M3 12h1.8M19.2 12H21M5.6 5.6l1.3 1.3M17.1 17.1l1.3 1.3M18.4 5.6l-1.3 1.3M6.9 17.1l-1.3 1.3"/><circle cx="12" cy="12" r="3.6"/><path d="M7.5 18a4.5 4.5 0 1 1 .8-8.94A5.5 5.5 0 0 1 19 11.5a4 4 0 0 1-.5 7"/></svg></span>
+<span class="qw-hr-icon"><svg class="qw-ic" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v1.8M12 19.2V21M3 12h1.8M19.2 12H21M5.6 5.6l1.3 1.3M17.1 17.1l1.3 1.3M18.4 5.6l-1.3 1.3M6.9 17.1l-1.3 1.3"/><circle cx="12" cy="12" r="3.6"/><path d="M7.5 18a4.5 4.5 0 1 1 .8-8.94A5.5 5.5 0 0 1 19 11.5a4 4 0 0 1-.5 7"/></svg></span>
 <span class="qw-hr-pop">0%</span>
 <span class="qw-hr-text" title="晴间多云">晴间多云</span>
 <span class="qw-hr-temp">29.8°</span>
 </div>
 <div class="qw-hr">
 <span class="qw-hr-time">20:00</span>
-<span style="color:var(--qw-accent,#3b74f5)"><svg class="qw-ic" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13.2A8 8 0 1 1 10.8 4a6.5 6.5 0 0 0 9.2 9.2z"/><path d="M7.5 18a4.5 4.5 0 1 1 .8-8.94A5.5 5.5 0 0 1 19 11.5a4 4 0 0 1-.5 7"/></svg></span>
+<span class="qw-hr-icon"><svg class="qw-ic" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13.2A8 8 0 1 1 10.8 4a6.5 6.5 0 0 0 9.2 9.2z"/><path d="M7.5 18a4.5 4.5 0 1 1 .8-8.94A5.5 5.5 0 0 1 19 11.5a4 4 0 0 1-.5 7"/></svg></span>
 <span class="qw-hr-pop">0%</span>
 <span class="qw-hr-text" title="少云">少云</span>
 <span class="qw-hr-temp">28.7°</span>
 </div>
 </div>
-<div style="margin-top:6px"><svg class="qw-chart" viewBox="0 0 320 64" preserveAspectRatio="none" aria-label="气温曲线"><path class="qw-cv-area" d="M12.0,64 L12.0,16.0 86.0,18.3 160.0,26.4 234.0,37.4 308.0,48.0 L308.0,64 Z"/>
-<polyline class="qw-cv-line" points="12.0,16.0 86.0,18.3 160.0,26.4 234.0,37.4 308.0,48.0"/>
-<circle class="qw-cv-dot" cx="12.0" cy="16.0" r="2.6" stroke-width="1.4"/><circle class="qw-cv-dot" cx="86.0" cy="18.3" r="2.6" stroke-width="1.4"/><circle class="qw-cv-dot" cx="160.0" cy="26.4" r="2.6" stroke-width="1.4"/><circle class="qw-cv-dot" cx="234.0" cy="37.4" r="2.6" stroke-width="1.4"/><circle class="qw-cv-dot" cx="308.0" cy="48.0" r="2.6" stroke-width="1.4"/>
-<text class="qw-cv-label" x="12.0" y="8.0" text-anchor="middle">31.9°</text><text class="qw-cv-label" x="86.0" y="10.3" text-anchor="middle">31.7°</text><text class="qw-cv-label" x="160.0" y="18.4" text-anchor="middle">30.9°</text><text class="qw-cv-label" x="234.0" y="29.4" text-anchor="middle">29.8°</text><text class="qw-cv-label" x="308.0" y="40.0" text-anchor="middle">28.7°</text></svg></div>
+<svg class="qw-chart" viewBox="0 0 400 80" preserveAspectRatio="none" aria-label="气温曲线"><defs><linearGradient id="qw-chart-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--ac)" stop-opacity="0.28"/><stop offset="100%" stop-color="var(--ac)" stop-opacity="0"/></linearGradient></defs><path class="qw-chart-area" d="M18,26 C33.2,26.6 78.7,26.8 109,29.3 C139.3,31.8 169.7,36.3 200,40.9 C230.3,45.5 260.7,51.6 291,56.8 C321.3,62 366.8,69.5 382,72 L382,80 L18,80 Z" fill="url(#qw-chart-fill)"/><path class="qw-chart-line" d="M18,26 C33.2,26.6 78.7,26.8 109,29.3 C139.3,31.8 169.7,36.3 200,40.9 C230.3,45.5 260.7,51.6 291,56.8 C321.3,62 366.8,69.5 382,72"/><circle class="qw-chart-dot" cx="18" cy="26" r="3"/><circle class="qw-chart-dot" cx="109" cy="29.3" r="3"/><circle class="qw-chart-dot" cx="200" cy="40.9" r="3"/><circle class="qw-chart-dot" cx="291" cy="56.8" r="3"/><circle class="qw-chart-dot" cx="382" cy="72" r="3"/><text class="qw-chart-label" x="18" y="17" text-anchor="middle">31.9°</text><text class="qw-chart-label" x="109" y="20.3" text-anchor="middle">31.7°</text><text class="qw-chart-label" x="200" y="31.9" text-anchor="middle">30.9°</text><text class="qw-chart-label" x="291" y="47.8" text-anchor="middle">29.8°</text><text class="qw-chart-label" x="382" y="63" text-anchor="middle">28.7°</text></svg>
 </div>
 <div>
 <div class="qw-sec-title">重要预警</div>
@@ -179,9 +227,10 @@ h1 { font-size:18px; margin:0 0 4px }
 </div>
 <div class="qw-foot">
 <span>数据来源：和风天气</span>
-<a href="https://www.qweather.com" target="_blank" rel="noopener noreferrer">QWeather.com</a>
+<a href="https://www.qweather.com" target="_blank" rel="noopener noreferrer">QWeather.com ↗</a>
 </div>
-</div></div>
+</div>
+</div>
     </div>
   </div>
 </div>

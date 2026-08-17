@@ -153,7 +153,9 @@ declare function weatherTool(ctx: Context, getConfig: () => QWeatherRuntimeConfi
 declare function cardTool(ctx: Context, getConfig: () => QWeatherRuntimeConfig): ToolDefinition;
 //#endregion
 //#region src/qweather/card.d.ts
-/** 生成 5 小时气温曲线（内联 SVG，无脚本、无外部依赖）。 */
+/**
+ * 生成 5 小时气温曲线（品牌色渐变面积 + 平滑曲线 + 描点 + 温度标签）。
+ */
 declare function tempChartSvg(hours: readonly HourlyWeather[]): string;
 /** 组装一张完整的天气卡片 fragment。 */
 declare function buildCardFragment(bundle: WeatherBundle, hourCount?: number): string;

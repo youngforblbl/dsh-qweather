@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildCardFragment, tempChartSvg } from '../src/qweather/card.ts'
+import { buildCardFragment, smoothPath, tempChartSvg } from '../src/qweather/card.ts'
 import { iconKindOf, weatherIcon } from '../src/qweather/icons.ts'
 import type { WeatherBundle } from '../src/qweather/types.ts'
 
@@ -23,21 +23,29 @@ const bundle: WeatherBundle = {
 describe('buildCardFragment', () => {
   const fragment = buildCardFragment(bundle, 5)
 
+  it('必须内联样式表（回归：缺少 style 时 SVG 会落入黑色默认填充）', () => {
+    expect(fragment).toContain('<style>')
+    expect(fragment).toContain('.qw-card{')
+    expect(fragment).toContain('--qw-foreground')
+  })
   it('包含当前天气：图标、文字、气温', () => {
     expect(fragment).toContain('31°')
     expect(fragment).toContain('阴')
-    expect(fragment).toContain('qw-now')
+    expect(fragment).toContain('qw-now-icon')
+    expect(fragment).toContain('qw-now-meta')
   })
   it('包含未来 5 小时 + 降水概率 + 气温曲线', () => {
-    expect(fragment.match(/qw-hr-temp/g)).toHaveLength(5)
+    expect(fragment.match(/class="qw-hr-temp"/g)).toHaveLength(5)
     expect(fragment).toContain('50%')
     expect(fragment).toContain('qw-chart')
-    expect(fragment).toContain('polyline')
+    expect(fragment).toContain('qw-chart-line')
+    expect(fragment).toContain('qw-chart-fill')
   })
   it('预警只保留黄色及以上，文本被转义', () => {
     expect(fragment).toContain('暴雨黄色预警')
     expect(fragment).not.toContain('大风蓝色预警')
     expect(fragment).toContain('&lt;预计&gt;')
+    expect(fragment).toContain('qw-badge')
   })
   it('包含信息更新时间与数据来源', () => {
     expect(fragment).toContain('更新于 15:02')
@@ -53,10 +61,25 @@ describe('tempChartSvg', () => {
     expect(tempChartSvg([])).toBe('')
     expect(tempChartSvg([{ time: 'x', temp: 1, icon: '100', text: '晴', pop: 0 }])).toBe('')
   })
-  it('2 个以上输出折线与标签', () => {
+  it('2 个以上输出平滑曲线、渐变面积与温度标签', () => {
     const svg = tempChartSvg(bundle.hours!)
-    expect(svg).toContain('qw-cv-line')
+    expect(svg).toContain('qw-chart-line')
+    expect(svg).toContain('linearGradient')
     expect(svg).toContain('33°')
+    expect(svg).toContain('C') // 平滑曲线使用三次贝塞尔段
+  })
+})
+
+describe('smoothPath', () => {
+  it('少于 2 个点返回空串', () => {
+    expect(smoothPath([])).toBe('')
+    expect(smoothPath([[1, 2]])).toBe('')
+  })
+  it('2 个点输出 M…C 曲线', () => {
+    const path = smoothPath([[0, 0], [100, 50]])
+    expect(path.startsWith('M0,0')).toBe(true)
+    expect(path).toContain('C')
+    expect(path.endsWith('100,50')).toBe(true)
   })
 })
 

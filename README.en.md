@@ -31,7 +31,7 @@ Restart `dsh web` (or refresh). Desktop: `dsh plugin --profile desktop add githu
 
 ## Development
 
-Node ≥ 22. `pnpm install && pnpm run check` (typecheck + 31 vitest cases + dual tsdown build into `lib/`, which is committed). `pnpm run preview` regenerates `preview.html` from `samples/sample-bundle.json`.
+Node ≥ 22. `pnpm install && pnpm run check` (typecheck + 34 vitest cases + dual tsdown build into `lib/`, which is committed). `pnpm run preview` regenerates `preview.html` from `samples/sample-bundle.json`.
 
 ## Security
 
