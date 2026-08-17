@@ -110,13 +110,17 @@ export function apply(ctx: ClientContext): void {
     void scope.set('autoLocationId', id)
     void scope.set('autoLocationName', name)
   }
-  const register = ctx.slots.register as unknown as (options: {
+  // 注意：register 必须通过 ctx.slots.register(...) 在调用点直接调用，
+  // 不能提取成脱离服务对象的函数引用（那样 this.ctx 会丢失，
+  // 运行时内部 this.ctx.effect(...) 会抛 reading 'effect'）。
+  type Register = (options: {
     name: string
     id?: string
     key?: string
     order?: number
     inject?: () => unknown
   }, component: unknown) => () => void
+  const register = (...args: Parameters<Register>) => (ctx.slots.register as unknown as Register)(...args)
 
   // 1) 设置卡片
   ctx.slots.inject('settings.plugin.item', () => register({
