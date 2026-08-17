@@ -18,7 +18,7 @@ import { weatherIcon } from './icons.ts'
 /** 卡片样式表（fragment 必须内联带上，否则 SVG 落入默认黑色填充）。 */
 const CARD_CSS = `
 .qw,.qw *{box-sizing:border-box}
-.qw{font:13px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+.qw{font:14px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
   --f:light-dark(#3a4a61,#e8eefb);
   --m:light-dark(#64748b,#9fb0c7);
   --s:light-dark(#8fa0b5,#5f7089);
@@ -46,8 +46,8 @@ const CARD_CSS = `
     10px 10px 24px var(--sh-dark),-10px -10px 24px var(--sh-light),
     inset 0 1px 0 light-dark(rgba(255,255,255,.9),rgba(255,255,255,.08))}
 .qw-head{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0}
-.qw-loc{font-size:14px;font-weight:800;letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.qw-updated{flex:none;font-size:11px;color:var(--m);font-variant-numeric:tabular-nums}
+.qw-loc{font-size:15px;font-weight:800;letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qw-updated{flex:none;font-size:12px;color:var(--m);font-variant-numeric:tabular-nums}
 .qw-now{display:flex;align-items:center;gap:12px}
 .qw-now-icon{flex:none;display:flex;align-items:center;justify-content:center;width:50px;height:50px;border-radius:16px;
   background:linear-gradient(145deg,light-dark(#e0f4ff,#1c2e4e),light-dark(#bfe4ff,#0e1a30));
@@ -56,13 +56,13 @@ const CARD_CSS = `
 .qw-now-temp{display:flex;align-items:flex-start;gap:1px}
 .qw-now-temp .n{font-size:31px;font-weight:800;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
 .qw-now-temp .deg{font-size:14px;font-weight:800;color:var(--orange);margin-top:2.5px}
-.qw-now-text{font-size:12px;color:var(--m)}
-.qw-now-meta{margin-left:auto;display:grid;grid-template-columns:auto auto;column-gap:14px;row-gap:4px;font-size:11px;text-align:right}
+.qw-now-text{font-size:13px;color:var(--m)}
+.qw-now-meta{margin-left:auto;display:grid;grid-template-columns:auto auto;column-gap:14px;row-gap:4px;font-size:12px;text-align:right}
 .qw-now-meta .k{color:var(--s)}
 .qw-now-meta .v{color:var(--f);font-weight:700;font-variant-numeric:tabular-nums}
-.qw-sec-title{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;letter-spacing:.6px;color:var(--m)}
+.qw-sec-title{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700;letter-spacing:.6px;color:var(--m)}
 .qw-sec-title::before{content:'';flex:none;width:4px;height:13px;border-radius:2px;background:linear-gradient(180deg,var(--sky),var(--orange));box-shadow:0 1px 4px light-dark(rgba(148,163,184,.45),rgba(0,0,0,.45))}
-.qw-badge{display:inline-flex;align-items:center;justify-content:center;min-width:19px;height:19px;padding:0 6px;border-radius:10px;color:var(--orange);font-size:10.5px;font-weight:800;font-variant-numeric:tabular-nums;
+.qw-badge{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 6px;border-radius:10px;color:var(--orange);font-size:11.5px;font-weight:800;font-variant-numeric:tabular-nums;
   background:linear-gradient(150deg,color-mix(in srgb,var(--bc,#f97316) 16%,transparent),transparent 70%);
   border:1px solid color-mix(in srgb,var(--bc,#f97316) 35%,transparent);
   box-shadow:inset 0 1px 0 light-dark(rgba(255,255,255,.7),rgba(255,255,255,.08))}
@@ -70,22 +70,22 @@ const CARD_CSS = `
 .qw-hr{display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 2px 8px;border-radius:13px;border:1px solid var(--bd);
   background:linear-gradient(145deg,var(--cell-a),var(--cell-b));
   box-shadow:inset 2.5px 2.5px 6px var(--sh-dark),inset -2.5px -2.5px 6px var(--sh-light)}
-.qw-hr-time{font-size:11.5px;color:var(--s);font-variant-numeric:tabular-nums}
+.qw-hr-time{font-size:12.5px;color:var(--s);font-variant-numeric:tabular-nums}
 .qw-hr-icon{display:flex;align-items:center;justify-content:center;height:28px}
-.qw-hr-pop{font-size:11.5px;color:var(--pop);font-weight:600;font-variant-numeric:tabular-nums}
-.qw-hr-text{font-size:12px;color:var(--m);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qw-hr-pop{font-size:12.5px;color:var(--pop);font-weight:600;font-variant-numeric:tabular-nums}
+.qw-hr-text{font-size:13px;color:var(--m);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .qw-chart{position:relative;height:92px;margin-top:12px}
 /* 曲线投影：与图标小卡片同款的下投影（带模糊渐隐），无高光、无复制曲线 */
 .qw-chart-svg{display:block;width:100%;height:92px;filter:drop-shadow(1px 6px 7px light-dark(rgba(0,0,0,.28),rgba(0,0,0,.5)))}
 .qw-chart-line{fill:none;stroke-width:12;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
-.qw-chart-chip{position:absolute;transform:translate(-50%,-100%);font-size:15.5px;font-weight:700;color:var(--f);font-variant-numeric:tabular-nums;white-space:nowrap;text-shadow:0 1px 0 light-dark(rgba(255,255,255,.6),rgba(0,0,0,.35))}
+.qw-chart-chip{position:absolute;transform:translate(-50%,-100%);font-size:16.5px;font-weight:700;color:var(--f);font-variant-numeric:tabular-nums;white-space:nowrap;text-shadow:0 1px 0 light-dark(rgba(255,255,255,.6),rgba(0,0,0,.35))}
 .qw-alert{display:flex;flex-direction:column;gap:3px;padding:9px 12px;border-radius:12px;border:1px solid var(--bd);border-left:3px solid var(--alert-c,#f59e0b);
   background:linear-gradient(150deg,color-mix(in srgb,var(--alert-c,#f59e0b) 12%,transparent),transparent 60%);
   box-shadow:2px 3px 8px var(--sh-dark),inset 0 1px 0 light-dark(rgba(255,255,255,.75),rgba(255,255,255,.06))}
-.qw-alert-head{font-size:12.5px;font-weight:700;color:var(--f)}
-.qw-alert-body{font-size:11.5px;color:var(--m);line-height:1.55}
-.qw-empty{font-size:12px;color:var(--s)}
-.qw-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:9px;border-top:1px dashed var(--bd);font-size:11px;color:var(--s)}
+.qw-alert-head{font-size:13.5px;font-weight:700;color:var(--f)}
+.qw-alert-body{font-size:12.5px;color:var(--m);line-height:1.55}
+.qw-empty{font-size:13px;color:var(--s)}
+.qw-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:9px;border-top:1px dashed var(--bd);font-size:12px;color:var(--s)}
 .qw-foot a{color:var(--sky-deep);text-decoration:none;font-weight:700}
 .qw-foot a:hover{color:var(--orange);text-decoration:underline}
 `

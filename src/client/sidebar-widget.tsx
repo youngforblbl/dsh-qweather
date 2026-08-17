@@ -223,8 +223,8 @@ function WideView({ bundle, status, error, refreshing, onRefresh, t }: {
       {now !== undefined && (
         <div style={row}>
           <IconTile code={now.icon} size={24} tileSize={38} uid="now" />
-          <span style={{ display: 'flex', alignItems: 'flex-start', gap: 1, fontSize: 24, fontWeight: 800, lineHeight: 1, letterSpacing: '-.4px', ...num }}>
-            <span>{round1(now.temp)}</span><span style={{ fontSize: 11, fontWeight: 800, color: orange, marginTop: 1.5 }}>℃</span>
+          <span style={{ display: 'flex', alignItems: 'flex-start', gap: 1, fontSize: 22, fontWeight: 800, lineHeight: 1, letterSpacing: '-.4px', ...num }}>
+            <span>{round1(now.temp)}</span><span style={{ fontSize: 10, fontWeight: 800, color: orange, marginTop: 1.5 }}>℃</span>
           </span>
           <span style={{ color: muted, fontSize: 12 }}>{now.text}</span>
           <span style={{ marginLeft: 'auto', display: 'flex', flexDirection: 'column', gap: 2, fontSize: 10.5, textAlign: 'right', color: muted, lineHeight: 1.4 }}>

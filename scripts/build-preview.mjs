@@ -124,8 +124,8 @@ h1 { font-size:19px; margin:0 0 4px }
 .now .tile { flex:none; display:flex; align-items:center; justify-content:center; width:38px; height:38px; border-radius:11px;
   background:linear-gradient(145deg,var(--tile-a),var(--tile-b));
   box-shadow:4px 4px 10px var(--sh-dark),-3px -3px 8px var(--sh-light),inset 0 1px 0 var(--hi) }
-.now .t { display:flex; align-items:flex-start; gap:1px; font-size:24px; font-weight:800; letter-spacing:-.4px; line-height:1 }
-.now .t .deg { font-size:11px; color:var(--orange); margin-top:1.5px }
+.now .t { display:flex; align-items:flex-start; gap:1px; font-size:22px; font-weight:800; letter-spacing:-.4px; line-height:1 }
+.now .t .deg { font-size:10px; color:var(--orange); margin-top:1.5px }
 .now .meta { margin-left:auto; display:flex; flex-direction:column; gap:2px; color:var(--mut); font-size:10.5px; text-align:right; line-height:1.4 }
 .now .meta b { color:var(--text); font-weight:700 }
 .hours { display:grid; grid-template-columns:repeat(5,1fr); gap:4px }

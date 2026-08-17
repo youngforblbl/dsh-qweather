@@ -72,8 +72,8 @@ h1 { font-size:19px; margin:0 0 4px }
 .now .tile { flex:none; display:flex; align-items:center; justify-content:center; width:38px; height:38px; border-radius:11px;
   background:linear-gradient(145deg,var(--tile-a),var(--tile-b));
   box-shadow:4px 4px 10px var(--sh-dark),-3px -3px 8px var(--sh-light),inset 0 1px 0 var(--hi) }
-.now .t { display:flex; align-items:flex-start; gap:1px; font-size:24px; font-weight:800; letter-spacing:-.4px; line-height:1 }
-.now .t .deg { font-size:11px; color:var(--orange); margin-top:1.5px }
+.now .t { display:flex; align-items:flex-start; gap:1px; font-size:22px; font-weight:800; letter-spacing:-.4px; line-height:1 }
+.now .t .deg { font-size:10px; color:var(--orange); margin-top:1.5px }
 .now .meta { margin-left:auto; display:flex; flex-direction:column; gap:2px; color:var(--mut); font-size:10.5px; text-align:right; line-height:1.4 }
 .now .meta b { color:var(--text); font-weight:700 }
 .hours { display:grid; grid-template-columns:repeat(5,1fr); gap:4px }
@@ -118,16 +118,16 @@ body.light { --tile-a:#e0f4ff; --tile-b:#bfe4ff }
       <h2>侧边栏收起（仅图标 + 气温）</h2>
       <div class="rail">
         <span class="tile"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><defs><linearGradient id="qw-ic-pv-rail" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" style="stop-color:#ffffff"/><stop offset="100%" style="stop-color:#c7d6ea"/></linearGradient></defs><g transform="translate(0,1.35)" opacity=".20"><defs><linearGradient id="qw-ic-pwpv-rail" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" style="stop-color:#ffd08a"/><stop offset="100%" style="stop-color:#f97316"/></linearGradient></defs><g transform="translate(15.2,7.8) scale(0.68) translate(-12,-12)" stroke="#0b1220" data-u="pwpv-rail)" stroke-width="2.3" stroke-linecap="round"><path d="M12 2.4v2.4M12 19.2v2.4M2.4 12h2.4M19.2 12h2.4M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/></g><circle cx="15.2" cy="7.8" r="3.06" fill="#0b1220" data-u="pwpv-rail)"/><circle cx="14.383999999999999" cy="6.984" r="1.2240000000000002" fill="#ffffff" opacity=".4"/><g transform="translate(-0.6,0.6)"><circle cx="9" cy="14.8" r="3.5" fill="#0b1220" data-u="pv-rail)"/><circle cx="13.4" cy="12.4" r="4.3" fill="#0b1220" data-u="pv-rail)"/><circle cx="17.8" cy="15.2" r="3" fill="#0b1220" data-u="pv-rail)"/><rect x="6.9" y="14.2" width="13.6" height="4.6" rx="2.3" fill="#0b1220" data-u="pv-rail)"/><rect x="6.9" y="16" width="13.6" height="2.8" rx="1.4" fill="#7d95b8" opacity=".28"/></g><circle cx="12.6" cy="11" r="1.4" fill="#ffffff" opacity=".65"/></g><defs><linearGradient id="qw-ic-pwpv-rail" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" style="stop-color:#ffd08a"/><stop offset="100%" style="stop-color:#f97316"/></linearGradient></defs><g transform="translate(15.2,7.8) scale(0.68) translate(-12,-12)" stroke="url(#qw-ic-pwpv-rail)" stroke-width="2.3" stroke-linecap="round"><path d="M12 2.4v2.4M12 19.2v2.4M2.4 12h2.4M19.2 12h2.4M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/></g><circle cx="15.2" cy="7.8" r="3.06" fill="url(#qw-ic-pwpv-rail)"/><circle cx="14.383999999999999" cy="6.984" r="1.2240000000000002" fill="#ffffff" opacity=".4"/><g transform="translate(-0.6,0.6)"><circle cx="9" cy="14.8" r="3.5" fill="url(#qw-ic-pv-rail)"/><circle cx="13.4" cy="12.4" r="4.3" fill="url(#qw-ic-pv-rail)"/><circle cx="17.8" cy="15.2" r="3" fill="url(#qw-ic-pv-rail)"/><rect x="6.9" y="14.2" width="13.6" height="4.6" rx="2.3" fill="url(#qw-ic-pv-rail)"/><rect x="6.9" y="16" width="13.6" height="2.8" rx="1.4" fill="#7d95b8" opacity=".28"/></g><circle cx="12.6" cy="11" r="1.4" fill="#ffffff" opacity=".65"/></svg></span>
-        <span class="r-temp num">32℃</span>
+        <span class="r-temp num">31.9℃</span>
       </div>
       <h2 style="margin-top:18px">侧边栏展开（完整卡片）</h2>
       <div class="card">
         <div class="head"><span>北京 · 北京市</span><span style="color:var(--mut);font-weight:400">↻</span></div>
         <div class="now">
           <span class="tile"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><defs><linearGradient id="qw-ic-pv-now" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" style="stop-color:#ffffff"/><stop offset="100%" style="stop-color:#c7d6ea"/></linearGradient></defs><g transform="translate(0,1.35)" opacity=".20"><defs><linearGradient id="qw-ic-pwpv-now" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" style="stop-color:#ffd08a"/><stop offset="100%" style="stop-color:#f97316"/></linearGradient></defs><g transform="translate(15.2,7.8) scale(0.68) translate(-12,-12)" stroke="#0b1220" data-u="pwpv-now)" stroke-width="2.3" stroke-linecap="round"><path d="M12 2.4v2.4M12 19.2v2.4M2.4 12h2.4M19.2 12h2.4M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/></g><circle cx="15.2" cy="7.8" r="3.06" fill="#0b1220" data-u="pwpv-now)"/><circle cx="14.383999999999999" cy="6.984" r="1.2240000000000002" fill="#ffffff" opacity=".4"/><g transform="translate(-0.6,0.6)"><circle cx="9" cy="14.8" r="3.5" fill="#0b1220" data-u="pv-now)"/><circle cx="13.4" cy="12.4" r="4.3" fill="#0b1220" data-u="pv-now)"/><circle cx="17.8" cy="15.2" r="3" fill="#0b1220" data-u="pv-now)"/><rect x="6.9" y="14.2" width="13.6" height="4.6" rx="2.3" fill="#0b1220" data-u="pv-now)"/><rect x="6.9" y="16" width="13.6" height="2.8" rx="1.4" fill="#7d95b8" opacity=".28"/></g><circle cx="12.6" cy="11" r="1.4" fill="#ffffff" opacity=".65"/></g><defs><linearGradient id="qw-ic-pwpv-now" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" style="stop-color:#ffd08a"/><stop offset="100%" style="stop-color:#f97316"/></linearGradient></defs><g transform="translate(15.2,7.8) scale(0.68) translate(-12,-12)" stroke="url(#qw-ic-pwpv-now)" stroke-width="2.3" stroke-linecap="round"><path d="M12 2.4v2.4M12 19.2v2.4M2.4 12h2.4M19.2 12h2.4M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/></g><circle cx="15.2" cy="7.8" r="3.06" fill="url(#qw-ic-pwpv-now)"/><circle cx="14.383999999999999" cy="6.984" r="1.2240000000000002" fill="#ffffff" opacity=".4"/><g transform="translate(-0.6,0.6)"><circle cx="9" cy="14.8" r="3.5" fill="url(#qw-ic-pv-now)"/><circle cx="13.4" cy="12.4" r="4.3" fill="url(#qw-ic-pv-now)"/><circle cx="17.8" cy="15.2" r="3" fill="url(#qw-ic-pv-now)"/><rect x="6.9" y="14.2" width="13.6" height="4.6" rx="2.3" fill="url(#qw-ic-pv-now)"/><rect x="6.9" y="16" width="13.6" height="2.8" rx="1.4" fill="#7d95b8" opacity=".28"/></g><circle cx="12.6" cy="11" r="1.4" fill="#ffffff" opacity=".65"/></svg></span>
-          <span class="t num"><span>32</span><span class="deg">℃</span></span>
+          <span class="t num"><span>31.9</span><span class="deg">℃</span></span>
           <span class="mut" style="color:var(--mut);font-size:12px">多云</span>
-          <span class="meta"><span>体感 <b class="num">32.5℃</b></span><span>湿度 <b class="num">40%</b></span></span>
+          <span class="meta"><span>体感 <b class="num">32.4℃</b></span><span>湿度 <b class="num">41%</b></span></span>
         </div>
         <div class="sec">未来 5 小时</div>
         <div class="hours">
@@ -159,16 +159,16 @@ body.light { --tile-a:#e0f4ff; --tile-b:#bfe4ff }
         </div>
         <div class="curve" style="height:56px;margin-top:8px"><svg viewBox="0 0 320 56" preserveAspectRatio="none" style="display:block;width:100%;height:56px;filter:drop-shadow(0.8px 4.5px 5.5px var(--line-sh))"><defs><linearGradient id="side-stroke" gradientUnits="userSpaceOnUse" x1="0" y1="14" x2="0" y2="48"><stop offset="0%" stop-color="var(--orange)"/><stop offset="100%" stop-color="var(--sky)"/></linearGradient></defs><polyline points="32.0,22.0 96.0,31.5 160.0,39.9 224.0,45.6 288.0,48.0" style="fill:none;stroke:url(#side-stroke);stroke-width:9;stroke-linejoin:round;stroke-linecap:round;vector-effect:non-scaling-stroke"/></svg><span class="chip" style="left:10%;top:calc(39.3% - 6px)">31.1℃</span><span class="chip" style="left:30%;top:calc(56.2% - 6px)">29.8℃</span><span class="chip" style="left:50%;top:calc(71.3% - 6px)">28.6℃</span><span class="chip" style="left:70%;top:calc(81.4% - 6px)">27.8℃</span><span class="chip" style="left:90%;top:calc(85.7% - 6px)">27.5℃</span></div>
         <div class="sec">重要预警<span class="badge" style="--c:#eab308">1</span></div><div class="alert-box" style="--c:#eab308"><div class="ah">高温黄色预警（演示数据）</div><div class="ab">预计未来三天最高气温将达 35℃ 以上，请做好防暑降温准备。</div></div>
-        <div class="foot"><span>更新于 17:17</span><span>和风天气</span></div>
+        <div class="foot"><span>更新于 17:19</span><span>和风天气</span></div>
       </div>
     </div>
     <div class="panel cardpanel">
       <h2>对话内天气卡片（qweather_card）</h2>
-      <div class="tool">已渲染「北京 · 北京市 天气」天气卡片（22870 字符）</div>
+      <div class="tool">已渲染「北京 · 北京市 天气」天气卡片（22873 字符）</div>
       <div class="qw">
 <style>
 .qw,.qw *{box-sizing:border-box}
-.qw{font:13px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+.qw{font:14px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
   --f:light-dark(#3a4a61,#e8eefb);
   --m:light-dark(#64748b,#9fb0c7);
   --s:light-dark(#8fa0b5,#5f7089);
@@ -196,8 +196,8 @@ body.light { --tile-a:#e0f4ff; --tile-b:#bfe4ff }
     10px 10px 24px var(--sh-dark),-10px -10px 24px var(--sh-light),
     inset 0 1px 0 light-dark(rgba(255,255,255,.9),rgba(255,255,255,.08))}
 .qw-head{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0}
-.qw-loc{font-size:14px;font-weight:800;letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.qw-updated{flex:none;font-size:11px;color:var(--m);font-variant-numeric:tabular-nums}
+.qw-loc{font-size:15px;font-weight:800;letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qw-updated{flex:none;font-size:12px;color:var(--m);font-variant-numeric:tabular-nums}
 .qw-now{display:flex;align-items:center;gap:12px}
 .qw-now-icon{flex:none;display:flex;align-items:center;justify-content:center;width:50px;height:50px;border-radius:16px;
   background:linear-gradient(145deg,light-dark(#e0f4ff,#1c2e4e),light-dark(#bfe4ff,#0e1a30));
@@ -206,13 +206,13 @@ body.light { --tile-a:#e0f4ff; --tile-b:#bfe4ff }
 .qw-now-temp{display:flex;align-items:flex-start;gap:1px}
 .qw-now-temp .n{font-size:31px;font-weight:800;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
 .qw-now-temp .deg{font-size:14px;font-weight:800;color:var(--orange);margin-top:2.5px}
-.qw-now-text{font-size:12px;color:var(--m)}
-.qw-now-meta{margin-left:auto;display:grid;grid-template-columns:auto auto;column-gap:14px;row-gap:4px;font-size:11px;text-align:right}
+.qw-now-text{font-size:13px;color:var(--m)}
+.qw-now-meta{margin-left:auto;display:grid;grid-template-columns:auto auto;column-gap:14px;row-gap:4px;font-size:12px;text-align:right}
 .qw-now-meta .k{color:var(--s)}
 .qw-now-meta .v{color:var(--f);font-weight:700;font-variant-numeric:tabular-nums}
-.qw-sec-title{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;letter-spacing:.6px;color:var(--m)}
+.qw-sec-title{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700;letter-spacing:.6px;color:var(--m)}
 .qw-sec-title::before{content:'';flex:none;width:4px;height:13px;border-radius:2px;background:linear-gradient(180deg,var(--sky),var(--orange));box-shadow:0 1px 4px light-dark(rgba(148,163,184,.45),rgba(0,0,0,.45))}
-.qw-badge{display:inline-flex;align-items:center;justify-content:center;min-width:19px;height:19px;padding:0 6px;border-radius:10px;color:var(--orange);font-size:10.5px;font-weight:800;font-variant-numeric:tabular-nums;
+.qw-badge{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 6px;border-radius:10px;color:var(--orange);font-size:11.5px;font-weight:800;font-variant-numeric:tabular-nums;
   background:linear-gradient(150deg,color-mix(in srgb,var(--bc,#f97316) 16%,transparent),transparent 70%);
   border:1px solid color-mix(in srgb,var(--bc,#f97316) 35%,transparent);
   box-shadow:inset 0 1px 0 light-dark(rgba(255,255,255,.7),rgba(255,255,255,.08))}
@@ -220,37 +220,37 @@ body.light { --tile-a:#e0f4ff; --tile-b:#bfe4ff }
 .qw-hr{display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 2px 8px;border-radius:13px;border:1px solid var(--bd);
   background:linear-gradient(145deg,var(--cell-a),var(--cell-b));
   box-shadow:inset 2.5px 2.5px 6px var(--sh-dark),inset -2.5px -2.5px 6px var(--sh-light)}
-.qw-hr-time{font-size:11.5px;color:var(--s);font-variant-numeric:tabular-nums}
+.qw-hr-time{font-size:12.5px;color:var(--s);font-variant-numeric:tabular-nums}
 .qw-hr-icon{display:flex;align-items:center;justify-content:center;height:28px}
-.qw-hr-pop{font-size:11.5px;color:var(--pop);font-weight:600;font-variant-numeric:tabular-nums}
-.qw-hr-text{font-size:12px;color:var(--m);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qw-hr-pop{font-size:12.5px;color:var(--pop);font-weight:600;font-variant-numeric:tabular-nums}
+.qw-hr-text{font-size:13px;color:var(--m);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .qw-chart{position:relative;height:92px;margin-top:12px}
 /* 曲线投影：与图标小卡片同款的下投影（带模糊渐隐），无高光、无复制曲线 */
 .qw-chart-svg{display:block;width:100%;height:92px;filter:drop-shadow(1px 6px 7px light-dark(rgba(0,0,0,.28),rgba(0,0,0,.5)))}
 .qw-chart-line{fill:none;stroke-width:12;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
-.qw-chart-chip{position:absolute;transform:translate(-50%,-100%);font-size:15.5px;font-weight:700;color:var(--f);font-variant-numeric:tabular-nums;white-space:nowrap;text-shadow:0 1px 0 light-dark(rgba(255,255,255,.6),rgba(0,0,0,.35))}
+.qw-chart-chip{position:absolute;transform:translate(-50%,-100%);font-size:16.5px;font-weight:700;color:var(--f);font-variant-numeric:tabular-nums;white-space:nowrap;text-shadow:0 1px 0 light-dark(rgba(255,255,255,.6),rgba(0,0,0,.35))}
 .qw-alert{display:flex;flex-direction:column;gap:3px;padding:9px 12px;border-radius:12px;border:1px solid var(--bd);border-left:3px solid var(--alert-c,#f59e0b);
   background:linear-gradient(150deg,color-mix(in srgb,var(--alert-c,#f59e0b) 12%,transparent),transparent 60%);
   box-shadow:2px 3px 8px var(--sh-dark),inset 0 1px 0 light-dark(rgba(255,255,255,.75),rgba(255,255,255,.06))}
-.qw-alert-head{font-size:12.5px;font-weight:700;color:var(--f)}
-.qw-alert-body{font-size:11.5px;color:var(--m);line-height:1.55}
-.qw-empty{font-size:12px;color:var(--s)}
-.qw-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:9px;border-top:1px dashed var(--bd);font-size:11px;color:var(--s)}
+.qw-alert-head{font-size:13.5px;font-weight:700;color:var(--f)}
+.qw-alert-body{font-size:12.5px;color:var(--m);line-height:1.55}
+.qw-empty{font-size:13px;color:var(--s)}
+.qw-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:9px;border-top:1px dashed var(--bd);font-size:12px;color:var(--s)}
 .qw-foot a{color:var(--sky-deep);text-decoration:none;font-weight:700}
 .qw-foot a:hover{color:var(--orange);text-decoration:underline}
 </style>
 <div class="qw-card">
 <div class="qw-head">
 <span class="qw-loc" title="北京 · 北京市">北京 · 北京市</span>
-<span class="qw-updated">更新于 17:17</span>
+<span class="qw-updated">更新于 17:19</span>
 </div>
 <div class="qw-now">
 <span class="qw-now-icon"><svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><defs><linearGradient id="qw-ic-now" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" style="stop-color:#ffffff"/><stop offset="100%" style="stop-color:#c7d6ea"/></linearGradient></defs><g transform="translate(0,1.35)" opacity=".20"><defs><linearGradient id="qw-ic-pwnow" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" style="stop-color:#ffd08a"/><stop offset="100%" style="stop-color:#f97316"/></linearGradient></defs><g transform="translate(15.2,7.8) scale(0.68) translate(-12,-12)" stroke="#0b1220" data-u="pwnow)" stroke-width="2.3" stroke-linecap="round"><path d="M12 2.4v2.4M12 19.2v2.4M2.4 12h2.4M19.2 12h2.4M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/></g><circle cx="15.2" cy="7.8" r="3.06" fill="#0b1220" data-u="pwnow)"/><circle cx="14.383999999999999" cy="6.984" r="1.2240000000000002" fill="#ffffff" opacity=".4"/><g transform="translate(-0.6,0.6)"><circle cx="9" cy="14.8" r="3.5" fill="#0b1220" data-u="now)"/><circle cx="13.4" cy="12.4" r="4.3" fill="#0b1220" data-u="now)"/><circle cx="17.8" cy="15.2" r="3" fill="#0b1220" data-u="now)"/><rect x="6.9" y="14.2" width="13.6" height="4.6" rx="2.3" fill="#0b1220" data-u="now)"/><rect x="6.9" y="16" width="13.6" height="2.8" rx="1.4" fill="#7d95b8" opacity=".28"/></g><circle cx="12.6" cy="11" r="1.4" fill="#ffffff" opacity=".65"/></g><defs><linearGradient id="qw-ic-pwnow" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" style="stop-color:#ffd08a"/><stop offset="100%" style="stop-color:#f97316"/></linearGradient></defs><g transform="translate(15.2,7.8) scale(0.68) translate(-12,-12)" stroke="url(#qw-ic-pwnow)" stroke-width="2.3" stroke-linecap="round"><path d="M12 2.4v2.4M12 19.2v2.4M2.4 12h2.4M19.2 12h2.4M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/></g><circle cx="15.2" cy="7.8" r="3.06" fill="url(#qw-ic-pwnow)"/><circle cx="14.383999999999999" cy="6.984" r="1.2240000000000002" fill="#ffffff" opacity=".4"/><g transform="translate(-0.6,0.6)"><circle cx="9" cy="14.8" r="3.5" fill="url(#qw-ic-now)"/><circle cx="13.4" cy="12.4" r="4.3" fill="url(#qw-ic-now)"/><circle cx="17.8" cy="15.2" r="3" fill="url(#qw-ic-now)"/><rect x="6.9" y="14.2" width="13.6" height="4.6" rx="2.3" fill="url(#qw-ic-now)"/><rect x="6.9" y="16" width="13.6" height="2.8" rx="1.4" fill="#7d95b8" opacity=".28"/></g><circle cx="12.6" cy="11" r="1.4" fill="#ffffff" opacity=".65"/></svg></span>
 <div class="qw-now-main">
-<span class="qw-now-temp"><span class="n">32</span><span class="deg">℃</span></span>
+<span class="qw-now-temp"><span class="n">31.9</span><span class="deg">℃</span></span>
 <span class="qw-now-text">多云</span>
 </div>
-<div class="qw-now-meta"><span class="k">体感</span><span class="v">32.5℃</span><span class="k">湿度</span><span class="v">40%</span><span class="k">风</span><span class="v">东北风 2级</span></div>
+<div class="qw-now-meta"><span class="k">体感</span><span class="v">32.4℃</span><span class="k">湿度</span><span class="v">41%</span><span class="k">风</span><span class="v">东北风 2级</span></div>
 </div>
 <div>
 <div class="qw-sec-title">未来 5 小时</div>
