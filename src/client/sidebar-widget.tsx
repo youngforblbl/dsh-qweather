@@ -11,12 +11,11 @@ import type { CSSProperties } from 'react'
 import { weatherIcon } from '../qweather/icons.ts'
 import type { WeatherBundle } from '../qweather/types.ts'
 import { hourLabel, isYellowOrAbove, percent, placeLabel, round1 } from '../qweather/types.ts'
-import { useSettingsSnapshot, useWeather, type SettingsScopeLike } from './use-qweather.ts'
+import { useQWeatherSettings, useWeather } from './use-qweather.ts'
 
 /** 槽位组合属性。 */
 export interface SidebarWeatherWidgetProps {
   wide: boolean
-  scope: SettingsScopeLike
   qw: (key: string) => string
   onExpand: () => void
   saveAuto: (id: string, name: string) => void
@@ -266,7 +265,7 @@ const linkButton: CSSProperties = {
 
 /** 槽位入口组件。 */
 export function SidebarWeatherWidget(props: SidebarWeatherWidgetProps) {
-  const settings = useSettingsSnapshot(props.scope)
+  const settings = useQWeatherSettings()
   const { state, refresh } = useWeather(settings, props.saveAuto)
   if (settings?.enabled !== true) return null
   return props.wide

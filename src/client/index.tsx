@@ -8,20 +8,24 @@
 import type { ClientContext } from '@deepseek-ai/dsh-client-runtime/client'
 // 仅类型导入：把各槽位的 SlotMap 声明拉进本文件，保证槽位名有类型检查
 import type {} from '@deepseek-ai/dsh-client-ui-sidebar/client'
-import type {} from '@deepseek-ai/dsh-client-ui-settings/client'
 import type {} from '@deepseek-ai/dsh-client-ui-settings-plugins/client'
 import type {} from '@deepseek-ai/dsh-client-ui-tool/client'
 import type {} from '@deepseek-ai/dsh-client-ui-layout/client'
 import type {} from '@deepseek-ai/dsh-client-locale/client'
 import { CARD_TOOL_NAME } from '../qweather/types.ts'
+import { saveQWeatherConfig } from './use-qweather.ts'
 import { QWeatherSettingsCard } from './settings-card.tsx'
 import { SidebarWeatherWidget } from './sidebar-widget.tsx'
 import { QWeatherCardView } from './card-view.tsx'
 
 export const name = 'dsh-qweather'
 
-/** 依赖服务：槽位注册表、设置命名空间、连接/远程（设置读写）、locale、侧边栏布局控制。 */
-export const inject = ['slots', 'settingsScope', 'connection', 'remote', 'locale', 'layout']
+/**
+ * 依赖服务：槽位注册表、locale、侧边栏布局控制。
+ * 配置读写走宿主挂载的同源 HTTP 接口（见 use-qweather.ts），
+ * 不再依赖 settingsScope（当前版本第三方命名空间不被设置 RPC 暴露）。
+ */
+export const inject = ['slots', 'locale', 'layout']
 
 const zh = {
   'card.desc': '接入和风天气：侧边栏天气组件 + LLM 天气工具（qweather_weather / qweather_card）。',
@@ -103,12 +107,9 @@ export function apply(ctx: ClientContext): void {
     }
   }, 'qweather: dictionaries')
   const t = ctx.locale.bind('qweather')
-  // 设置命名空间 scope：读写与订阅（连接重置/文档更新由 binder 自动处理）
-  const scope = ctx.settingsScope.bind({ namespace: 'qweather' })
-  // 自动定位写回（引用稳定，避免组件内 useEffect 重跑）
+  // 自动定位写回：通过宿主 HTTP 配置接口持久化（引用稳定，避免组件内 useEffect 重跑）
   const saveAuto = (id: string, name: string) => {
-    void scope.set('autoLocationId', id)
-    void scope.set('autoLocationName', name)
+    void saveQWeatherConfig({ autoLocationId: id, autoLocationName: name }).catch(() => {})
   }
   // 注意：register 必须通过 ctx.slots.register(...) 在调用点直接调用，
   // 不能提取成脱离服务对象的函数引用（那样 this.ctx 会丢失，
@@ -127,7 +128,7 @@ export function apply(ctx: ClientContext): void {
     name: 'settings.plugin.item',
     id: 'qweather',
     order: 30,
-    inject: () => ({ scope, qw: t }),
+    inject: () => ({ qw: t }),
   }, QWeatherSettingsCard))
 
   // 2) 侧边栏底部天气组件
@@ -136,7 +137,7 @@ export function apply(ctx: ClientContext): void {
     id: 'qweather',
     order: 10,
     inject: () => ({
-      scope, qw: t, saveAuto,
+      qw: t, saveAuto,
       onExpand: () => ctx.layout.toggleSidebar(),
     }),
   }, SidebarWeatherWidget))

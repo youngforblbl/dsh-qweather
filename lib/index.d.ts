@@ -280,8 +280,14 @@ interface Config {
 /** Schemastery 校验的配置 schema（Loader 用它合并默认值）。 */
 declare const Config: z<Config>;
 /**
- * 注册设置命名空间与两个工具。
- * 设置可能不存在（极简部署），installSettingsSection 会自动降级为只读静态配置。
+ * 注册设置命名空间、HTTP 配置接口与两个工具。
+ *
+ * 配置分层：
+ * - 宿主：注册 qweather settings 命名空间（LLM 工具从 current() 实时读取）；
+ * - Web 客户端：官方设置 RPC 不向第三方命名空间开放（settings-not-exposed），
+ *   因此通过插件自带的同源 HTTP 接口 GET/POST /dsh-qweather/config 读写，
+ *   写入走命名空间 scope.update，持久化到 settings.yaml；
+ * - 极简部署（无 settings 服务）自动降级为只读静态 config。
  */
 declare function apply(ctx: Context, config: Config): void;
 //#endregion

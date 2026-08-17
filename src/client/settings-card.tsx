@@ -10,10 +10,9 @@
 import { useState, type CSSProperties } from 'react'
 import { QWeatherClient } from '../qweather/api.ts'
 import { placeLabel, round1 } from '../qweather/types.ts'
-import { useSettingsSnapshot, type QWeatherSettings, type SettingsScopeLike } from './use-qweather.ts'
+import { saveQWeatherConfig, useQWeatherSettings, type QWeatherSettings } from './use-qweather.ts'
 
 export interface QWeatherSettingsCardProps {
-  scope: SettingsScopeLike
   /** 本插件的翻译函数（由注册方注入；避免与框架的 t 座位冲突）。 */
   qw: (key: string) => string
 }
@@ -53,7 +52,7 @@ type TestResult = { ok: boolean; text: string } | null
 
 /** 设置卡片组件。 */
 export function QWeatherSettingsCard(props: QWeatherSettingsCardProps) {
-  const settings = useSettingsSnapshot(props.scope)
+  const settings = useQWeatherSettings()
   const t = props.qw
   // null 表示尚未编辑：直接展示命名空间里的当前值
   const [drafts, setDrafts] = useState<Drafts | null>(null)
@@ -81,11 +80,13 @@ export function QWeatherSettingsCard(props: QWeatherSettingsCardProps) {
     setNotice('')
     try {
       if (drafts !== null) {
-        if (drafts.apiHost !== settings.apiHost) await props.scope.set('apiHost', drafts.apiHost)
-        if (drafts.apiKey !== settings.apiKey) await props.scope.set('apiKey', drafts.apiKey)
-        if (drafts.projectId !== settings.projectId) await props.scope.set('projectId', drafts.projectId)
-        if (drafts.locationMode !== settings.locationMode) await props.scope.set('locationMode', drafts.locationMode)
-        if (drafts.location !== settings.location) await props.scope.set('location', drafts.location)
+        const patch: Record<string, string> = {}
+        if (drafts.apiHost !== settings.apiHost) patch.apiHost = drafts.apiHost
+        if (drafts.apiKey !== settings.apiKey) patch.apiKey = drafts.apiKey
+        if (drafts.projectId !== settings.projectId) patch.projectId = drafts.projectId
+        if (drafts.locationMode !== settings.locationMode) patch.locationMode = drafts.locationMode
+        if (drafts.location !== settings.location) patch.location = drafts.location
+        await saveQWeatherConfig(patch)
       }
       setDrafts(null)
       setNotice(t('card.saved'))
@@ -97,7 +98,9 @@ export function QWeatherSettingsCard(props: QWeatherSettingsCardProps) {
   }
 
   const toggleEnabled = () => {
-    void props.scope.set('enabled', !settings.enabled)
+    void saveQWeatherConfig({ enabled: !settings.enabled }).catch((cause) => {
+      setNotice(t('card.saveFailed') + '：' + (cause instanceof Error ? cause.message : String(cause)))
+    })
   }
 
   const runTest = async () => {

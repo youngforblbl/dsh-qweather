@@ -9,9 +9,10 @@
 
 import type { Context } from '@deepseek-ai/cordis'
 import z from '@deepseek-ai/schemastery'
-import { installSettingsSection, settingsNamespace } from '@deepseek-ai/dsh-settings'
+import { settingsNamespace } from '@deepseek-ai/dsh-settings'
 import { weatherTool, cardTool } from './tools.ts'
 import { qweatherSkillProvider } from './skill.ts'
+import { mountConfigRoutes } from './config-routes.ts'
 
 export { WEATHER_TOOL_NAME, CARD_TOOL_NAME, CARD_META_KIND, qweatherCardMetaFrom, weatherTool, cardTool } from './tools.ts'
 export type { QWeatherCardMeta, QWeatherRuntimeConfig } from './tools.ts'
@@ -66,17 +67,41 @@ export const Config: z<Config> = z.object({
 })
 
 /**
- * 注册设置命名空间与两个工具。
- * 设置可能不存在（极简部署），installSettingsSection 会自动降级为只读静态配置。
+ * 注册设置命名空间、HTTP 配置接口与两个工具。
+ *
+ * 配置分层：
+ * - 宿主：注册 qweather settings 命名空间（LLM 工具从 current() 实时读取）；
+ * - Web 客户端：官方设置 RPC 不向第三方命名空间开放（settings-not-exposed），
+ *   因此通过插件自带的同源 HTTP 接口 GET/POST /dsh-qweather/config 读写，
+ *   写入走命名空间 scope.update，持久化到 settings.yaml；
+ * - 极简部署（无 settings 服务）自动降级为只读静态 config。
  */
 export function apply(ctx: Context, config: Config): void {
   let current: () => Config = () => config
-  installSettingsSection(ctx, QWEATHER_NS, Config, config, {
-    setSource: (source) => {
-      current = source
-    },
-    onChange: () => {},
+  let scope: { get(): Config; update(patch: Record<string, unknown>): Promise<unknown> } | undefined
+
+  ctx.inject(['settings'], (sctx) => {
+    const registered = (sctx.settings as unknown as {
+      register(ns: unknown, schema: unknown, options: { base: Config }): { get(): Config; update(patch: Record<string, unknown>): Promise<unknown> }
+    }).register(QWEATHER_NS, Config, { base: config })
+    scope = registered
+    current = () => registered.get()
   })
+
+  ctx.inject(['webServer'], (wctx) => {
+    const webServer = (wctx as unknown as { webServer: Parameters<typeof mountConfigRoutes>[0] }).webServer
+    wctx.effect(() => mountConfigRoutes(webServer, {
+      getConfig: () => current() as unknown as Record<string, unknown>,
+      updateConfig: async (patch) => {
+        if (scope === undefined) throw new Error('设置服务不可用，无法保存配置')
+        // 用 schema 校验补丁（未知字段/非法值直接拒绝）
+        Config(patch as never)
+        await scope.update(patch)
+        return current() as unknown as Record<string, unknown>
+      },
+    }), 'dsh-qweather: config routes')
+  })
+
   ctx.tools.register(weatherTool(ctx, () => current()))
   ctx.tools.register(cardTool(ctx, () => current()))
   ctx.skills.registerProvider(() => qweatherSkillProvider)

@@ -1,6 +1,9 @@
 /**
- * 浏览器端的共享数据逻辑：设置快照订阅、自动/手动定位解析、
+ * 浏览器端的共享数据逻辑：配置读取/保存（同源 HTTP）、自动/手动定位解析、
  * 天气数据拉取与定时刷新。设置卡片与侧边栏组件共用。
+ *
+ * 说明：当前 DSH 版本的设置 RPC 不向第三方插件命名空间开放，
+ * 配置统一走宿主挂载的同源接口 GET/POST /dsh-qweather/config。
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -8,8 +11,12 @@ import { QWeatherApiError, QWeatherClient } from '../qweather/api.ts'
 import type { Place, WeatherBundle } from '../qweather/types.ts'
 import { placeLabel } from '../qweather/types.ts'
 
-/** 设置命名空间（与主机端 settingsNamespace('qweather') 一致，客户端不 import 主机包）。 */
-export const QWEATHER_SETTINGS_NS = 'qweather'
+/** 宿主配置接口路径。 */
+export const CONFIG_URL = '/dsh-qweather/config'
+/** 页面可能替换 window.fetch；统一绑定 globalThis 调用，避免 Illegal invocation。 */
+const boundFetch: typeof fetch = fetch.bind(globalThis)
+/** 配置保存成功后广播的事件（其他组件据此刷新）。 */
+export const CONFIG_CHANGED_EVENT = 'dsh-qweather:config-changed'
 
 /** 归一化后的设置项。 */
 export interface QWeatherSettings {
@@ -23,14 +30,7 @@ export interface QWeatherSettings {
   autoLocationName: string
 }
 
-/** 设置命名空间 scope 的最小接口（便于组件与测试注入替身）。 */
-export interface SettingsScopeLike {
-  getSnapshot(): { status: string; value?: unknown; writable?: boolean }
-  subscribe(listener: () => void): () => void
-  set(field: string, value: unknown): Promise<unknown>
-}
-
-/** 把 scope 快照里的 section 归一化成强类型设置。 */
+/** 把配置对象归一化成强类型设置。 */
 export function normalizeSettings(value: unknown): QWeatherSettings | undefined {
   if (typeof value !== 'object' || value === null) return undefined
   const section = value as Record<string, unknown>
@@ -47,11 +47,51 @@ export function normalizeSettings(value: unknown): QWeatherSettings | undefined 
   }
 }
 
-/** 订阅设置 scope 的快照（React 状态）。 */
-export function useSettingsSnapshot(scope: SettingsScopeLike): QWeatherSettings | undefined {
-  const [snapshot, setSnapshot] = useState(scope.getSnapshot())
-  useEffect(() => scope.subscribe(() => setSnapshot(scope.getSnapshot())), [scope])
-  return normalizeSettings(snapshot.value)
+/** 读取配置（GET /dsh-qweather/config）。 */
+export async function fetchQWeatherConfig(): Promise<QWeatherSettings | undefined> {
+  const response = await boundFetch(CONFIG_URL, { cache: 'no-store' })
+  if (!response.ok) throw new Error('读取配置失败：HTTP ' + response.status)
+  const data = (await response.json()) as { config?: unknown }
+  return normalizeSettings(data.config)
+}
+
+/** 保存部分配置（POST /dsh-qweather/config，宿主校验并持久化）。 */
+export async function saveQWeatherConfig(patch: Record<string, unknown>): Promise<QWeatherSettings | undefined> {
+  const response = await boundFetch(CONFIG_URL, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(patch),
+  })
+  if (!response.ok) {
+    const data = (await response.json().catch(() => null)) as { error?: string } | null
+    throw new Error('保存配置失败：' + (data?.error ?? 'HTTP ' + response.status))
+  }
+  const data = (await response.json()) as { config?: unknown }
+  window.dispatchEvent(new CustomEvent(CONFIG_CHANGED_EVENT))
+  return normalizeSettings(data.config)
+}
+
+/** 订阅配置（React 状态）：挂载时拉取、保存事件后刷新、每 60s 兜底轮询。 */
+export function useQWeatherSettings(): QWeatherSettings | undefined {
+  const [settings, setSettings] = useState<QWeatherSettings | undefined>(undefined)
+  const reload = useCallback(() => {
+    fetchQWeatherConfig()
+      .then((next) => setSettings(next))
+      .catch(() => {
+        // 配置接口不可用（独立预览页等场景）保持当前值；组件侧显示占位
+      })
+  }, [])
+  useEffect(() => {
+    reload()
+    const onChanged = () => reload()
+    window.addEventListener(CONFIG_CHANGED_EVENT, onChanged)
+    const timer = setInterval(reload, 60_000)
+    return () => {
+      window.removeEventListener(CONFIG_CHANGED_EVENT, onChanged)
+      clearInterval(timer)
+    }
+  }, [reload])
+  return settings
 }
 
 /** 浏览器定位：拿经纬度（自动定位到市/区级，由城市搜索接口反查）。 */

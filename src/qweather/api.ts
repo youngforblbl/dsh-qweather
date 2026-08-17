@@ -93,7 +93,9 @@ export class QWeatherClient {
   constructor(options: QWeatherClientOptions) {
     this.apiHost = normalizeApiHost(options.apiHost)
     this.apiKey = options.apiKey.trim()
-    this.fetchImpl = options.fetchImpl ?? fetch
+    // 浏览器里 window.fetch 被以实例为 this 调用会抛 Illegal invocation，
+    // 统一绑定到 globalThis 后调用（Node 的 fetch 无此要求，测试注入不受影响）。
+    this.fetchImpl = (options.fetchImpl ?? fetch).bind(globalThis)
     this.signal = options.signal
   }
 
