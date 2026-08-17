@@ -23,6 +23,22 @@ const hourCells = hours.map((h) => `
       <span class="t">${round1(h.temp)}°</span>
     </div>`).join('')
 
+// 侧边栏展开态的迷你气温曲线（与组件 MiniCurve 同款算法）
+const temps = hours.map((h) => h.temp)
+const tMin = Math.min(...temps)
+const tMax = Math.max(...temps)
+const tSpan = tMax - tMin || 1
+const W = 320, H = 44, PAD = 8
+const tXs = hours.map((_, i) => PAD + i * ((W - PAD * 2) / Math.max(1, hours.length - 1)))
+const tYs = temps.map((t) => H - 8 - ((t - tMin) / tSpan) * (H - 16))
+const tPoints = tXs.map((x, i) => `${x.toFixed(1)},${tYs[i].toFixed(1)}`).join(' ')
+const tArea = `M${tXs[0].toFixed(1)},${H} L${tPoints} L${tXs[tXs.length - 1].toFixed(1)},${H} Z`
+const sideCurve = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="width:100%;height:${H}px;margin-top:6px">`
+  + `<path d="${tArea}" style="fill:var(--qw-accent);opacity:.12"/>`
+  + `<polyline points="${tPoints}" style="fill:none;stroke:var(--qw-accent);stroke-width:2;stroke-linejoin:round;stroke-linecap:round"/>`
+  + tXs.map((x, i) => `<circle cx="${x.toFixed(1)}" cy="${tYs[i].toFixed(1)}" r="2" style="fill:transparent;stroke:var(--qw-accent);stroke-width:1.4"/>`).join('')
+  + '</svg>'
+
 const alertRows = alerts.length === 0
   ? '<div class="mut" style="font-size:11px">当前无黄色及以上预警</div>'
   : alerts.map((a) => `<div class="alert" style="--c:${warningColorOf(a.color)}">${a.headline}</div>`).join('')
@@ -108,6 +124,7 @@ h1 { font-size:18px; margin:0 0 4px }
         </div>
         <div class="hours">${hourCells}
         </div>
+        ${sideCurve}
         ${alertRows}
         <div class="foot"><span>更新于 ${hourLabel(bundle.receivedAt)}</span><span>和风天气</span></div>
       </div>

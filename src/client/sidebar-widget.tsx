@@ -51,6 +51,31 @@ function Icon({ code, size }: { code: string; size: number }) {
   return <span style={{ color: accent, display: 'inline-flex' }} dangerouslySetInnerHTML={{ __html: weatherIcon(code, size) }} />
 }
 
+/** 迷你气温曲线（内联 SVG，随侧边栏宽度自适应）。 */
+function MiniCurve({ hours }: { hours: readonly { temp: number }[] }) {
+  if (hours.length < 2) return null
+  const W = 320
+  const H = 44
+  const PAD = 8
+  const temps = hours.map((hour) => hour.temp)
+  const min = Math.min(...temps)
+  const max = Math.max(...temps)
+  const span = max - min || 1
+  const xs = hours.map((_, index) => PAD + index * ((W - PAD * 2) / (hours.length - 1)))
+  const ys = temps.map((temp) => H - 8 - ((temp - min) / span) * (H - 16))
+  const points = xs.map((x, index) => `${x.toFixed(1)},${ys[index]!.toFixed(1)}`).join(' ')
+  const area = `M${xs[0]!.toFixed(1)},${H} L${points} L${xs[xs.length - 1]!.toFixed(1)},${H} Z`
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ width: '100%', height: H, marginTop: 6 }} aria-label="气温曲线">
+      <path d={area} style={{ fill: accent, opacity: 0.12 }} />
+      <polyline points={points} style={{ fill: 'none', stroke: accent, strokeWidth: 2, strokeLinejoin: 'round', strokeLinecap: 'round' }} />
+      {xs.map((x, index) => (
+        <circle key={index} cx={x} cy={ys[index]} r={2} style={{ fill: 'transparent', stroke: accent, strokeWidth: 1.4 }} />
+      ))}
+    </svg>
+  )
+}
+
 /** 侧边栏收起（rail）：仅图标 + 气温。 */
 function RailView({ bundle, status, error, onExpand }: {
   bundle?: WeatherBundle; status: string; error?: string; onExpand: () => void
@@ -144,6 +169,7 @@ function WideView({ bundle, status, error, refreshing, onRefresh, t }: {
               </div>
             ))}
           </div>
+          <MiniCurve hours={hours} />
         </div>
       )}
       <AlertRows bundle={bundle} />
