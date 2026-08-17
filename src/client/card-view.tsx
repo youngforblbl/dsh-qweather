@@ -75,10 +75,10 @@ function CardFrame({ meta, callId }: { meta: QWeatherCardMeta; callId: string })
 
   return (
     <div>
-      <div style={headerStyle} title={meta.location}>
-        <span style={{ fontWeight: 500 }}>{meta.title}</span>
-        {meta.updateTime !== '' && <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{meta.updateTime}</span>}
-      </div>
+      {/*
+       * 卡片 fragment 自带标题行（地点 + 更新时间），这里不再叠一层外层标题，
+       * 让对话里呈现的就是一张独立卡片（像提问卡片那样直接“弹出”）。
+       */}
       <iframe
         sandbox="allow-scripts allow-popups"
         referrerPolicy="no-referrer"

@@ -13,14 +13,21 @@ import { settingsNamespace } from '@deepseek-ai/dsh-settings'
 import { weatherTool, cardTool } from './tools.ts'
 import { qweatherSkillProvider } from './skill.ts'
 import { mountConfigRoutes } from './config-routes.ts'
+import { QWeatherError } from './qweather/errors.ts'
+import { createLogger } from './qweather/log.ts'
 
 export { WEATHER_TOOL_NAME, CARD_TOOL_NAME, CARD_META_KIND, qweatherCardMetaFrom, weatherTool, cardTool } from './tools.ts'
 export type { QWeatherCardMeta, QWeatherRuntimeConfig } from './tools.ts'
-export { buildCardFragment, tempChartSvg, byteLength } from './qweather/card.ts'
+export { buildCardFragment, byteLength } from './qweather/card.ts'
 export { buildWeatherText, parseFields, formatUpdateTime } from './qweather/format.ts'
-export { QWeatherClient, QWeatherApiError, DEFAULT_API_HOST } from './qweather/api.ts'
-export { isYellowOrAbove, warningColor, placeLabel, hourLabel, dayLabel, percent, round1, localDateTime } from './qweather/types.ts'
-export { weatherIcon, iconKindOf } from './qweather/icons.ts'
+export { QWeatherClient, QWeatherApiError, QWeatherError, DEFAULT_API_HOST } from './qweather/api.ts'
+export { ERROR_CATALOG, isQWeatherError, errorCodeOf, toQWeatherError } from './qweather/errors.ts'
+export type { QWeatherErrorCode, QWeatherErrorCategory, QWeatherErrorInfo, QWeatherErrorOptions } from './qweather/errors.ts'
+export { createLogger, setLogLevel, getLogLevel, redact } from './qweather/log.ts'
+export type { Logger, LogLevel, LogSink } from './qweather/log.ts'
+export { shouldShowAlert, alertHeadline, warningColor, placeLabel, hourLabel, dayLabel, percent, round1, localDateTime, indexLabel, curateIndices, windScaleLabel } from './qweather/types.ts'
+export type { WeatherIndex } from './qweather/types.ts'
+export { weatherIcon, iconKindOf, windArrow, raindropIcon } from './qweather/icons.ts'
 
 /** Cordis 插件名。 */
 export const name = 'dsh-qweather'
@@ -77,6 +84,7 @@ export const Config: z<Config> = z.object({
  * - 极简部署（无 settings 服务）自动降级为只读静态 config。
  */
 export function apply(ctx: Context, config: Config): void {
+  const log = createLogger('dsh-qweather')
   let current: () => Config = () => config
   let scope: { get(): Config; update(patch: Record<string, unknown>): Promise<unknown> } | undefined
 
@@ -86,6 +94,7 @@ export function apply(ctx: Context, config: Config): void {
     }).register(QWEATHER_NS, Config, { base: config })
     scope = registered
     current = () => registered.get()
+    log.debug('settings namespace registered')
   })
 
   ctx.inject(['webServer'], (wctx) => {
@@ -93,16 +102,22 @@ export function apply(ctx: Context, config: Config): void {
     wctx.effect(() => mountConfigRoutes(webServer, {
       getConfig: () => current() as unknown as Record<string, unknown>,
       updateConfig: async (patch) => {
-        if (scope === undefined) throw new Error('设置服务不可用，无法保存配置')
-        // 用 schema 校验补丁（未知字段/非法值直接拒绝）
-        Config(patch as never)
+        if (scope === undefined) throw new QWeatherError('QW_SETTINGS_UNAVAILABLE', '设置服务不可用，无法保存配置')
+        try {
+          // 用 schema 校验补丁（未知字段/非法值直接拒绝）
+          Config(patch as never)
+        } catch (cause) {
+          throw new QWeatherError('QW_BAD_REQUEST', `配置校验失败：${cause instanceof Error ? cause.message : String(cause)}`, { cause })
+        }
         await scope.update(patch)
         return current() as unknown as Record<string, unknown>
       },
-    }), 'dsh-qweather: config routes')
+    }, log.child('config')), 'dsh-qweather: config routes')
+    log.debug('config routes mounted')
   })
 
-  ctx.tools.register(weatherTool(ctx, () => current()))
-  ctx.tools.register(cardTool(ctx, () => current()))
+  ctx.tools.register(weatherTool(ctx, () => current(), log.child('tools')))
+  ctx.tools.register(cardTool(ctx, () => current(), log.child('tools')))
   ctx.skills.registerProvider(() => qweatherSkillProvider)
+  log.info('plugin applied', { enabled: config.enabled, apiHost: config.apiHost || '(default)' })
 }

@@ -14,10 +14,16 @@
  * 此时城市搜索自动回退到公共 GeoAPI 域名 geoapi.qweather.com/v2；
  * 用户在控制台配置了专属 API Host（*.qweatherapi.com）后，所有请求
  * 走同一域名，无需回退。
+ *
+ * 错误与日志：所有对外抛出的错误都携带稳定错误码（QWeatherError /
+ * QWeatherApiError），并通过注入的 logger（缺省 'qweather:api'）记录
+ * 请求耗时与失败原因，密钥不落日志。
  */
 
+import { QWeatherApiError, QWeatherError, type QWeatherErrorCode } from './errors.ts'
+import { createLogger, type Logger } from './log.ts'
 import type {
-  AirNow, DailyWeather, HourlyWeather, NowWeather, Place, WeatherAlert,
+  AirNow, DailyWeather, HourlyWeather, NowWeather, Place, WeatherAlert, WeatherIndex,
 } from './types.ts'
 
 /** 默认 API Host（和风公共域名，逐步由专属 API Host 取代）。 */
@@ -25,32 +31,22 @@ export const DEFAULT_API_HOST = 'https://devapi.qweather.com'
 /** 旧公共 GeoAPI 域名（仅作回退）。 */
 export const GEO_FALLBACK_HOST = 'https://geoapi.qweather.com'
 
-/** API 错误：携带 HTTP 状态码与可读信息。 */
-export class QWeatherApiError extends Error {
-  constructor(
-    readonly status: number,
-    message: string,
-  ) {
-    super(message)
-    this.name = 'QWeatherApiError'
-  }
-}
+// 重新导出统一错误类型，保持旧的 import 路径可用。
+export { QWeatherApiError, QWeatherError }
 
-export interface QWeatherClientOptions {
-  /** API Host，默认 https://devapi.qweather.com。 */
-  apiHost?: string
-  /** API KEY（控制台 → 项目和凭据）。 */
-  apiKey: string
-  /** 可注入的 fetch（测试用）。 */
-  fetchImpl?: typeof fetch
-  /** 取消信号。 */
-  signal?: AbortSignal
-}
-
-/** 去掉首尾空白与结尾斜杠的 API Host。 */
+/** 去掉首尾空白与结尾斜杠，校验协议；缺省 / 非法时回退默认域名。 */
 export function normalizeApiHost(host: string | undefined): string {
-  const trimmed = (host ?? '').trim().replace(/\/+$/, '')
-  return trimmed.length > 0 ? trimmed : DEFAULT_API_HOST
+  let trimmed = (host ?? '').trim().replace(/\/+$/, '')
+  if (trimmed.length === 0) return DEFAULT_API_HOST
+  // 用户常省略协议：自动补全 https://，避免 fetch 把域名当相对路径解析。
+  if (!/^[a-z][a-z0-9+.-]*:\/\//iu.test(trimmed)) trimmed = 'https://' + trimmed
+  try {
+    const url = new URL(trimmed)
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') return DEFAULT_API_HOST
+    return trimmed
+  } catch {
+    return DEFAULT_API_HOST
+  }
 }
 
 /** 是否专属 API Host（*.qweatherapi.com），专属域名提供全部路径。 */
@@ -72,16 +68,45 @@ export function compassZh(compass: unknown): string | undefined {
   return COMPASS_ZH[compass.toLowerCase()] ?? compass
 }
 
+/** 安全读取取消类异常名（避免直接引用 DOMException，兼容旧运行时）。 */
+function abortNameOf(cause: unknown): string | undefined {
+  if (cause === null || cause === undefined) return undefined
+  const name = (cause as { name?: unknown }).name
+  return name === 'AbortError' || name === 'TimeoutError' ? name : undefined
+}
+
+/** 提取异常消息（跨 realm 安全）。 */
+function errorMessage(cause: unknown): string {
+  if (cause instanceof Error) return cause.message
+  return String(cause)
+}
+
 /**
  * 组合取消信号：外部 signal 与超时信号先到先触发。
- * 不支持的运行环境退化为外部 signal / 无超时。
+ * 不支持的运行环境退化为外部 signal（无超时）。
  */
 function withTimeout(signal: AbortSignal | undefined, timeoutMs: number): AbortSignal | undefined {
   if (typeof AbortSignal !== 'function' || typeof AbortSignal.timeout !== 'function') return signal
   const timeout = AbortSignal.timeout(timeoutMs)
   if (signal === undefined) return timeout
   if (typeof AbortSignal.any === 'function') return AbortSignal.any([signal, timeout])
+  // 运行时不支持 AbortSignal.any：优先保留调用方取消，超时降级。
   return signal
+}
+
+export interface QWeatherClientOptions {
+  /** API Host，默认 https://devapi.qweather.com。 */
+  apiHost?: string
+  /** API KEY（控制台 → 项目和凭据）。 */
+  apiKey: string
+  /** 可注入的 fetch（测试用）。 */
+  fetchImpl?: typeof fetch
+  /** 取消信号。 */
+  signal?: AbortSignal
+  /** 单次请求超时（毫秒）。 */
+  timeoutMs?: number
+  /** 日志器（缺省 'qweather:api'，可注入静默 / 内存槽用于测试）。 */
+  logger?: Logger
 }
 
 export class QWeatherClient {
@@ -89,6 +114,8 @@ export class QWeatherClient {
   readonly apiKey: string
   private readonly fetchImpl: typeof fetch
   private readonly signal?: AbortSignal
+  private readonly timeoutMs: number
+  private readonly log: Logger
 
   constructor(options: QWeatherClientOptions) {
     this.apiHost = normalizeApiHost(options.apiHost)
@@ -97,13 +124,21 @@ export class QWeatherClient {
     // 统一绑定到 globalThis 后调用（Node 的 fetch 无此要求，测试注入不受影响）。
     this.fetchImpl = (options.fetchImpl ?? fetch).bind(globalThis)
     this.signal = options.signal
+    this.timeoutMs = options.timeoutMs ?? 15_000
+    this.log = options.logger ?? createLogger('qweather:api')
+    if (this.apiHost === DEFAULT_API_HOST && (options.apiHost ?? '').trim().length > 0
+      && normalizeApiHost(options.apiHost) === DEFAULT_API_HOST) {
+      this.log.warn('invalid apiHost, falling back to default', { apiHost: options.apiHost })
+    }
   }
 
   /** 发起一个 GET 请求并解析 JSON（自动处理 gzip、错误码与超时）。 */
-  async request(path: string, params: Record<string, string | number | boolean> = {}, base?: string, timeoutMs = 15_000): Promise<any> {
+  async request(path: string, params: Record<string, string | number | boolean> = {}, base?: string, timeoutMs = this.timeoutMs): Promise<any> {
     const query = new URLSearchParams()
     for (const [key, value] of Object.entries(params)) query.set(key, String(value))
     const url = `${base ?? this.apiHost}${path}?${query.toString()}`
+    const startedAt = Date.now()
+    this.log.debug('request', { method: 'GET', url })
     let response: Response
     try {
       response = await this.fetchImpl(url, {
@@ -111,20 +146,35 @@ export class QWeatherClient {
         signal: withTimeout(this.signal, timeoutMs),
       })
     } catch (cause) {
-      if (cause instanceof DOMException && cause.name === 'AbortError') {
-        throw new QWeatherApiError(0, '请求超时或已取消')
+      const abort = abortNameOf(cause)
+      if (abort === 'TimeoutError') {
+        throw new QWeatherApiError(0, 'QW_TIMEOUT', '和风天气请求超时', { cause })
       }
-      throw new QWeatherApiError(0, `网络错误：${cause instanceof Error ? cause.message : String(cause)}`)
+      if (abort === 'AbortError') {
+        // AbortSignal.timeout 产生 TimeoutError；AbortError 多为调用方取消，
+        // 但当运行时不支持 timeout() 且信号已中止时也可能落到这里。
+        const code: QWeatherErrorCode = this.signal?.aborted ? 'QW_CANCELLED' : 'QW_TIMEOUT'
+        const message = code === 'QW_CANCELLED' ? '和风天气请求已被取消' : '和风天气请求超时'
+        throw new QWeatherApiError(0, code, message, { cause })
+      }
+      throw new QWeatherApiError(0, 'QW_NETWORK', `网络错误：${errorMessage(cause)}`, { cause })
     }
     if (!response.ok) {
       const body = await response.text().catch(() => '')
-      throw new QWeatherApiError(response.status, `和风天气 API 返回 HTTP ${response.status}${body ? `：${body.slice(0, 200)}` : ''}`)
+      const message = `和风天气 API 返回 HTTP ${response.status}${body ? `：${body.slice(0, 200)}` : ''}`
+      throw new QWeatherApiError(response.status, 'QW_HTTP_ERROR', message)
     }
-    const data = (await response.json()) as any
+    let data: any
+    try {
+      data = await response.json()
+    } catch (cause) {
+      throw new QWeatherApiError(response.status, 'QW_BAD_RESPONSE', `和风天气 API 返回了无法解析的响应（HTTP ${response.status}）`, { cause })
+    }
     // GeoAPI 兼容旧 envelope：{ code: "200", location: [...] }；非 200 视为错误。
     if (typeof data?.code === 'string' && data.code !== '200') {
-      throw new QWeatherApiError(Number(data.code) || 0, `和风天气 API 返回错误码 ${data.code}`)
+      throw new QWeatherApiError(Number(data.code) || 0, 'QW_UPSTREAM_ERROR', `和风天气 API 返回错误码 ${data.code}`)
     }
+    this.log.debug('request ok', { url, status: response.status, ms: Date.now() - startedAt })
     return data
   }
 
@@ -137,6 +187,7 @@ export class QWeatherClient {
     } catch (error) {
       // 旧公共域名没有 /geo/v2 路径（404）：回退到公共 GeoAPI 域名。
       if (error instanceof QWeatherApiError && error.status === 404 && !isDedicatedHost(this.apiHost)) {
+        this.log.debug('geo 404 on primary host, fallback to public GeoAPI', { host: this.apiHost })
         const data = await this.request('/v2/city/lookup', params, GEO_FALLBACK_HOST)
         return this.parsePlaces(data)
       }
@@ -188,6 +239,7 @@ export class QWeatherClient {
       humidity: row?.humidity === undefined ? undefined : Math.round(Number(row.humidity) * 100),
       windDir: compassZh(row?.wind?.direction?.compass),
       windScale: row?.wind?.scale,
+      windDegree: row?.wind?.direction?.degree === undefined ? undefined : Number(row.wind.direction.degree),
     }))
   }
 
@@ -204,12 +256,14 @@ export class QWeatherClient {
       textNight: row?.nighttime?.condition?.text === undefined ? undefined : String(row.nighttime.condition.text),
       sunrise: row?.astro?.sunrise,
       sunset: row?.astro?.sunset,
+      moonrise: row?.astro?.moonrise,
+      moonset: row?.astro?.moonset,
       moonPhase: row?.astro?.moonPhase,
       pop: row?.daytime?.precipitation?.probability === undefined ? undefined : Number(row.daytime.precipitation.probability),
     }))
   }
 
-  /** 实时预警（黄色及以上由调用方用 isYellowOrAbove 过滤）。 */
+  /** 实时预警（蓝色及以上由调用方用 shouldShowAlert 过滤）。 */
   async alerts(lat: number, lon: number): Promise<WeatherAlert[]> {
     const data = await this.request(`/weatheralert/v1/current/${lat.toFixed(2)}/${lon.toFixed(2)}`, { localTime: true, lang: 'zh' })
     return (Array.isArray(data?.alerts) ? data.alerts : []).map((row: any): WeatherAlert => ({
@@ -239,13 +293,29 @@ export class QWeatherClient {
     }
   }
 
+  /** 天气指数（生活指数）：type=0 拉全部类型，1 天。 */
+  async indices(lat: number, lon: number): Promise<WeatherIndex[]> {
+    const data = await this.request(`/indices/v1/daily/${lat.toFixed(2)}/${lon.toFixed(2)}`, { type: 0, days: 1, lang: 'zh' })
+    const rows = Array.isArray(data?.daily) ? data.daily : []
+    return rows.map((row: any): WeatherIndex => ({
+      type: String(row.type ?? row.code ?? ''),
+      name: String(row.name ?? ''),
+      level: row.level === undefined ? undefined : String(row.level),
+      category: row.category === undefined ? undefined : String(row.category),
+      text: row.text === undefined ? undefined : String(row.text),
+      date: row.date === undefined ? undefined : String(row.date),
+    })).filter((item: WeatherIndex) => item.name.length > 0)
+  }
+
   /**
    * 把任意位置输入解析成一个地理实体：
    * 支持 "经度,纬度"、LocationID、以及城市 / 区县名称（取第一个结果）。
    */
   async resolvePlace(query: string): Promise<Place> {
     const places = await this.geocode(query)
-    if (places.length === 0) throw new QWeatherApiError(0, `找不到位置「${query}」，请改用更精确的名称（如“北京 海淀”）、LocationID 或“经度,纬度”`)
+    if (places.length === 0) {
+      throw new QWeatherError('QW_LOCATION_NOT_FOUND', `找不到位置「${query}」，请改用更精确的名称（如“北京 海淀”）、LocationID 或“经度,纬度”`)
+    }
     return places[0]!
   }
 }

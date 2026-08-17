@@ -41,7 +41,7 @@ describe('buildWeatherText', () => {
     expect(text).toContain('15:00 · 晴 · 31℃ · 降水 0%')
     expect(text).toContain('16:00 · 多云 · 32℃ · 降水 40%')
   })
-  it('预警区段只列黄色及以上', () => {
+  it('预警区段展示蓝色及以上', () => {
     const withAlerts: WeatherBundle = {
       ...bundle,
       alerts: [
@@ -50,7 +50,7 @@ describe('buildWeatherText', () => {
       ],
     }
     const text = buildWeatherText(withAlerts, 'now', parseFields('warnings,temp'))
+    expect(text).toContain('蓝色大风')
     expect(text).toContain('黄色暴雨')
-    expect(text).not.toContain('蓝色大风')
   })
 })

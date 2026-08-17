@@ -4,7 +4,7 @@
  */
 
 import type { WeatherBundle } from './types.ts'
-import { dayLabel, hourLabel, isYellowOrAbove, localDateTime, percent, placeLabel, round1, WARNING_NAMES, warningColor } from './types.ts'
+import { dayLabel, hourLabel, localDateTime, percent, placeLabel, round1, shouldShowAlert, WARNING_NAMES, warningColor } from './types.ts'
 
 /** 时间区间：实时 / 小时预报 / 日预报。 */
 export type WeatherRange = 'now' | 'hours' | 'days'
@@ -83,12 +83,12 @@ export function buildWeatherText(bundle: WeatherBundle, range: WeatherRange, fie
     }
   }
   if (fields.has('warnings')) {
-    const important = (bundle.alerts ?? []).filter(isYellowOrAbove)
-    if (important.length === 0) {
-      lines.push('预警：无黄色及以上预警')
+    const alerts = (bundle.alerts ?? []).filter(shouldShowAlert)
+    if (alerts.length === 0) {
+      lines.push('预警：无预警')
     } else {
-      lines.push(`预警（${important.length} 条）：`)
-      for (const alert of important) {
+      lines.push(`预警（${alerts.length} 条）：`)
+      for (const alert of alerts) {
         lines.push(`- [${WARNING_NAMES[alert.color.toLowerCase()] ?? '预警'}] ${alert.headline}（${alert.sender ?? '气象台'}）`)
         if (alert.text !== undefined && alert.text.length > 0) lines.push(`  ${alert.text.trim()}`)
       }

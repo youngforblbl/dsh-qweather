@@ -46,6 +46,8 @@ export interface HourlyWeather {
   humidity?: number
   windDir?: string
   windScale?: string | number
+  /** 风向角度（0-360，正北为 0，顺时针）；用于绘制风向箭头。 */
+  windDegree?: number
 }
 
 /** 逐日预报中的一天。 */
@@ -59,6 +61,8 @@ export interface DailyWeather {
   textNight?: string
   sunrise?: string
   sunset?: string
+  moonrise?: string
+  moonset?: string
   moonPhase?: string
   /** 白天降水概率 0-1。 */
   pop?: number
@@ -93,6 +97,21 @@ export interface AirNow {
   primary?: string
 }
 
+/** 天气指数（生活指数，如穿衣 / 运动 / 紫外线）。 */
+export interface WeatherIndex {
+  /** 指数类型编码，如 "1"=运动、"3"=穿衣、"5"=紫外线。 */
+  type: string
+  /** 指数名称，如「运动指数」。 */
+  name: string
+  /** 等级数字，如 "1"。 */
+  level?: string
+  /** 等级描述，如「适宜」「强」。 */
+  category?: string
+  /** 建议文案。 */
+  text?: string
+  date?: string
+}
+
 /** 一次完整的天气数据包：卡片与 LLM 文本都从这里生成。 */
 export interface WeatherBundle {
   place: Place
@@ -103,6 +122,7 @@ export interface WeatherBundle {
   days?: DailyWeather[]
   alerts?: WeatherAlert[]
   air?: AirNow
+  indices?: WeatherIndex[]
 }
 
 /** 预警颜色 → 展示色。 */
@@ -122,16 +142,39 @@ export const WARNING_NAMES: Readonly<Record<string, string>> = {
   red: '红色预警',
 }
 
-/** 黄色及以上（含橙、红）才算「重要预警」；蓝色与未知级别被过滤。 */
-export function isYellowOrAbove(alert: Pick<WeatherAlert, 'severity' | 'color'>): boolean {
-  if (alert.severity === 'moderate' || alert.severity === 'severe' || alert.severity === 'extreme') return true
+/** 展示阈值下调至蓝色：蓝/黄/橙/红均展示，仅未知级别（无法识别的 severity/color）被过滤。 */
+export function shouldShowAlert(alert: Pick<WeatherAlert, 'severity' | 'color'>): boolean {
+  if (alert.severity === 'minor' || alert.severity === 'moderate' || alert.severity === 'severe' || alert.severity === 'extreme') return true
   const color = alert.color.toLowerCase()
-  return color === 'yellow' || color === 'orange' || color === 'red'
+  return color === 'blue' || color === 'yellow' || color === 'orange' || color === 'red'
 }
 
 /** 预警展示颜色（未知级别用灰色兜底）。 */
 export function warningColor(alert: Pick<WeatherAlert, 'color'>): string {
   return WARNING_COLORS[alert.color.toLowerCase()] ?? WARNING_COLORS['unknown']!
+}
+
+/** 预警简要标题：仅「某类某色预警」（如「雷电蓝色预警」），不罗列正文与防御指引。 */
+export function alertHeadline(alert: WeatherAlert): string {
+  const level = WARNING_NAMES[alert.color.toLowerCase()] ?? '预警'
+  const type = alert.typeName ?? ''
+  return type !== '' ? `${type}${level}` : level
+}
+
+/** 指数名称去掉「指数」后缀，用于紧凑展示（「穿衣指数」→「穿衣」）。 */
+export function indexLabel(name: string): string {
+  return name.replace(/指数$/, '')
+}
+
+/** 风级 → 数字文本（缺省返回空串）。 */
+export function windScaleLabel(scale: string | number | undefined): string {
+  if (scale === undefined || scale === '') return ''
+  return String(scale)
+}
+
+/** 从 API 返回的指数中取前三个，避免指数区超限换行溢出。 */
+export function curateIndices(indices: readonly WeatherIndex[]): WeatherIndex[] {
+  return indices.slice(0, 3)
 }
 
 /** 补零。 */

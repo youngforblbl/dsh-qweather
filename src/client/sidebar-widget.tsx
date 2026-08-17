@@ -1,16 +1,17 @@
 /**
  * 子功能 1：侧边栏底部的天气组件（注册到 sidebar.footer.action 槽位）。
- * v2 视觉：新拟态 + 玻璃拟态混合——玻璃卡片 + 来光投影 + 内凹小时格 +
+ * v2 视觉：新拟态 + 玻璃拟态混合——玻璃卡片 + 来光投影 + 外凸小时格 +
  * 渐变图标块 + 橙色强调。亮色 = 白/灰/浅天蓝/鲜艳橙；暗色 = 更深的海军蓝玻璃。
  * - 展开（wide）：地点、当前天气（图标块+大温度+橙色°+参数网格）、
- *   未来 5 小时（时间/图标/降水概率/气温）+ 迷你曲线、黄色以上预警、更新时间；
+ *   未来 5 小时（时间/图标/气温/降水概率+雨滴/风向箭头+风级）、蓝色以上预警、
+ *   空气质量/日月起落、更新时间；
  * - 收起（rail）：仅图标 + 气温，点击展开侧边栏。
  */
 
-import type { CSSProperties } from 'react'
-import { weatherIcon } from '../qweather/icons.ts'
+import type { CSSProperties, ReactNode } from 'react'
+import { raindropIcon, weatherIcon, windArrow } from '../qweather/icons.ts'
 import type { WeatherBundle } from '../qweather/types.ts'
-import { hourLabel, isYellowOrAbove, percent, placeLabel, round1 } from '../qweather/types.ts'
+import { alertHeadline, hourLabel, percent, placeLabel, round1, shouldShowAlert, warningColor, windScaleLabel } from '../qweather/types.ts'
 import { useQWeatherSettings, useWeather } from './use-qweather.ts'
 
 /** 槽位组合属性。 */
@@ -45,11 +46,42 @@ const railButton: CSSProperties = {
   background: 'transparent', border: 'none', cursor: 'pointer', color: fg, borderRadius: 12,
 }
 
+/**
+ * 与 dsh-cost-meter 等 footer 小组件的排布约定：
+ * 宿主 footerActions 容器默认是横向 flex，小组件会左右并排；cost-meter 还会把
+ * 自己的 DOM 节点挪到首位。这里从 qweather 一侧用纯 CSS 修正为上下排布：
+ * - rc.6 起宿主把每个 slot 渲染进 `div[data-slot="sidebar.footer.action"]`
+ *   （display:contents 包裹层），`.qw-sidebar-wide` / `.qw-sidebar-rail` 不再
+ *   是 footerActions 的直接子元素，旧的选择器 `div:has(> .qw-sidebar-wide)` 只
+ *   命中这层透明包裹层而失效。现在用 data-slot 属性的后代关系精确定位真正的
+ *   容器（footerActions），把它改为纵向 flex；!important 压过 cost-meter 对
+ *   内联样式的清除，且纯 CSS 无时序竞争。两种结构都覆盖，向后兼容旧宿主；
+ * - 展开态（wide）：`align-items:stretch` + 根元素 `width:100%`，天气卡片独占
+ *   整行侧边栏；根元素 `order:-1` 让天气组件在视觉上始终排在最上（flex order
+ *   不受 DOM 顺序影响，不跟 cost-meter 的 insertBefore 打架）；
+ * - 收起态（rail）：同样改为纵向 flex，`align-items:center` 让各小组件图标在
+ *   窄轨道里上下堆叠、水平居中，不再左右并排溢出。收起态根元素是
+ *   display:contents，按钮本身作为 flex item，靠 DOM 顺序（priority -1000
+ *   最先渲染，cost-meter 自 append 到末尾）天然排在费用之上。
+ */
+let sidebarLayoutStyleEl: HTMLStyleElement | undefined
+function ensureSidebarLayoutStyle(): void {
+  if (sidebarLayoutStyleEl !== undefined) return
+  sidebarLayoutStyleEl = document.createElement('style')
+  sidebarLayoutStyleEl.textContent =
+    'div:has(> .qw-sidebar-wide),div:has(> div[data-slot="sidebar.footer.action"] > .qw-sidebar-wide)'
+    + '{flex-direction:column!important;align-items:stretch!important}'
+    + 'div:has(> .qw-sidebar-rail),div:has(> div[data-slot="sidebar.footer.action"] > .qw-sidebar-rail)'
+    + '{flex-direction:column!important;align-items:center!important}'
+    + '.qw-sidebar-wide{order:-1;width:100%}'
+  document.head.appendChild(sidebarLayoutStyleEl)
+}
+
 // 卡片主体：纯玻璃渐变；主题色在卡片外部的对角光效阴影上（左上蓝、右下橙），
 // 内部保持白高光 + 黑投影的新拟态光影。
 const card: CSSProperties = {
-  position: 'relative', display: 'flex', flexDirection: 'column', gap: 10,
-  margin: '6px 0', padding: '13px 13px 11px',
+  position: 'relative', display: 'flex', flexDirection: 'column', gap: 14,
+  margin: '6px 0', padding: '16px 15px 14px',
   border: '1px solid ' + bd, borderRadius: 16,
   background: 'linear-gradient(150deg,' + glassA + ',' + glassB + ')',
   backdropFilter: 'blur(14px) saturate(1.15)', WebkitBackdropFilter: 'blur(14px) saturate(1.15)',
@@ -58,12 +90,13 @@ const card: CSSProperties = {
 
 const row: CSSProperties = { display: 'flex', alignItems: 'center', gap: 8 }
 
-const hourGrid: CSSProperties = { display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 4 }
+const hourGrid: CSSProperties = { display: 'grid', gridTemplateColumns: 'repeat(5, minmax(0, 1fr))', gap: 4 }
 const hourCell: CSSProperties = {
   display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
-  padding: '7px 1px 6px', borderRadius: 11, border: '1px solid ' + bd,
+  minWidth: 0, overflow: 'hidden',
+  padding: '9px 1px 8px', borderRadius: 11, border: '1px solid ' + bd,
   background: 'linear-gradient(145deg,' + cellA + ',' + cellB + ')',
-  boxShadow: 'inset 2px 2px 5px ' + shDark + ',inset -2px -2px 5px ' + shLight,
+  boxShadow: '4px 4px 8px ' + shDark + ',-3px -3px 7px ' + shLight + ',inset 0 1px 0 light-dark(rgba(255,255,255,.95),rgba(255,255,255,.09))',
 }
 
 const tile: CSSProperties = {
@@ -84,63 +117,74 @@ function IconTile({ code, size, tileSize, uid }: { code: string; size: number; t
   )
 }
 
-/**
- * 迷你气温曲线（简洁单线，新拟态光影）：
- * 一条渐变曲线——高处（高温）橙色、低处（低温）天蓝；
- * 下方黑色细投影 + 上方白色细高光脊，无面积、无描点；
- * HTML 百分比定位的温度标签芯片（℃）任意宽度不变形，与小时格中心对齐。
- */
-function MiniCurve({ hours }: { hours: readonly { temp: number }[] }) {
-  if (hours.length < 2) return null
-  const W = 320
-  const H = 56
-  const temps = hours.map((hour) => hour.temp)
-  const min = Math.min(...temps)
-  const max = Math.max(...temps)
-  const span = max - min || 1
-  const xs = hours.map((_, index) => 32 + index * 64) // 320 * (10% + i*20%)
-  const ys = temps.map((temp) => H - 8 - ((temp - min) / span) * (H - 30))
-  const points = xs.map((x, index) => x.toFixed(1) + ',' + ys[index]!.toFixed(1)).join(' ')
+/** 雨滴图标（标注降水概率指标）。 */
+function Raindrop({ size = 10 }: { size?: number }) {
+  return <span style={{ display: 'inline-flex' }} dangerouslySetInnerHTML={{ __html: raindropIcon(size) }} />
+}
+
+/** 风向箭头 + 风级数字。 */
+function WindMark({ degree, scale, dir }: { degree?: number; scale: string; dir?: string }) {
+  if (degree === undefined && scale === '') return null
+  const title = [dir ?? '', scale !== '' ? `${scale}级` : ''].filter(Boolean).join(' · ')
   return (
-    <div style={{ position: 'relative', height: H, marginTop: 8 }} aria-label="气温曲线">
-      <svg viewBox={'0 0 ' + W + ' ' + H} preserveAspectRatio="none" style={{ display: 'block', width: '100%', height: H, filter: 'drop-shadow(0.8px 4.5px 5.5px light-dark(rgba(0,0,0,.28),rgba(0,0,0,.5)))' }}>
-        <defs>
-          <linearGradient id="qw-side-chart-stroke" gradientUnits="userSpaceOnUse" x1="0" y1="14" x2="0" y2="48">
-            <stop offset="0%" style={{ stopColor: orange }} />
-            <stop offset="100%" style={{ stopColor: sky }} />
-          </linearGradient>
-        </defs>
-        <polyline points={points} style={{ fill: 'none', stroke: 'url(#qw-side-chart-stroke)', strokeWidth: 9, strokeLinejoin: 'round', strokeLinecap: 'round', vectorEffect: 'non-scaling-stroke' }} />
-      </svg>
-      {hours.map((hour, index) => {
-        const left = 10 + index * 20
-        const top = ys[index]! / H * 100
-        return (
-          <span key={index} style={{
-            position: 'absolute', left: left + '%', top: 'calc(' + top.toFixed(1) + '% - 6px)',
-            transform: 'translate(-50%,-100%)', fontSize: 13.5, fontWeight: 700, color: fg,
-            textShadow: '0 1px 0 light-dark(rgba(255,255,255,.6),rgba(0,0,0,.35))', ...num,
-          }}>{round1(hour.temp)}℃</span>
-        )
-      })}
-    </div>
+    <span title={title || undefined} style={{ display: 'inline-flex', alignItems: 'center', gap: 1.5, fontSize: 10.5, color: muted, ...num, minHeight: 12 }}>
+      {degree !== undefined && <span style={{ display: 'inline-flex', color: skyDeep }} dangerouslySetInnerHTML={{ __html: windArrow(degree, 10) }} />}
+      {scale !== '' && <b style={{ fontWeight: 600 }}>{scale}</b>}
+    </span>
   )
 }
 
-/**
- * 预警区：排版与对话内天气卡片完全一致——
- * 章节标题（渐变竖条 + 计数徽章）+ 左侧色条、着色渐变玻璃底、
- * 标题（正文字色加粗）+ 正文（弱化色）两行结构。
- */
-function AlertRows({ bundle }: { bundle: WeatherBundle }) {
-  const alerts = (bundle.alerts ?? []).filter(isYellowOrAbove).slice(0, 2)
-  if (alerts.length === 0) return null
-  const badgeColor = warningColorOf(alerts[0]!.color)
+/** 天气详情：空气质量 / 日月起落。 */
+function DetailSection({ bundle }: { bundle: WeatherBundle }) {
+  const air = bundle.air
+  const today = (bundle.days ?? [])[0]
+  const rows: ReactNode[] = []
+  if (air !== undefined && Number.isFinite(air.aqi)) {
+    const parts = [`AQI ${air.aqi}`]
+    if (air.category !== undefined) parts.push(air.category)
+    if (air.primary !== undefined && air.primary !== '') parts.push(`首要污染物 ${air.primary}`)
+    rows.push(
+      <div key="air" style={{ display: 'flex', alignItems: 'baseline', gap: 6, fontSize: 10.5 }}>
+        <span style={{ flex: 'none', color: faint }}>空气质量</span>
+        <b style={{ color: fg, fontWeight: 600 }}>{parts.join(' · ')}</b>
+      </div>,
+    )
+  }
+  const astro: string[] = []
+  if (today?.sunrise !== undefined) astro.push(`日出 ${hourLabel(today.sunrise)}`)
+  if (today?.sunset !== undefined) astro.push(`日落 ${hourLabel(today.sunset)}`)
+  if (today?.moonrise !== undefined) astro.push(`月出 ${hourLabel(today.moonrise)}`)
+  if (today?.moonset !== undefined) astro.push(`月落 ${hourLabel(today.moonset)}`)
+  if (astro.length > 0) {
+    rows.push(
+      <div key="astro" style={{ display: 'flex', alignItems: 'baseline', gap: 6, fontSize: 10.5 }}>
+        <span style={{ flex: 'none', color: faint }}>日月起落</span>
+        <b style={{ color: fg, fontWeight: 600 }}>{astro.join(' · ')}</b>
+      </div>,
+    )
+  }
+  if (rows.length === 0) return null
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 10, fontWeight: 700, letterSpacing: '.6px', color: muted }}>
         <span style={{ width: 3.5, height: 11, borderRadius: 2, background: 'linear-gradient(180deg,' + sky + ',' + orange + ')' }} />
-        重要预警
+        天气详情
+      </div>
+      {rows}
+    </div>
+  )
+}
+
+/** 预警区：标题 + 计数徽章；多条预警横向并排（随文字宽度 2-3 个/行）。 */
+function AlertRows({ bundle }: { bundle: WeatherBundle }) {
+  const alerts = (bundle.alerts ?? []).filter(shouldShowAlert).slice(0, 3)
+  if (alerts.length === 0) return null
+  const badgeColor = warningColor(alerts[0]!)
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 10, fontWeight: 700, letterSpacing: '.6px', color: muted }}>
+        <span style={{ width: 3.5, height: 11, borderRadius: 2, background: 'linear-gradient(180deg,' + sky + ',' + orange + ')' }} />
+        预警
         <span style={{
           display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minWidth: 16, height: 16,
           padding: '0 5px', borderRadius: 8, fontSize: 9.5, fontWeight: 800, color: orange,
@@ -149,28 +193,20 @@ function AlertRows({ bundle }: { bundle: WeatherBundle }) {
           ...num,
         }}>{alerts.length}</span>
       </div>
-      {alerts.map((alert) => (
-        <div key={alert.id} style={{
-          display: 'flex', flexDirection: 'column', gap: 3, padding: '6px 8px', borderRadius: 9,
-          border: '1px solid ' + bd, borderLeft: '3px solid ' + warningColorOf(alert.color),
-          background: 'linear-gradient(150deg,color-mix(in srgb,' + warningColorOf(alert.color) + ' 12%,transparent),transparent 60%)',
-          boxShadow: '1px 2px 6px ' + shDark,
-        }}>
-          <div style={{ fontSize: 11.5, fontWeight: 700, color: fg }}>{alert.headline}</div>
-          {alert.text !== undefined && alert.text.trim().length > 0 && (
-            <div style={{
-              fontSize: 10.5, color: muted, lineHeight: 1.45,
-              display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden',
-            }}>{alert.text}</div>
-          )}
-        </div>
-      ))}
+      <div style={{ display: 'flex', gap: 6 }}>
+        {alerts.map((alert) => (
+          <div key={alert.id} title={[alert.sender ?? '', alert.text ?? '', alert.instruction ?? ''].filter(Boolean).join('\n') || undefined} style={{
+            flex: '1 1 0', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 3, padding: '6px 8px', borderRadius: 9,
+            border: '1px solid ' + bd, borderLeft: '3px solid ' + warningColor(alert),
+            background: 'linear-gradient(150deg,color-mix(in srgb,' + warningColor(alert) + ' 12%,transparent),transparent 60%)',
+            boxShadow: '1px 2px 6px ' + shDark,
+          }}>
+            <div style={{ fontSize: 11.5, fontWeight: 700, color: fg, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{alertHeadline(alert)}</div>
+          </div>
+        ))}
+      </div>
     </div>
   )
-}
-
-function warningColorOf(color: string): string {
-  return ({ yellow: '#eab308', orange: '#f97316', red: '#ef4444' } as Record<string, string>)[color] ?? '#eab308'
 }
 
 /** 侧边栏收起（rail）：仅图标块 + 气温。 */
@@ -222,8 +258,8 @@ function WideView({ bundle, status, error, refreshing, onRefresh, t }: {
       {now !== undefined && (
         <div style={row}>
           <IconTile code={now.icon} size={24} tileSize={38} uid="now" />
-          <span style={{ display: 'flex', alignItems: 'flex-start', gap: 1, fontSize: 22, fontWeight: 800, lineHeight: 1, letterSpacing: '-.4px', ...num }}>
-            <span>{round1(now.temp)}</span><span style={{ fontSize: 10, fontWeight: 800, color: orange, marginTop: 1.5 }}>℃</span>
+          <span style={{ display: 'flex', alignItems: 'flex-start', gap: 1, fontSize: 19, fontWeight: 800, lineHeight: 1, letterSpacing: '-.4px', ...num }}>
+            <span>{round1(now.temp)}</span><span style={{ fontSize: 9, fontWeight: 800, color: orange, marginTop: 1.5 }}>℃</span>
           </span>
           <span style={{ color: muted, fontSize: 12 }}>{now.text}</span>
           <span style={{ marginLeft: 'auto', display: 'flex', flexDirection: 'column', gap: 2, fontSize: 10.5, textAlign: 'right', color: muted, lineHeight: 1.4 }}>
@@ -241,16 +277,18 @@ function WideView({ bundle, status, error, refreshing, onRefresh, t }: {
           <div style={hourGrid}>
             {hours.map((hour, index) => (
               <div key={hour.time} style={hourCell}>
-                <span style={{ fontSize: 10.5, color: faint, ...num }}>{hourLabel(hour.time)}</span>
-                <Icon code={hour.icon} size={18} uid={'h' + index} />
-                <span style={{ fontSize: 10.5, color: pop, fontWeight: 600, ...num }}>{percent(hour.pop)}</span>
+                <span style={{ fontSize: 12, color: muted, fontWeight: 600, ...num }}>{hourLabel(hour.time)}</span>
+                <Icon code={hour.icon} size={22} uid={'h' + index} />
+                <span style={{ fontSize: 14, fontWeight: 800, lineHeight: 1.1, ...num }}>{round1(hour.temp)}<span style={{ fontSize: 8, fontWeight: 800, color: orange, marginLeft: 1 }}>℃</span></span>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 2, fontSize: 10.5, color: muted, fontWeight: 600, ...num }}><Raindrop size={10} />{percent(hour.pop)}</span>
+                <WindMark degree={hour.windDegree} scale={windScaleLabel(hour.windScale)} dir={hour.windDir} />
               </div>
             ))}
           </div>
-          <MiniCurve hours={hours} />
         </div>
       )}
       <AlertRows bundle={bundle} />
+      <DetailSection bundle={bundle} />
       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: faint, borderTop: '1px dashed ' + bd, paddingTop: 8 }}>
         <span>{t('widget.updated')} {hourLabel(bundle.receivedAt)}</span>
         <span>和风天气</span>
@@ -265,11 +303,19 @@ const linkButton: CSSProperties = {
 
 /** 槽位入口组件。 */
 export function SidebarWeatherWidget(props: SidebarWeatherWidgetProps) {
+  ensureSidebarLayoutStyle()
   const settings = useQWeatherSettings()
   const { state, refresh } = useWeather(settings, props.saveAuto)
   if (settings?.enabled !== true) return null
-  return props.wide
-    ? <WideView bundle={state.bundle} status={state.status} error={state.error} refreshing={state.refreshing}
-        onRefresh={() => void refresh()} t={props.qw} />
-    : <RailView bundle={state.bundle} status={state.status} error={state.error} onExpand={props.onExpand} />
+  const wide = props.wide
+  // 展开态：根元素挂 .qw-sidebar-wide（order:-1 + 宿主容器改纵向，上下排布）；
+  // 收起态：display:contents 让按钮保持原 DOM 结构（窄栏布局不变）。
+  return (
+    <div className={wide ? 'qw-sidebar-wide' : 'qw-sidebar-rail'} style={wide ? undefined : { display: 'contents' }}>
+      {wide
+        ? <WideView bundle={state.bundle} status={state.status} error={state.error} refreshing={state.refreshing}
+            onRefresh={() => void refresh()} t={props.qw} />
+        : <RailView bundle={state.bundle} status={state.status} error={state.error} onExpand={props.onExpand} />}
+    </div>
+  )
 }

@@ -7,7 +7,8 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { QWeatherApiError, QWeatherClient } from '../qweather/api.ts'
+import { QWeatherClient } from '../qweather/api.ts'
+import { QWeatherError } from '../qweather/errors.ts'
 import type { Place, WeatherBundle } from '../qweather/types.ts'
 import { placeLabel } from '../qweather/types.ts'
 
@@ -137,7 +138,7 @@ export async function resolvePlaceForSettings(
     // 定位不可用：回退到设置里的手动兜底位置
   }
   if (settings.location.trim().length > 0) return client.resolvePlace(settings.location)
-  throw new QWeatherApiError(0, '自动定位失败，且未配置兜底位置：请到设置切换为手动位置')
+  throw new QWeatherError('QW_NO_LOCATION', '自动定位失败，且未配置兜底位置：请到设置切换为手动位置')
 }
 
 /** 天气拉取状态机。 */
@@ -179,9 +180,15 @@ export function useWeather(settings: QWeatherSettings | undefined, saveAuto: (id
       const [now, hours, alerts] = await Promise.all([
         client.current(place.lat, place.lon),
         client.hourly(place.lat, place.lon, 5),
-        client.alerts(place.lat, place.lon),
+        client.alerts(place.lat, place.lon).catch(() => []),
       ])
-      const bundle: WeatherBundle = { place, receivedAt: new Date().toISOString(), now, hours, alerts }
+      // 附加数据（日月起落 / 空气质量 / 生活指数）失败时优雅降级。
+      const [days, air, indices] = await Promise.all([
+        client.daily(place.lat, place.lon, 1).catch(() => []),
+        client.air(place.lat, place.lon).catch(() => undefined),
+        client.indices(place.lat, place.lon).catch(() => []),
+      ])
+      const bundle: WeatherBundle = { place, receivedAt: new Date().toISOString(), now, hours, alerts, days, air, indices }
       setState({ status: 'ready', bundle })
     } catch (cause) {
       setState({ status: 'error', error: cause instanceof Error ? cause.message : String(cause) })

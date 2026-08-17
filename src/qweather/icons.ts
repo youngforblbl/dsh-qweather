@@ -287,3 +287,23 @@ export function iconKindOf(code: string): IconKind {
   if (n === 901) return 'cold'
   return 'unknown'
 }
+
+/**
+ * 风向箭头：上指为北（0°），顺时针旋转 degree 度，即箭头指向风吹来的方向。
+ * 使用 SVG transform 属性（rotate(angle cx cy)）绕视图中心旋转，避免 CSS
+ * transform-origin 在不同浏览器下解析不一致导致箭头被甩出小时格。
+ */
+export function windArrow(degree: number | undefined, size = 12): string {
+  const angle = degree !== undefined && Number.isFinite(degree) ? Math.round(degree) % 360 : 0
+  return `<svg viewBox="0 0 24 24" width="${size}" height="${size}" aria-hidden="true" style="display:block">`
+    + `<path transform="rotate(${angle} 12 12)" d="M12 2.6L18.6 10.6H14.6V21.4H9.4V10.6H5.4Z" fill="currentColor"/>`
+    + '</svg>'
+}
+
+/** 小雨滴图标（用于标注降水概率指标）。 */
+export function raindropIcon(size = 11): string {
+  return `<svg viewBox="0 0 24 24" width="${size}" height="${size}" aria-hidden="true" style="display:block">`
+    + '<path d="M12 3.2c3.6 4.7 5.8 7.9 5.8 10.9a5.8 5.8 0 1 1-11.6 0c0-3 2.2-6.2 5.8-10.9z" fill="currentColor"/>'
+    + '<ellipse cx="9.2" cy="13.6" rx="1.5" ry="2.3" fill="#ffffff" opacity=".5"/>'
+    + '</svg>'
+}

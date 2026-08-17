@@ -3,6 +3,26 @@
   "description": "DSH 和风天气插件：侧边栏天气组件、LLM 天气查询工具、对话内交互式天气卡片",
   "version": "0.1.0",
   "private": true,
+  "keywords": [
+    "dsh-plugin",
+    "dsh",
+    "deepseek-harness",
+    "qweather",
+    "weather",
+    "和风天气",
+    "plugin"
+  ],
+  "homepage": "https://github.com/youngforblbl/dsh-qweather#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/youngforblbl/dsh-qweather.git"
+  },
+  "bugs": {
+    "url": "https://github.com/youngforblbl/dsh-qweather/issues"
+  },
+  "engines": {
+    "node": ">=22"
+  },
   "type": "module",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",

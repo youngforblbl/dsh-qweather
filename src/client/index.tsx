@@ -119,6 +119,7 @@ export function apply(ctx: ClientContext): void {
     id?: string
     key?: string
     order?: number
+    priority?: number
     inject?: () => unknown
   }, component: unknown) => () => void
   const register = (...args: Parameters<Register>) => (ctx.slots.register as unknown as Register)(...args)
@@ -132,9 +133,12 @@ export function apply(ctx: ClientContext): void {
   }, QWeatherSettingsCard))
 
   // 2) 侧边栏底部天气组件
+  // list 槽位按 priority→order 升序渲染：cost-meter 用 order 0，这里用负优先级，
+  // 保证天气组件永远排在其它 footer 小组件（默认 priority 0）更靠上的位置。
   ctx.slots.inject('sidebar.footer.action', () => register({
     name: 'sidebar.footer.action',
     id: 'qweather',
+    priority: -1000,
     order: 10,
     inject: () => ({
       qw: t, saveAuto,

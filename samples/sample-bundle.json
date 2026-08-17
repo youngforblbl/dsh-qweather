@@ -31,7 +31,8 @@
       "precip": 0,
       "humidity": 46,
       "windDir": "南东南风",
-      "windScale": 2
+      "windScale": 2,
+      "windDegree": 158
     },
     {
       "time": "2026-08-17T19:00+08:00",
@@ -42,7 +43,8 @@
       "precip": 0,
       "humidity": 51,
       "windDir": "南风",
-      "windScale": 2
+      "windScale": 2,
+      "windDegree": 180
     },
     {
       "time": "2026-08-17T20:00+08:00",
@@ -53,7 +55,8 @@
       "precip": 0,
       "humidity": 58,
       "windDir": "南西南风",
-      "windScale": 2
+      "windScale": 2,
+      "windDegree": 203
     },
     {
       "time": "2026-08-17T21:00+08:00",
@@ -64,7 +67,8 @@
       "precip": 0,
       "humidity": 65,
       "windDir": "南风",
-      "windScale": 2
+      "windScale": 2,
+      "windDegree": 180
     },
     {
       "time": "2026-08-17T22:00+08:00",
@@ -75,7 +79,8 @@
       "precip": 0,
       "humidity": 71,
       "windDir": "南东南风",
-      "windScale": 2
+      "windScale": 2,
+      "windDegree": 158
     }
   ],
   "alerts": [
@@ -90,5 +95,33 @@
       "text": "市气象台2026年08月17日16时30分发布雷电蓝色预警信号：预计8月18日凌晨至傍晚，我市自西向东有分散性雷阵雨天气，降雨具有间歇性，房山、门头沟、昌平、延庆、怀柔等区局地短时雨强较大，请注意防范。",
       "instruction": "1. 户外人员应当远离高地和树木，停止高空、水上作业。\n2. 切勿接触外露的铁锹、天线、水管、铁丝网、燃气管道等金属工具或物品。\n3. 关好并远离门窗，避免使用电话和其他带有插头的电器。\n4. 注意雷电活动可能伴随的短时大风、强降水和冰雹灾害。"
     }
+  ],
+  "days": [
+    {
+      "date": "2026-08-17",
+      "tempMax": 31.92,
+      "tempMin": 21.38,
+      "iconDay": "102",
+      "textDay": "少云",
+      "sunrise": "2026-08-17T05:28+08:00",
+      "sunset": "2026-08-17T19:11+08:00",
+      "moonrise": "2026-08-17T06:10+08:00",
+      "moonset": "2026-08-17T19:55+08:00",
+      "moonPhase": "waxing-crescent"
+    }
+  ],
+  "air": {
+    "aqi": 33,
+    "category": "优",
+    "level": "1",
+    "primary": "PM2.5"
+  },
+  "indices": [
+    { "type": "3", "name": "穿衣指数", "category": "炎热", "text": "天气炎热，建议着短衫短裙" },
+    { "type": "1", "name": "运动指数", "category": "较不宜", "text": "天气炎热，减少运动" },
+    { "type": "5", "name": "紫外线指数", "category": "强", "text": "涂擦防晒霜" },
+    { "type": "8", "name": "舒适度指数", "category": "不舒适", "text": "天气闷热" },
+    { "type": "9", "name": "感冒指数", "category": "少发", "text": "无明显降温" },
+    { "type": "2", "name": "洗车指数", "category": "适宜", "text": "天气较好适合洗车" }
   ]
 }

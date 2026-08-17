@@ -16,9 +16,9 @@ const result = await weather.execute({ location: '上海', range: 'hours', hours
 console.log('--- qweather_weather ---')
 console.log(result.summary)
 
-// 4) 真实查询（card）
+// 4) 真实查询（card；卡片固定 5 小时，仅接受 location）
 const card = cardTool({}, () => cfg)
-const cardResult = await card.execute({ location: '杭州', hours: 5 }, exec)
+const cardResult = await card.execute({ location: '杭州' }, exec)
 console.log('--- qweather_card ---')
 console.log('title:', cardResult.title, '| size:', cardResult.sizeBytes, '| meta kind:', card.presentationMeta ? 'ok' : 'ok')
 console.log(cardResult.fragment.slice(0, 220).replace(/\n/g, ' '))

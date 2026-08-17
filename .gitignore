@@ -4,3 +4,5 @@ node_modules/
 # 密钥类本地文件（如有）
 .env
 samples/*.key*
+# 会话内可视化产物（viz 工具的临时输出，不属于插件本体）
+/viz/

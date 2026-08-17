@@ -8,7 +8,14 @@
  *   POST /dsh-qweather/config  保存部分配置（同源校验 + schema 校验后写入
  *                              宿主 settings 命名空间，持久化到 settings.yaml）
  * 宿主内部仍然通过 settings 命名空间读取配置，LLM 工具 / 侧边栏组件行为不变。
+ *
+ * 错误响应统一为 `{ error: string, code: QWeatherErrorCode }`：`error` 面向用户，
+ * `code` 供客户端 / 日志做机器判别；HTTP 状态按错误类别映射
+ * （permission→403，input→400，其余→500）。
  */
+
+import { QWeatherError, errorCodeOf, toQWeatherError } from './qweather/errors.ts'
+import { createLogger, type Logger } from './qweather/log.ts'
 
 /** 服务上的 route 形状（dsh-host-webserver 的 register 入参）。 */
 interface HttpRequest extends AsyncIterable<Uint8Array> {
@@ -54,12 +61,27 @@ async function readJsonBody(request: HttpRequest): Promise<Record<string, unknow
   for await (const chunk of request) {
     const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)
     size += buffer.length
-    if (size > 16 * 1024) throw new Error('请求体过大')
+    if (size > 16 * 1024) throw new QWeatherError('QW_BAD_REQUEST', '请求体过大（上限 16KiB）')
     chunks.push(buffer)
   }
-  const parsed: unknown = JSON.parse(Buffer.concat(chunks).toString('utf8'))
-  if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) throw new Error('请求体必须是 JSON 对象')
+  let parsed: unknown
+  try {
+    parsed = JSON.parse(Buffer.concat(chunks).toString('utf8'))
+  } catch (cause) {
+    throw new QWeatherError('QW_BAD_REQUEST', '请求体不是合法 JSON', { cause })
+  }
+  if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+    throw new QWeatherError('QW_BAD_REQUEST', '请求体必须是 JSON 对象')
+  }
   return parsed as Record<string, unknown>
+}
+
+/** 按错误类别映射 HTTP 状态码。 */
+function statusOf(error: unknown): number {
+  const qw = toQWeatherError(error)
+  if (qw.category === 'permission') return 403
+  if (qw.category === 'input') return 400
+  return 500
 }
 
 export interface ConfigRouteDeps {
@@ -70,7 +92,11 @@ export interface ConfigRouteDeps {
 }
 
 /** 挂载 GET/POST /dsh-qweather/config 路由，返回整体卸载函数。 */
-export function mountConfigRoutes(webServer: WebServerLike, deps: ConfigRouteDeps): () => void {
+export function mountConfigRoutes(
+  webServer: WebServerLike,
+  deps: ConfigRouteDeps,
+  logger: Logger = createLogger('qweather:config'),
+): () => void {
   const dispose = webServer.register({
     kind: 'exact',
     path: '/dsh-qweather/config',
@@ -79,21 +105,28 @@ export function mountConfigRoutes(webServer: WebServerLike, deps: ConfigRouteDep
         try {
           sendJson(response, 200, { config: deps.getConfig() })
         } catch (error) {
-          sendJson(response, 500, { error: error instanceof Error ? error.message : String(error) })
+          const code = errorCodeOf(error)
+          logger.error('GET config failed', { code, message: toQWeatherError(error).message })
+          sendJson(response, statusOf(error), { error: toQWeatherError(error).message, code })
         }
         return
       }
       if (request.method === 'POST') {
         if (!sameOrigin(request)) {
-          sendJson(response, 403, { error: '跨源请求被拒绝' })
+          const err = new QWeatherError('QW_FORBIDDEN', '跨源请求被拒绝')
+          logger.warn('POST config blocked: cross-origin')
+          sendJson(response, 403, { error: err.message, code: err.code })
           return
         }
         try {
           const patch = await readJsonBody(request)
           const config = await deps.updateConfig(patch)
+          logger.info('POST config saved', { keys: Object.keys(patch) })
           sendJson(response, 200, { config })
         } catch (error) {
-          sendJson(response, 400, { error: error instanceof Error ? error.message : String(error) })
+          const code = errorCodeOf(error)
+          logger.warn('POST config failed', { code, message: toQWeatherError(error).message })
+          sendJson(response, statusOf(error), { error: toQWeatherError(error).message, code })
         }
         return
       }

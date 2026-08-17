@@ -16,18 +16,13 @@
   --bd:light-dark(rgba(255,255,255,.75),rgba(255,255,255,.10));
   --sh-dark:light-dark(rgba(148,163,184,.42),rgba(0,0,0,.6));
   --sh-light:light-dark(rgba(255,255,255,.95),rgba(96,116,150,.16));
-  color:var(--f)}
-/* 卡片主体：纯玻璃渐变（无蓝橙内部渐变）；主题色放在卡片外部的对角光效阴影上——
-   左上偏天蓝、右下偏橙，内部仍保持白高光 + 黑投影的新拟态光影。 */
+  color:var(--f);background:transparent}
+/* 卡片主体：纯玻璃渐变，无外部辉光/投影（主卡片外的主题色辉光、阴影已移除）；
+   仅保留内部顶缘高光，背景透明以融入对话。 */
 .qw-card{position:relative;display:flex;flex-direction:column;gap:12px;border-radius:18px;padding:16px 18px 14px;border:1px solid var(--bd);
   background:linear-gradient(150deg,var(--glass-a),var(--glass-b));
   backdrop-filter:blur(16px) saturate(1.15);-webkit-backdrop-filter:blur(16px) saturate(1.15);
-  box-shadow:
-    -9px -8px 20px light-dark(rgba(56,189,248,.16),rgba(76,141,255,.10)),
-    9px 8px 20px light-dark(rgba(249,115,22,.11),rgba(251,146,60,.07)),
-    0 14px 34px light-dark(rgba(100,116,139,.22),rgba(0,0,0,.45)),
-    10px 10px 24px var(--sh-dark),-10px -10px 24px var(--sh-light),
-    inset 0 1px 0 light-dark(rgba(255,255,255,.9),rgba(255,255,255,.08))}
+  box-shadow:inset 0 1px 0 light-dark(rgba(255,255,255,.9),rgba(255,255,255,.08))}
 .qw-head{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0}
 .qw-loc{font-size:15px;font-weight:800;letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .qw-updated{flex:none;font-size:12px;color:var(--m);font-variant-numeric:tabular-nums}

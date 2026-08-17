@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { QWeatherApiError, QWeatherClient, normalizeApiHost } from '../src/qweather/api.ts'
+import { QWeatherApiError, QWeatherClient, QWeatherError, normalizeApiHost } from '../src/qweather/api.ts'
 
 function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
@@ -23,6 +23,10 @@ describe('normalizeApiHost', () => {
     expect(normalizeApiHost(undefined)).toBe('https://devapi.qweather.com')
     expect(normalizeApiHost('  https://my.qweatherapi.com/ ')).toBe('https://my.qweatherapi.com')
   })
+  it('缺协议自动补 https://，非法 host 回退默认', () => {
+    expect(normalizeApiHost('my.qweatherapi.com')).toBe('https://my.qweatherapi.com')
+    expect(normalizeApiHost('   not a url   ')).toBe('https://devapi.qweather.com')
+  })
 })
 
 describe('QWeatherClient 请求', () => {
@@ -40,7 +44,7 @@ describe('QWeatherClient 请求', () => {
     expect(now.windScale).toBe(2)
   })
 
-  it('解析逐小时：降水概率 0-1', async () => {
+  it('解析逐小时：降水概率 / 风向 / 风级', async () => {
     const fetchMock = vi.fn(async () => jsonResponse({
       hours: [{
         forecastTime: '2026-08-17T15:00+08:00',
@@ -48,6 +52,7 @@ describe('QWeatherClient 请求', () => {
         temperature: { value: 31.66, unit: '°C' },
         humidity: 0.43,
         precipitation: { amount: { value: 0, unit: 'mm' }, probability: 0.31, type: 'rain' },
+        wind: { direction: { degree: 63, compass: 'ene' }, scale: 2 },
       }],
     }))
     const client = new QWeatherClient({ apiKey: 'k', fetchImpl: fetchMock as typeof fetch })
@@ -55,6 +60,9 @@ describe('QWeatherClient 请求', () => {
     expect(hours).toHaveLength(1)
     expect(hours[0]!.pop).toBe(0.31)
     expect(hours[0]!.icon).toBe('100')
+    expect(hours[0]!.windDegree).toBe(63)
+    expect(hours[0]!.windScale).toBe(2)
+    expect(hours[0]!.windDir).toBe('东东北风')
   })
 
   it('解析逐日：白天/夜间天气与气温', async () => {
@@ -65,7 +73,7 @@ describe('QWeatherClient 请求', () => {
         temperatureMin: { value: 21.38, unit: '°C' },
         daytime: { condition: { text: '少云', code: '102', icon: '102' }, precipitation: { probability: 0 } },
         nighttime: { condition: { text: '多云', code: '101', icon: '151' } },
-        astro: { sunrise: '2026-08-17T05:28+08:00', sunset: '2026-08-17T19:11+08:00', moonPhase: 'waxing-crescent' },
+        astro: { sunrise: '2026-08-17T05:28+08:00', sunset: '2026-08-17T19:11+08:00', moonrise: '2026-08-17T06:10+08:00', moonset: '2026-08-17T19:55+08:00', moonPhase: 'waxing-crescent' },
       }],
     }))
     const client = new QWeatherClient({ apiKey: 'k', fetchImpl: fetchMock as typeof fetch })
@@ -73,6 +81,9 @@ describe('QWeatherClient 请求', () => {
     expect(days[0]!.textDay).toBe('少云')
     expect(days[0]!.iconNight).toBe('151')
     expect(days[0]!.tempMax).toBe(31.92)
+    expect(days[0]!.sunrise).toBe('2026-08-17T05:28+08:00')
+    expect(days[0]!.moonrise).toBe('2026-08-17T06:10+08:00')
+    expect(days[0]!.moonset).toBe('2026-08-17T19:55+08:00')
   })
 
   it('解析预警：severity 与颜色代码', async () => {
@@ -101,6 +112,24 @@ describe('QWeatherClient 请求', () => {
     expect(air?.category).toBe('优')
   })
 
+  it('解析生活指数', async () => {
+    const fetchMock = vi.fn(async (url: string) => {
+      expect(String(url)).toContain('/indices/v1/daily/39.92/116.41')
+      return jsonResponse({
+        daily: [
+          { date: '2026-08-17', type: '3', name: '穿衣指数', level: '1', category: '热', text: '天气炎热，适合穿轻薄衣物' },
+          { date: '2026-08-17', type: '1', name: '运动指数', level: '2', category: '较不宜', text: '天气炎热，减少运动' },
+        ],
+      })
+    })
+    const client = new QWeatherClient({ apiKey: 'k', fetchImpl: fetchMock as typeof fetch })
+    const indices = await client.indices(39.92, 116.41)
+    expect(indices).toHaveLength(2)
+    expect(indices[0]!.name).toBe('穿衣指数')
+    expect(indices[0]!.category).toBe('热')
+    expect(indices[1]!.type).toBe('1')
+  })
+
   it('公共域名 /geo/v2 404 时回退 geoapi.qweather.com', async () => {
     const fetchMock = vi.fn(async (url: string) => {
       if (String(url).includes('/geo/v2/')) return new Response('not found', { status: 404 })
@@ -118,12 +147,35 @@ describe('QWeatherClient 请求', () => {
   it('HTTP 错误包装成 QWeatherApiError', async () => {
     const fetchMock = vi.fn(async () => new Response('bad', { status: 500 }))
     const client = new QWeatherClient({ apiKey: 'k', fetchImpl: fetchMock as typeof fetch })
-    await expect(client.current(1, 2)).rejects.toMatchObject({ name: 'QWeatherApiError', status: 500 })
+    await expect(client.current(1, 2)).rejects.toMatchObject({ name: 'QWeatherApiError', status: 500, code: 'QW_HTTP_ERROR' })
   })
 
   it('找不到位置给出可读错误', async () => {
     const fetchMock = vi.fn(async () => jsonResponse({ code: '200', location: [] }))
     const client = new QWeatherClient({ apiKey: 'k', fetchImpl: fetchMock as typeof fetch })
-    await expect(client.resolvePlace('不存在的地方')).rejects.toBeInstanceOf(QWeatherApiError)
+    await expect(client.resolvePlace('不存在的地方')).rejects.toBeInstanceOf(QWeatherError)
+    await expect(client.resolvePlace('不存在的地方')).rejects.toMatchObject({ code: 'QW_LOCATION_NOT_FOUND' })
+  })
+
+  it('非 JSON 响应包装成 QW_BAD_RESPONSE', async () => {
+    const fetchMock = vi.fn(async () => new Response('not-json', { status: 200, headers: { 'Content-Type': 'text/plain' } }))
+    const client = new QWeatherClient({ apiKey: 'k', fetchImpl: fetchMock as typeof fetch })
+    await expect(client.current(1, 2)).rejects.toMatchObject({ code: 'QW_BAD_RESPONSE' })
+  })
+
+  it('网络失败 / 超时 / 取消 分类正确', async () => {
+    const network = new QWeatherClient({ apiKey: 'k', fetchImpl: vi.fn(async () => { throw new Error('ECONNREFUSED') }) as typeof fetch })
+    await expect(network.current(1, 2)).rejects.toMatchObject({ code: 'QW_NETWORK' })
+
+    const timeout = new QWeatherClient({ apiKey: 'k', fetchImpl: vi.fn(async () => { const e = new Error('timeout'); e.name = 'TimeoutError'; throw e }) as typeof fetch })
+    await expect(timeout.current(1, 2)).rejects.toMatchObject({ code: 'QW_TIMEOUT' })
+
+    const controller = new AbortController()
+    controller.abort()
+    const cancelled = new QWeatherClient({
+      apiKey: 'k', signal: controller.signal,
+      fetchImpl: vi.fn(async () => { const e = new Error('aborted'); e.name = 'AbortError'; throw e }) as typeof fetch,
+    })
+    await expect(cancelled.current(1, 2)).rejects.toMatchObject({ code: 'QW_CANCELLED' })
   })
 })

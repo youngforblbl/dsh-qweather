@@ -1,54 +1,59 @@
 /**
- * 生成 preview.html：可离线打开的 UI 预览页（v2 新拟态+玻璃拟态）。
+ * 生成 preview.html：可离线打开的 UI 预览页（v3 新拟态+玻璃拟态）。
  * 左侧：侧边栏天气组件静态稿（展开 + 收起）；右侧：qweather_card 真实卡片。
  * 数据来自 samples/sample-bundle.json。默认深色；?light 直达浅色。
  */
 import { readFile, writeFile } from 'node:fs/promises'
-import { buildCardFragment, weatherIcon } from '../lib/index.js'
-import { hourLabel, isYellowOrAbove, percent, placeLabel, round1 } from '../lib/index.js'
+import { buildCardFragment, raindropIcon, weatherIcon, windArrow } from '../lib/index.js'
+import { alertHeadline, hourLabel, percent, placeLabel, round1, shouldShowAlert, warningColor, windScaleLabel } from '../lib/index.js'
 
 const bundle = JSON.parse(await readFile(new URL('../samples/sample-bundle.json', import.meta.url), 'utf8'))
 const now = bundle.now
 const hours = (bundle.hours ?? []).slice(0, 5)
-const alerts = (bundle.alerts ?? []).filter(isYellowOrAbove).slice(0, 2)
+const alerts = (bundle.alerts ?? []).filter(shouldShowAlert).slice(0, 3)
 const fragment = buildCardFragment(bundle, 5)
-const warningColorOf = (color) => ({ yellow: '#eab308', orange: '#f97316', red: '#ef4444' }[color] ?? '#eab308')
+const today = (bundle.days ?? [])[0]
+const air = bundle.air
 
-const hourCells = hours.map((h, i) => `
+const hourCells = hours.map((h, i) => {
+  const scale = windScaleLabel(h.windScale)
+  const windRow = (h.windDegree !== undefined || scale !== '')
+    ? `<span class="wind">${h.windDegree !== undefined ? windArrow(h.windDegree, 10) : ''}${scale !== '' ? `<b>${scale}</b>` : ''}</span>`
+    : ''
+  return `
       <div class="hr">
         <span class="mut s">${hourLabel(h.time)}</span>
-        <span class="ic">${weatherIcon(h.icon, 18, 'pv-h' + i)}</span>
-        <span class="pop">${percent(h.pop)}</span>
-      </div>`).join('')
-
-// 迷你气温曲线凹槽（与组件 MiniCurve 同款：拉伸的纯路径 SVG + HTML 描点/标签芯片）
-const temps = hours.map((h) => h.temp)
-const tMin = Math.min(...temps)
-const tMax = Math.max(...temps)
-const tSpan = tMax - tMin || 1
-const W = 320, H = 56
-const tXs = hours.map((_, i) => 32 + i * 64)
-const tYs = temps.map((t) => H - 8 - ((t - tMin) / tSpan) * (H - 30))
-const tPoints = tXs.map((x, i) => `${x.toFixed(1)},${tYs[i].toFixed(1)}`).join(' ')
-const sideCurve = `<div class="curve" style="height:${H}px;margin-top:8px">`
-  + `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="display:block;width:100%;height:${H}px;filter:drop-shadow(0.8px 4.5px 5.5px var(--line-sh))">`
-  + '<defs><linearGradient id="side-stroke" gradientUnits="userSpaceOnUse" x1="0" y1="14" x2="0" y2="48">'
-  + '<stop offset="0%" stop-color="var(--orange)"/><stop offset="100%" stop-color="var(--sky)"/></linearGradient></defs>'
-  + `<polyline points="${tPoints}" style="fill:none;stroke:url(#side-stroke);stroke-width:9;stroke-linejoin:round;stroke-linecap:round;vector-effect:non-scaling-stroke"/>`
-  + '</svg>'
-  + tXs.map((x, i) => {
-    const left = 10 + i * 20
-    const top = (tYs[i] / H * 100).toFixed(1)
-    return `<span class="chip" style="left:${left}%;top:calc(${top}% - 6px)">${round1(hours[i].temp)}℃</span>`
-  }).join('')
-  + '</div>'
+        <span class="ic">${weatherIcon(h.icon, 22, 'pv-h' + i)}</span>
+        <span class="temp">${round1(h.temp)}<i>℃</i></span>
+        <span class="pop">${raindropIcon(10)}${percent(h.pop)}</span>
+        ${windRow}
+      </div>`
+}).join('')
 
 // 侧边栏预警区（与对话内卡片排版一致）；无真实预警时用一条演示数据展示样式
 const demoAlerts = alerts.length > 0
   ? alerts
-  : [{ id: 'demo', headline: '高温黄色预警（演示数据）', text: '预计未来三天最高气温将达 35℃ 以上，请做好防暑降温准备。', color: 'yellow' }]
-const alertRows = `<div class="sec">重要预警<span class="badge" style="--c:${warningColorOf(demoAlerts[0].color)}">${demoAlerts.length}</span></div>`
-  + demoAlerts.slice(0, 2).map((a) => `<div class="alert-box" style="--c:${warningColorOf(a.color)}"><div class="ah">${a.headline}</div><div class="ab">${a.text}</div></div>`).join('')
+  : [{ id: 'demo', typeName: '高温', headline: '高温黄色预警（演示数据）', text: '预计未来三天最高气温将达 35℃ 以上，请做好防暑降温准备。', color: 'yellow' }]
+const alertRows = `<div class="sec">预警<span class="badge" style="--c:${warningColor(demoAlerts[0])}">${demoAlerts.length}</span></div>`
+  + '<div class="alert-wrap">' + demoAlerts.slice(0, 3).map((a) => `<div class="alert-box" style="--c:${warningColor(a)}"><div class="ah">${alertHeadline(a)}</div></div>`).join('') + '</div>'
+
+// 侧边栏天气详情（空气质量 / 日月起落）
+const detailRows = []
+if (air !== undefined && Number.isFinite(air.aqi)) {
+  const parts = [`AQI ${air.aqi}`]
+  if (air.category !== undefined) parts.push(air.category)
+  if (air.primary !== undefined && air.primary !== '') parts.push(`首要污染物 ${air.primary}`)
+  detailRows.push(`<div class="detail-row"><span class="k">空气质量</span><b>${parts.join(' · ')}</b></div>`)
+}
+const astroParts = []
+if (today?.sunrise !== undefined) astroParts.push(`日出 ${hourLabel(today.sunrise)}`)
+if (today?.sunset !== undefined) astroParts.push(`日落 ${hourLabel(today.sunset)}`)
+if (today?.moonrise !== undefined) astroParts.push(`月出 ${hourLabel(today.moonrise)}`)
+if (today?.moonset !== undefined) astroParts.push(`月落 ${hourLabel(today.moonset)}`)
+if (astroParts.length > 0) detailRows.push(`<div class="detail-row"><span class="k">日月起落</span><b>${astroParts.join(' · ')}</b></div>`)
+const detailSection = detailRows.length > 0
+  ? `<div style="display:flex;flex-direction:column;gap:5px"><div class="sec">天气详情</div>${detailRows.join('')}</div>`
+  : ''
 
 const html = `<!doctype html>
 <html lang="zh">
@@ -66,7 +71,6 @@ const html = `<!doctype html>
   --sh-dark:rgba(0,0,0,.6); --sh-light:rgba(96,116,150,.16);
   --glow:rgba(0,0,0,.4); --dot:#101a2e;
   --hi:rgba(255,255,255,.08);
-  --line-sh:rgba(0,0,0,.5); --line-hi:rgba(255,255,255,.16);
   --sky-aura:rgba(80,140,255,.18); --orange-aura:rgba(251,146,60,.11);
   --glow-blue:rgba(76,141,255,.11); --glow-orange:rgba(251,146,60,.08);
   color-scheme: dark;
@@ -80,7 +84,6 @@ body.light {
   --sh-dark:rgba(148,163,184,.42); --sh-light:rgba(255,255,255,.95);
   --glow:rgba(56,189,248,.25); --dot:#ffffff;
   --hi:rgba(255,255,255,.9);
-  --line-sh:rgba(0,0,0,.30); --line-hi:rgba(255,255,255,.55);
   --sky-aura:rgba(56,189,248,.16); --orange-aura:rgba(249,115,22,.10);
   --glow-blue:rgba(56,189,248,.18); --glow-orange:rgba(249,115,22,.12);
   color-scheme: light;
@@ -114,7 +117,7 @@ h1 { font-size:19px; margin:0 0 4px }
   background:linear-gradient(145deg,var(--tile-a),var(--tile-b));
   box-shadow:4px 4px 10px var(--sh-dark),-3px -3px 8px var(--sh-light),inset 0 1px 0 var(--hi) }
 .rail .r-temp { font-size:12px; font-weight:700 }
-.card { display:flex; flex-direction:column; gap:10px; margin-top:14px; padding:13px; border-radius:16px;
+.card { display:flex; flex-direction:column; gap:14px; margin-top:14px; padding:16px 15px 14px; border-radius:16px;
   border:1px solid var(--border);
   background:linear-gradient(150deg,var(--glass-a),var(--glass-b));
   backdrop-filter:blur(14px);
@@ -124,33 +127,39 @@ h1 { font-size:19px; margin:0 0 4px }
 .now .tile { flex:none; display:flex; align-items:center; justify-content:center; width:38px; height:38px; border-radius:11px;
   background:linear-gradient(145deg,var(--tile-a),var(--tile-b));
   box-shadow:4px 4px 10px var(--sh-dark),-3px -3px 8px var(--sh-light),inset 0 1px 0 var(--hi) }
-.now .t { display:flex; align-items:flex-start; gap:1px; font-size:22px; font-weight:800; letter-spacing:-.4px; line-height:1 }
-.now .t .deg { font-size:10px; color:var(--orange); margin-top:1.5px }
+.now .t { display:flex; align-items:flex-start; gap:1px; font-size:20px; font-weight:800; letter-spacing:-.4px; line-height:1 }
+.now .t .deg { font-size:9px; color:var(--orange); margin-top:1.5px }
 .now .meta { margin-left:auto; display:flex; flex-direction:column; gap:2px; color:var(--mut); font-size:10.5px; text-align:right; line-height:1.4 }
 .now .meta b { color:var(--text); font-weight:700 }
-.hours { display:grid; grid-template-columns:repeat(5,1fr); gap:4px }
-.hr { display:flex; flex-direction:column; align-items:center; gap:2px; padding:7px 1px 6px;
+.hours { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:4px }
+.hr { min-width:0; overflow:hidden; display:flex; flex-direction:column; align-items:center; gap:2px; padding:9px 1px 8px;
   border:1px solid var(--border); border-radius:11px; background:linear-gradient(145deg,var(--cell-a),var(--cell-b));
-  box-shadow:inset 2px 2px 5px var(--sh-dark),inset -2px -2px 5px var(--sh-light) }
-.hr .s { font-size:10.5px; color:var(--sub) }
+  box-shadow:3px 3px 7px var(--sh-dark),-2.5px -2.5px 6px var(--sh-light),inset 0 1px 0 var(--hi) }
+.hr .s { font-size:11.5px; color:var(--mut); font-weight:600 }
 .hr .ic { display:inline-flex }
-.hr .pop { color:var(--pop); font-size:10.5px; font-weight:600 }
-.curve { position:relative }
-.chip { position:absolute; transform:translate(-50%,-100%); font-size:13.5px; font-weight:700; color:var(--text);
-  text-shadow:0 1px 0 var(--hi); white-space:nowrap }
+.hr .temp { font-size:14px; font-weight:800; line-height:1.1 }
+.hr .temp i { font-style:normal; font-size:8px; font-weight:800; color:var(--orange); margin-left:1px }
+.hr .pop { display:inline-flex; align-items:center; gap:2px; color:var(--mut); font-size:10.5px; font-weight:600 }
+.hr .wind { display:inline-flex; align-items:center; gap:1.5px; font-size:10.5px; color:var(--mut); min-height:12px }
+.hr .wind svg { color:var(--sky-deep) }
+.hr .wind b { font-weight:600 }
 
 .sec { display:flex; align-items:center; gap:6px; font-size:10px; font-weight:700; letter-spacing:.6px; color:var(--mut); margin:2px 0 6px }
 .sec::before { content:''; width:3.5px; height:11px; border-radius:2px; background:linear-gradient(180deg,var(--sky),var(--orange)); box-shadow:0 1px 3px var(--sh-dark) }
-.alert-box { display:flex; flex-direction:column; gap:3px; padding:6px 8px; border:1px solid var(--border); border-left:3px solid var(--c);
+.alert-wrap { display:flex; gap:6px }
+.alert-box { flex:1 1 0; min-width:0; display:flex; flex-direction:column; gap:3px; padding:6px 8px; border:1px solid var(--border); border-left:3px solid var(--c);
   border-radius:9px; background:linear-gradient(150deg,color-mix(in srgb,var(--c) 12%,transparent),transparent 60%);
   box-shadow:1px 2px 6px var(--sh-dark) }
-.alert-box .ah { font-size:11.5px; font-weight:700; color:var(--text) }
+.alert-box .ah { font-size:11.5px; font-weight:700; color:var(--text); overflow:hidden; white-space:nowrap; text-overflow:ellipsis }
 .alert-box .ab { font-size:10.5px; color:var(--mut); line-height:1.45;
   display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden }
 .badge { display:inline-flex; align-items:center; justify-content:center; min-width:16px; height:16px;
   padding:0 5px; border-radius:8px; font-size:9.5px; font-weight:800; color:var(--orange);
   background:linear-gradient(150deg,color-mix(in srgb,var(--c) 16%,transparent),transparent 70%);
   border:1px solid color-mix(in srgb,var(--c) 35%,transparent) }
+.detail-row { display:flex; align-items:baseline; gap:6px; font-size:10.5px; line-height:1.5 }
+.detail-row .k { flex:none; color:var(--sub) }
+.detail-row>b { color:var(--text); font-weight:600 }
 .foot { display:flex; justify-content:space-between; font-size:10px; color:var(--sub); border-top:1px dashed var(--border); padding-top:8px }
 .tool { color:var(--mut); font-size:12px; margin-bottom:10px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
 .cardpanel { flex:1 1 480px; min-width:340px }
@@ -184,8 +193,8 @@ body.light { --tile-a:#e0f4ff; --tile-b:#bfe4ff }
         <div class="sec">未来 5 小时</div>
         <div class="hours">${hourCells}
         </div>
-        ${sideCurve}
         ${alertRows}
+        ${detailSection}
         <div class="foot"><span>更新于 ${hourLabel(bundle.receivedAt)}</span><span>和风天气</span></div>
       </div>
     </div>
