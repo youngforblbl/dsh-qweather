@@ -1,0 +1,4 @@
+# dsh bundle patch: 将本插件插入 profile 的插件层栈。
+- insert:
+    - id: dsh-qweather
+      name: dsh-qweather

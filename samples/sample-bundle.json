@@ -1,0 +1,82 @@
+{
+  "place": {
+    "id": "101010100",
+    "name": "北京",
+    "adm1": "北京市",
+    "adm2": "北京",
+    "lat": 39.90499,
+    "lon": 116.40529
+  },
+  "receivedAt": "2026-08-17T07:24:09.851Z",
+  "now": {
+    "temp": 31.08,
+    "feelsLike": 31.49,
+    "icon": "104",
+    "text": "阴",
+    "humidity": 45,
+    "windDir": "东东北风",
+    "windScale": 2,
+    "precip": 0,
+    "pressure": 1006.9,
+    "vis": 30,
+    "cloud": 9
+  },
+  "hours": [
+    {
+      "time": "2026-08-17T16:00+08:00",
+      "temp": 31.94,
+      "icon": "103",
+      "text": "晴间多云",
+      "pop": 0,
+      "precip": 0,
+      "humidity": 44,
+      "windDir": "东东南风",
+      "windScale": 2
+    },
+    {
+      "time": "2026-08-17T17:00+08:00",
+      "temp": 31.71,
+      "icon": "103",
+      "text": "晴间多云",
+      "pop": 0,
+      "precip": 0,
+      "humidity": 45,
+      "windDir": "南东南风",
+      "windScale": 1
+    },
+    {
+      "time": "2026-08-17T18:00+08:00",
+      "temp": 30.89,
+      "icon": "103",
+      "text": "晴间多云",
+      "pop": 0,
+      "precip": 0,
+      "humidity": 49,
+      "windDir": "南东南风",
+      "windScale": 2
+    },
+    {
+      "time": "2026-08-17T19:00+08:00",
+      "temp": 29.77,
+      "icon": "103",
+      "text": "晴间多云",
+      "pop": 0,
+      "precip": 0,
+      "humidity": 52,
+      "windDir": "南风",
+      "windScale": 2
+    },
+    {
+      "time": "2026-08-17T20:00+08:00",
+      "temp": 28.7,
+      "icon": "152",
+      "text": "少云",
+      "pop": 0,
+      "precip": 0,
+      "humidity": 58,
+      "windDir": "南西南风",
+      "windScale": 2
+    }
+  ],
+  "alerts": []
+}

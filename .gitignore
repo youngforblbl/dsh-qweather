@@ -1,0 +1,6 @@
+node_modules/
+*.tsbuildinfo
+.DS_Store
+# 密钥类本地文件（如有）
+.env
+samples/*.key*
